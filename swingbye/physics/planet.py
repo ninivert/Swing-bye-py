@@ -10,7 +10,7 @@ class Planet(ExplicitEntity):
 	def __init__(
 		self,
 		x: np.ndarray = np.zeros(2),  # position
-		m: np.ndarray = 1,   # m@ss
+		m: float = 1,   # m@ss
 		s: float = 1,  # semi-major axis
 		e: float = 0,  # eccentricity
 		t0: float = 0,  # initial time offset
@@ -37,13 +37,13 @@ class Planet(ExplicitEntity):
 		x = np.zeros(2)
 		p = self.parent
 		while p is not None:
-			x += p.x
+			x += p.get_pos(t)
 			p = p.parent
 
 		mu = GRAVITY_CST*(self.m + self.parent.m)
 
 		if 0 <= self.e and self.e < 1:
-			T = sqrt(4 * pi**2 * self.a**3 / mu)
+			T = sqrt(4 * pi**2 * self.s**3 / mu)
 			tau = fmod(t - self.t0, T)
 			n = 2*pi/T
 			M = n*tau
@@ -61,11 +61,11 @@ class Planet(ExplicitEntity):
 
 			costheta = (cos(E) - self.e)/(1 - self.e*cos(E))
 			sintheta = (sqrt(1 - self.e**2) * sin(E))/(1 - self.e*cos(E))
-			r = self.a * (1 - self.e*cos(E))
+			r = self.s * (1 - self.e*cos(E))
 
-		elif 1 < e:
+		elif 1 < self.e:
 			tau = t - t0
-			n = sqrt(-mu/self.a**3)
+			n = sqrt(-mu/self.s**3)
 			M = n*tau
 			H = M
 			dH = EPSILON_EULER + 1
@@ -73,27 +73,31 @@ class Planet(ExplicitEntity):
 
 			# Solve M = e*sinh(H) - H
 			while abs(dH) > EPSILON_EULER and i < MAX_ITER_EULER:
-				dH = (M - e*sinh(H) + H)/(e*cosh(H) - 1)
+				dH = (M - self.e*sinh(H) + H)/(self.e*cosh(H) - 1)
 				H += dH
 				i += 1
 			if i == MAX_ITER_EULER:
 				_logger.warning(f'Euler equation solving did not escape after {MAX_ITER_EULER} iterations.')
 
-			r = self.a * (1 - self.e*cosh(H))
+			r = self.s * (1 - self.e*cosh(H))
 			costheta = (self.e - cosh(H))/(self.e*cosh(H) - 1)
 			sintheta = sign(H)*sin(acos(costheta))
 
-		x[0] = r*costheta
-		x[1] = r*sintheta
+		rel_x = np.zeros(2)
+		rel_x[0] = r*costheta
+		rel_x[1] = r*sintheta
 
 		# Argument of periaxis
-		x[0], x[1] = x[0]*cos(self.w) - x[1]*sin(self.w), x[0]*sin(self.w) + x[1]*cos(self.w)
+		pog = rel_x[0]
+		champ = rel_x[1]
+		rel_x[0] = pog*cos(self.w) - champ*sin(self.w) 
+		rel_x[1] = pog*sin(self.w) + champ*cos(self.w)
 		# Inclination
-		x[0] *= cos(i)
+		rel_x[0] *= cos(i)
 
-		return x
+		return x + rel_x
 
 	def __str__(self):
 		ret = super().__str__()
-		ret += f'\n\tpos {self.x}, ass {self.m}, parent {self.parent}'
+		ret += f'\n\tpos {self._x}, mass {self._m}, parent {self.parent}'
 		return ret

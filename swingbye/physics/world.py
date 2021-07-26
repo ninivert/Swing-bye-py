@@ -26,7 +26,7 @@ class World():
 
 	def get_forces_on(self, titty: ImplicitEntity, t: float = None):
 		if t is None:
-			t = self.t
+			t = self._t
 
 		f = np.zeros(2)
 		for planet in self.planets:
@@ -39,20 +39,21 @@ class World():
 
 	def step(self, dt: float):
 		if not self.ship.docked:
-			self.integrator(self.ship, self.get_forces_on, self.t, dt)
+			self.integrator(self.ship, self.get_forces_on, self._t, dt)
 
-		self.t += dt
+		self._t += dt
 
 	# Time handling
 
 	@property
-	def t(self, t: float):
+	def t(self):
 		if not self.ship.docked:
-			_logger.warning('changing world time but ship is not docked to a planet !')
+			# _logger.warning('changing world time but ship is not docked to a planet !')
+			pass
 
 		return self._t
 
-	@t.setter()
+	@t.setter
 	def t(self, t: float):
 		self._t = t
 		self.update_planets_location()
@@ -79,7 +80,7 @@ class World():
 
 		predictions = np.zeros((SHIP_PREDICTION_N, 2))
 
-		for i, t in enumerate(np.linspace(self.t, self.t + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
+		for i, t in enumerate(np.linspace(self._t, self._t + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
 			self.integrator(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
 			predictions[i, :] = temp_ship.x
 

@@ -27,7 +27,7 @@ class Ship(ImplicitEntity):
 		if self.docked:
 			return self._pointing
 		else:
-			return self.v / np.linalg.norm(self.v)
+			return self._v / np.linalg.norm(self._v)
 
 	@pointing.setter
 	def pointing(self, pointing):
@@ -39,12 +39,12 @@ class Ship(ImplicitEntity):
 	def launch(self):
 		# Set the ship velocity
 		v0 = self.pointing*(SHIP_LAUNCH_SPEED + np.linalg.norm(self.parent.get_vel(self.t)))
-		self.v = v0
+		self._v = v0
 
 		# Undock the ship
 		self.parent = None
 
 	def __str__(self):
 		ret = super().__str__()
-		ret += f'\n\tpos {self.x}, vel {self.v}, ass {self.m}, parent {self.parent}'
+		ret += f'\n\tpos {self._x}, vel {self._v}, mass {self._m}, parent {self.parent}'
 		return ret

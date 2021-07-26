@@ -5,10 +5,27 @@ class Entity():
 	def __init__(
 		self,
 		x: np.ndarray = np.zeros(2),  # position
-		m: np.ndarray = 1   # mass
+		m: float = 1   # mass
 	):
-		self.x = x
-		self.m = m
+		self._x = x
+		self._m = m
+
+	@property
+	def x(self):
+		return self._x
+
+	@x.setter
+	def x(self, x):
+		self._x = x
+
+	@property
+	def m(self):
+		return self._m
+
+	@m.setter
+	def m(self, m):
+		self._m = m
+
 
 class ExplicitEntity(Entity, abc.ABC):
 	def __init__(self, *args, **kwargs):
@@ -29,5 +46,13 @@ class ImplicitEntity(Entity, abc.ABC):
 		v: np.ndarray = np.zeros(2),  # velocity
 		m: float = 1   # mass
 	):
-		self.v = v
+		self._v = v
 		super().__init__(x, m)
+
+	@property
+	def v(self):
+		return self._v
+
+	@v.setter
+	def v(self, v):
+		self._v = v
