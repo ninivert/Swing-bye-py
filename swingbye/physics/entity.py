@@ -27,7 +27,7 @@ class ImplicitEntity(Entity, abc.ABC):
 		self,
 		x: np.ndarray = np.zeros(2),  # position
 		v: np.ndarray = np.zeros(2),  # velocity
-		m: np.ndarray = 1   # mass
+		m: float = 1   # mass
 	):
 		self.v = v
 		super().__init__(x, m)
