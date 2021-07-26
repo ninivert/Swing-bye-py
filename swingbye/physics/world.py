@@ -5,6 +5,7 @@ from .entity import ImplicitEntity
 from .ship import Ship
 from .planet import Planet
 from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
+from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N, SHIP_PREDICTION_DT
 from .integrator import Integrator
 
 _logger = logging.getLogger(__name__)
@@ -19,7 +20,9 @@ class World():
 		self.planets = planets
 		self.ship = ship
 		self.integrator = integrator
-		self.t = 0
+		self._t = 0
+
+	# Physics
 
 	def get_forces_on(self, titty: ImplicitEntity, t: float = None):
 		if t is None:
@@ -38,9 +41,55 @@ class World():
 		if not self.ship.docked:
 			self.integrator(self.ship, self.get_forces_on, self.t, dt)
 
-	def set_time(self, t: float):
+		self.t += dt
+
+	# Time handling
+
+	@property
+	def t(self, t: float):
 		if not self.ship.docked:
 			_logger.warning('changing world time but ship is not docked to a planet !')
+
+		return self._t
+
+	@t.setter()
+	def t(self, t: float):
+		self._t = t
+		self.update_planets_location()
+
+	# Game logic
+
+	def launch_ship(self):
+		self.ship.launch()
+
+	def point_ship(self, n: np.ndarray):
+		self.ship.pointing = n
+
+	def update_ship_prediction(self):
+		if not self.ship.docked:
+			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+
+		# HACK : not using deepcopy as that would be too slow
+		temp_ship = Ship()
+		temp_ship.x = self.ship.x
+		temp_ship.m = self.ship.m
+		temp_ship.parent = self.ship.parent
+		temp_ship.pointing = self.ship.pointing
+		temp_ship.launch()
+
+		predictions = np.zeros((SHIP_PREDICTION_N, 2))
+
+		for i, t in enumerate(np.linspace(self.t, self.t + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
+			self.integrator(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
+			predictions[i, :] = temp_ship.x
+
+		self.ship.predictions = predictions
+
+	def update_planets_location(self):
+		for planet in self.planets:
+			planet.x = planet.get_pos(self.t)
+
+	# Debug
 
 	def __str__(self):
 		res = super().__str__()
@@ -64,5 +113,9 @@ if __name__ == '__main__':
 
 	world.step(0.1)
 	world.step(0.1)
+
+	print(world)
+
+	world.set_time(0)
 
 	print(world)
