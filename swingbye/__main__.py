@@ -1,14 +1,15 @@
 def main():
 	import pyglet
-	import glooey
-	from .views.mainmenu import vbox  # HACK : run the pyglet stuff
+	from .views.controller import ViewController
 
-	window = pyglet.window.Window()
-	gui = glooey.Gui(window)
-	gui.add(vbox)
 
-	# TODO : find a way of decoupling global context, use ~ `window.run()`
+	# https://github.com/pbedn/glooey-game-hud-example
+	window = ViewController(caption='Swing BYE', resizable=True)
+	pyglet.clock.schedule_interval(window.update, window.frame_rate)
+
 	pyglet.app.run()
 
 if __name__ == '__main__':
 	main()
+
+

@@ -1,79 +1,108 @@
-import pyglet
 import glooey
+from pyglet.app import exit
+from .globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
-# Define a custom style for text.  We'll inherit the ability to render text
-# from the Label widget provided by glooey, and we'll define some class
-# variables to customize the text style.
 
-class MyLabel(glooey.Label):
-	custom_color = '#babdb6'
-	custom_font_size = 10
-	custom_alignment = 'center'
+#####################
+# Main Menu Classes #
+#####################
 
-# If we want another kind of text, for example a bigger font for section
-# titles, we just have to derive another class:
-
-class MyTitle(glooey.Label):
-	custom_color = '#eeeeec'
-	custom_font_size = 12
-	custom_alignment = 'center'
-	custom_bold = True
-
-# It's also common to style a widget with existing widgets or with new
-# widgets made just for that purpose.  The button widget is a good example.
-# You can give it a Foreground subclass (like MyLabel from above) to tell it
-# how to style text, and Background subclasses to tell it how to style the
-# different mouse rollover states:
-
-class MyButton(glooey.Button):
-	Foreground = MyLabel
+class MainMenuContainer(glooey.VBox):
+	custom_cell_padding = 5
 	custom_alignment = 'fill'
 
-	# More often you'd specify images for the different rollover states, but
-	# we're just using colors here so you won't have to download any files
-	# if you want to run this code.
 
-	class Base(glooey.Background):
-		custom_color = '#204a87'
+class MainMenuButton(glooey.Button):
+	custom_alignment = 'fill'
 
-	class Over(glooey.Background):
-		custom_color = '#3465a4'
-
-	class Down(glooey.Background):
-		custom_color = '#729fcff'
-
-	# Beyond just setting class variables in our widget subclasses, we can
-	# also implement new functionality.  Here we just print a programmed
-	# response when the button is clicked.
-
-	def __init__(self, text, response):
-		super().__init__(text)
-		self.response = response
+	def __init__(self, action=None, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.action = action
 
 	def on_click(self, widget):
-		print(self.response)
+		if self.action:
+			self.action()
+
+	class Base(glooey.Background):
+		custom_color = '#aa1e1e'
+
+	class Over(glooey.Background):
+		custom_color = '#cc3f3f'
+
+	class Down(glooey.Background):
+		custom_color = '#ff5d5d'
 
 
-# Create a VBox container, which will arrange any widgets we give it into a
-# vertical column.  Center-align it, otherwise the column will take up the
-# full height of the window and put too much space between our widgets.
+class MainMenuButtonLabel(glooey.Label):
+	custom_alignment = 'center'
+	custom_font_size = 26
 
-vbox = glooey.VBox()
-vbox.alignment = 'center'
 
-# Create a widget to pose a question to the user using the "title" text
-# style,  then add it to the top of the vbox.
+# Main Menu Items
 
-title = MyTitle("What...is your favorite color?")
-vbox.add(title)
+class MainMenuTitle(glooey.Label):
+	custom_text = "Swing BYE"
+	custom_alignment = "center"
+	custom_font_size = 60
 
-# Create several buttons with different answers to the above question, then
-# add each one to the vbox in turn.
 
-buttons = [
-	MyButton("Blue.", "Right, off you go."),
-	MyButton("Blue. No yel--", "Auuuuuuuugh!"),
-	MyButton("I don't know that!", "Auuuuuuuugh!"),
-]
-for button in buttons:
-	vbox.add(button)
+class StartButtonLabel(MainMenuButtonLabel):
+	custom_text = 'Start Gaming'
+
+
+class StartButton(MainMenuButton):
+	Foreground = StartButtonLabel
+
+
+class LevelSelectButtonLabel(MainMenuButtonLabel):
+	custom_text = 'Select Level'
+
+
+class LevelSelectButton(MainMenuButton):
+	Foreground = LevelSelectButtonLabel
+
+
+class OptionsButtonLabel(MainMenuButtonLabel):
+	custom_text = 'Options'
+
+
+class OptionsButton(MainMenuButton):
+	Foreground = OptionsButtonLabel
+
+
+class QuitButtonLabel(MainMenuButtonLabel):
+	custom_text = 'Quit game'
+
+
+class QuitButton(MainMenuButton):
+	Foreground = QuitButtonLabel
+
+
+class MainMenu:
+
+	def __init__(self, ctx):
+		self.ctx = ctx
+		self.loaded = False
+
+	def load_items(self):
+		self.container = MainMenuContainer()
+		self.container.add(MainMenuTitle(), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
+		self.container.add(StartButton(action=self.ctx.views['Level'].begin))
+		self.container.add(LevelSelectButton(action=self.ctx.views['LevelSelectMenu'].begin))
+		self.container.add(OptionsButton(action=self.ctx.views['OptionsMenu'].begin))
+		self.container.add(QuitButton(action=exit))
+
+		self.loaded = True
+
+	def unload_items(self):
+		self.loaded = False
+		self.container = None
+
+	def begin(self):
+		
+		self.ctx.gui.clear()
+
+		if not self.loaded:
+			self.load_items()
+
+		self.ctx.gui.add(self.container)
