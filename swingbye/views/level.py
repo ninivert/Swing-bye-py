@@ -131,14 +131,14 @@ class Level:
 		planet5 = pyglet.sprite.Sprite(planet5_img, batch=self.ctx.batch, group=world_group)
 		planet6 = pyglet.sprite.Sprite(planet6_img, batch=self.ctx.batch, group=world_group)
 
-		sun = PlanetObject(planet5, 200, x=np.array([0, 0]), m=20)
+		sun = PlanetObject(planet5, r=200, x=np.array([0, 0]), m=20)
 		planets = [
 			sun,
-			earth := PlanetObject(planet1, 20, s=400, parent=sun),
-			moon := PlanetObject(planet6, 5, s=34, parent=earth),
-			PlanetObject(planet2, 5, s=8, parent=moon),
-			PlanetObject(planet3, 55, s=600, parent=sun),
-			PlanetObject(planet4, 32, s=800, parent=sun),
+			earth := PlanetObject(planet1, r=20, s=400, parent=sun),
+			moon := PlanetObject(planet6, r=5, s=34, parent=earth),
+			PlanetObject(planet2, r=2, s=8, parent=moon),
+			PlanetObject(planet3, r=55, s=600, parent=sun),
+			PlanetObject(planet4, r=32, s=800, parent=sun),
 		]
 
 		ìntegrator = EulerIntegrator()

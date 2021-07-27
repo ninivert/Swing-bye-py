@@ -16,6 +16,7 @@ class Planet(ExplicitEntity):
 		t0: float = 0,  # initial time offset
 		i: float = 0,  # inclination
 		w: float = 0,  # argument of periaxis
+		r: float = 1,  # planet radius
 		parent=None  # parent planet
 	):
 		self.s = s
@@ -23,6 +24,7 @@ class Planet(ExplicitEntity):
 		self.t0 = t0
 		self.i = i
 		self.w = w
+		self.r = r
 		self.parent = parent
 		super().__init__(x, m)
 
@@ -42,7 +44,7 @@ class Planet(ExplicitEntity):
 
 	def get_rel_pos(self, t: float) -> np.ndarray:
 		# TODO : ellipticity fucks up uwu
-		
+
 
 		if self.parent is None:
 			return self.x
