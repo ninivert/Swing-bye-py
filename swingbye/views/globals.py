@@ -1,7 +1,7 @@
 
 # Window settings
-WINDOW_WIDTH = 500
-WINDOW_HEIGHT = 500
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
 
 
 # UI settings

@@ -31,15 +31,23 @@ class Planet(ExplicitEntity):
 		return (self.get_pos(t+dt/2)-self.get_pos(t-dt/2))/dt
 
 	def get_pos(self, t: float) -> np.ndarray:
+		x = np.zeros(2)
+		p = self
+
+		while p is not None:
+			x += p.get_rel_pos(t)
+			p = p.parent
+
+		return x
+
+	def get_rel_pos(self, t: float) -> np.ndarray:
+		# TODO : ellipticity fucks up uwu
+		
+
 		if self.parent is None:
 			return self.x
 
 		x = np.zeros(2)
-		p = self.parent
-		while p is not None:
-			x += p.get_pos(t)
-			p = p.parent
-
 		mu = GRAVITY_CST*(self.m + self.parent.m)
 
 		if 0 <= self.e and self.e < 1:
@@ -83,19 +91,19 @@ class Planet(ExplicitEntity):
 			costheta = (self.e - cosh(H))/(self.e*cosh(H) - 1)
 			sintheta = sign(H)*sin(acos(costheta))
 
-		rel_x = np.zeros(2)
-		rel_x[0] = r*costheta
-		rel_x[1] = r*sintheta
+		x[0] = r*costheta
+		x[1] = r*sintheta
 
 		# Argument of periaxis
-		pog = rel_x[0]
-		champ = rel_x[1]
-		rel_x[0] = pog*cos(self.w) - champ*sin(self.w) 
-		rel_x[1] = pog*sin(self.w) + champ*cos(self.w)
+		pog = x[0]
+		champ = x[1]
+		x[0] = pog*cos(self.w) - champ*sin(self.w) 
+		x[1] = pog*sin(self.w) + champ*cos(self.w)
 		# Inclination
-		rel_x[0] *= cos(i)
+		# TODO : this bitch bugs
+		# x[0] *= cos(i)
 
-		return x + rel_x
+		return x
 
 	def __str__(self):
 		ret = super().__str__()

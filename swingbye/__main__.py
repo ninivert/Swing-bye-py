@@ -4,7 +4,7 @@ def main():
 
 
 	# https://github.com/pbedn/glooey-game-hud-example
-	window = ViewController(caption='Swing BYE', resizable=True)
+	window = ViewController(caption='Swing BYE')
 	pyglet.clock.schedule_interval(window.update, window.frame_rate)
 
 	pyglet.app.run()
