@@ -1,7 +1,4 @@
-import pyglet
-import numpy
 from ..physics.planet import Planet
-
 
 class PlanetObject(Planet):
 
