@@ -1,7 +1,8 @@
 import pyglet
 import numpy as np
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
-from .camera import CameraTransformGroup
+from .camera import CameraGroup
+from .hud import HUDgroup, wtfisthis
 from ..physics.ship import Ship
 from ..physics.world import World
 from ..physics.integrator import EulerIntegrator
@@ -73,10 +74,18 @@ class Level:
 	def load_level(self):
 
 		self.paralax = pyglet.graphics.OrderedGroup(0)
-		self.camera = CameraTransformGroup(self.ctx, 1)
-		self.ui = pyglet.graphics.OrderedGroup(2)
+		self.camera = CameraGroup(self.ctx, 1)
+		self.hud = HUDgroup(2)
 
 		ship = Ship()
+
+		red = pyglet.resource.image('assets/red.png')
+		yellow = pyglet.resource.image('assets/yellow.png')
+		# red.anchor_x = red.width // 2
+		# red.anchor_y = red.height // 2
+		# yellow.anchor_x = yellow.width // 2
+		# yellow.anchor_y = yellow.height // 2
+
 
 		planet1_img = pyglet.resource.image('assets/sprites/planet1.png')
 		planet2_img = pyglet.resource.image('assets/sprites/planet2.png')
@@ -118,8 +127,10 @@ class Level:
 		ìntegrator = EulerIntegrator()
 		self.world = World(ship, planets, ìntegrator)
 
-		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.ui)
+		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
 		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
+
+		self.slider_i_guess = wtfisthis(200, 200, yellow, red, edge=10, batch=self.ctx.batch, group=self.hud)
 
 	def begin(self):
 		

@@ -3,7 +3,7 @@ import numpy as np
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
-class CameraTransformGroup(pyglet.graphics.OrderedGroup):
+class CameraGroup(pyglet.graphics.OrderedGroup):
 
 	def __init__(self, ctx, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -19,10 +19,9 @@ class CameraTransformGroup(pyglet.graphics.OrderedGroup):
 
 	def reset(self):
 		self.smooth = True
-		self.scale = 1
-		self.target_scale = 1
-		self._pre_zoom_pos = np.zeros(2)
-		self._after_zoom_pos = np.zeros(2)
+		self.scale = 0.05
+		self.target_scale = 0.5
+		self.zoom_anchor = np.zeros(2)
 		self.offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
 		self.target_offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
 
@@ -42,7 +41,7 @@ class CameraTransformGroup(pyglet.graphics.OrderedGroup):
 		self.update()
 
 	def zoom(self, x, y, direction):
-		self._pre_zoom_pos = self.to_world_space(x, y)
+		self.zoom_anchor = self.offset + np.array((x, y))
 		if direction == 1:
 			self.target_scale *= 1.3
 		elif direction == -1:
@@ -50,13 +49,12 @@ class CameraTransformGroup(pyglet.graphics.OrderedGroup):
 		else:
 			raise(ValueError(f'direction can only be 1 or -1, but you provided {direction}'))
 		self.update()
-		self._after_zoom_pos = self.to_world_space(x, y)
 
 	def set_state(self):
 		pyglet.gl.glPushMatrix()
-		pyglet.gl.glTranslatef(*self.target_offset, 0)
+		pyglet.gl.glTranslatef(*self.offset, 0)
 		pyglet.gl.glScalef(self.scale, self.scale, 1)
-		pyglet.gl.glTranslatef(*-self.target_offset, 0)
+		pyglet.gl.glTranslatef(*-self.offset, 0)
 		pyglet.gl.glTranslatef(*(self.offset), 0)
 		self.update()
 
