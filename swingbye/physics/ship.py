@@ -46,5 +46,5 @@ class Ship(ImplicitEntity):
 
 	def __str__(self):
 		ret = super().__str__()
-		ret += f'\n\tpos {self._x}, vel {self._v}, mass {self._m}, parent {self.parent}'
+		ret += f'    pos {self._x}, vel {self._v}, mass {self._m}, parent {self.parent}'
 		return ret

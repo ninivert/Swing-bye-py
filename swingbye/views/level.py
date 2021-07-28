@@ -1,13 +1,18 @@
 import pyglet
 import numpy as np
+import json
+import logging
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
 from .camera import CameraGroup
 from .hud import HUDgroup, wtfisthis
+from .utils import create_sprite
 from ..physics.ship import Ship
 from ..physics.world import World
 from ..physics.integrator import EulerIntegrator
 from ..gameobjects.planetobject import PlanetObject
+from ..gameobjects.shipobject import ShipObject
 
+_logger = logging.getLogger(__name__)
 
 class DVD(pyglet.shapes.Rectangle):
 
@@ -63,69 +68,73 @@ class AxisCross:
 		self.y = self.Axis('y', batch=batch, group=group, color=(20, 255, 20))
 
 
-
 class Level:
-
 	def __init__(self, ctx):
 		self.ctx = ctx
-		self.current_level = 0
-		self.total_levels = 10
+		self.levels = ['swingbye/views/levels/level1.json']
+		self.level_index = 0
+
+	def parse_level(self, level: dict) -> World:
+		planets = []
+		ship = None
+		queue = [(child_dict, None) for child_dict in level['world']]
+
+		while queue:
+			child_dict, parent = queue.pop()
+
+			# Convert the position list to a numpy array
+			if 'x' in child_dict:
+				child_dict['x'] = np.array(child_dict['x'])
+
+			_logger.debug(f'parsing {child_dict}')
+
+			if child_dict['type'] == 'planet':
+				planetobject = PlanetObject(
+					create_sprite(child_dict['sprite'], batch=self.ctx.batch, group=self.camera),
+					**dict(parent=parent, **child_dict['arguments'])
+				)
+				queue += [(_child_dict, planetobject) for _child_dict in child_dict['children']]
+				planets.append(planetobject)
+
+			elif child_dict['type'] == 'ship':
+				if ship is not None:
+					_logger.warning(f'more than one ship in level, ignoring')
+					_logger.debug(level)
+					continue
+
+				ship = ShipObject(
+					create_sprite(child_dict['sprite'], batch=self.ctx.batch, group=self.camera),
+					**dict(parent=parent, **child_dict['arguments'])
+				)
+
+			else:
+				_logger.warning(f'type `{child_dict["type"]}` is not recognized.')
+
+		if ship is None:
+			# TODO : world without ship ?
+			_logger.warning(f'no ship found, instanciating default ship')
+			ship = Ship()
+
+		world = World(ship, planets, EulerIntegrator())
+		_logger.debug(f'finished parsing level, result\n`{world}`')
+		return world
 
 	def load_level(self):
-
 		self.paralax = pyglet.graphics.OrderedGroup(0)
 		self.camera = CameraGroup(self.ctx, 1)
 		self.hud = HUDgroup(2)
 
-		ship = Ship()
+		with open(self.levels[self.level_index]) as file:
+			level = json.load(file)
 
-		planet1_img = pyglet.resource.image('assets/sprites/planet1.png')
-		planet2_img = pyglet.resource.image('assets/sprites/planet2.png')
-		planet3_img = pyglet.resource.image('assets/sprites/planet3.png')
-		planet4_img = pyglet.resource.image('assets/sprites/planet4.png')
-		planet6_img = pyglet.resource.image('assets/sprites/planet5.png')
-		planet5_img = pyglet.resource.image('assets/sprites/star1.png')
-		planet1_img.anchor_x = planet1_img.width//2
-		planet1_img.anchor_y = planet1_img.height//2
-		planet2_img.anchor_x = planet2_img.width//2
-		planet2_img.anchor_y = planet2_img.height//2
-		planet3_img.anchor_x = planet3_img.width//2
-		planet3_img.anchor_y = planet3_img.height//2
-		planet4_img.anchor_x = planet4_img.width//2
-		planet4_img.anchor_y = planet4_img.height//2
-		planet5_img.anchor_x = planet5_img.width//2
-		planet5_img.anchor_y = planet5_img.height//2
-		planet6_img.anchor_x = planet6_img.width//2
-		planet6_img.anchor_y = planet6_img.height//2
+		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
-
-		planet1 = pyglet.sprite.Sprite(planet1_img, batch=self.ctx.batch, group=self.camera)
-		planet2 = pyglet.sprite.Sprite(planet2_img, batch=self.ctx.batch, group=self.camera)
-		planet3 = pyglet.sprite.Sprite(planet3_img, batch=self.ctx.batch, group=self.camera)
-		planet4 = pyglet.sprite.Sprite(planet4_img, batch=self.ctx.batch, group=self.camera)
-		planet5 = pyglet.sprite.Sprite(planet5_img, batch=self.ctx.batch, group=self.camera)
-		planet6 = pyglet.sprite.Sprite(planet6_img, batch=self.ctx.batch, group=self.camera)
-
-		sun = PlanetObject(planet5, r=200, x=np.array([0, 0]), m=20)
-		planets = [
-			sun,
-			earth := PlanetObject(planet1, r=20, s=400, parent=sun),
-			moon := PlanetObject(planet6, r=5, s=34, parent=earth),
-			PlanetObject(planet2, r=2, s=8, parent=moon),
-			PlanetObject(planet3, r=55, s=600, parent=sun),
-			PlanetObject(planet4, r=32, s=800, parent=sun),
-		]
-
-		ìntegrator = EulerIntegrator()
-		self.world = World(ship, planets, ìntegrator)
-
-		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
+		self.world = self.parse_level(level)
+		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.ui)
 		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
 
 	def begin(self):
-		
 		self.ctx.gui.clear()
-
 		self.load_level()
 
 		# self.dvd = DVD(0, 0, 100, 40, [

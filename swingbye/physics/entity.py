@@ -1,6 +1,9 @@
 import abc
 import numpy as np
 
+# TODO: this needs to be rewritten
+# explicitentity needs to have class methods which set the entity time, compute stuff, then set is back
+
 class Entity():
 	def __init__(
 		self,

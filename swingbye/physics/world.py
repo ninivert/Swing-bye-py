@@ -5,7 +5,7 @@ from .entity import ImplicitEntity
 from .ship import Ship
 from .planet import Planet
 from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
-from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N, SHIP_PREDICTION_DT, PLANET_PREDICTION_N, PLANET_PREDICTION_DT
+from ..globals import SHIP_PREDICTION_N, SHIP_PREDICTION_DT, PLANET_PREDICTION_N, PLANET_PREDICTION_DT
 from .integrator import Integrator
 
 _logger = logging.getLogger(__name__)

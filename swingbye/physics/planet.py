@@ -111,5 +111,5 @@ class Planet(ExplicitEntity):
 
 	def __str__(self):
 		ret = super().__str__()
-		ret += f'\n\tpos {self._x}, mass {self._m}, parent {self.parent}'
+		ret += f' | pos {self._x}, mass {self._m}, parent {hex(id(self.parent))}'
 		return ret
