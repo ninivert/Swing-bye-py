@@ -3,6 +3,7 @@ from math import *
 import logging
 from .entity import ExplicitEntity
 from .globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
+from ..globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class Planet(ExplicitEntity):
 		i: float = 0,  # inclination
 		w: float = 0,  # argument of periaxis
 		r: float = 1,  # planet radius
-		parent=None  # parent planet
+		parent=None,  # parent planet
 	):
 		self.s = s
 		self.e = e
@@ -26,6 +27,7 @@ class Planet(ExplicitEntity):
 		self.w = w
 		self.r = r
 		self.parent = parent
+		self.predicted = np.zeros((PLANET_PREDICTION_N, 2))
 		super().__init__(x, m)
 
 	def get_vel(self, t: float) -> np.ndarray:

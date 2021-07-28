@@ -14,7 +14,7 @@ class Ship(ImplicitEntity):
 		parent=None  # parent planet if docked
 	):
 		self.parent = parent
-		self.predicted = np.zeros((SHIP_PREDICTION_N, 2))  # TODO : predicted path
+		self.predicted = np.zeros((SHIP_PREDICTION_N, 2))
 		self._pointing = np.array([1., 0.])
 		super().__init__(x, v, m)
 
