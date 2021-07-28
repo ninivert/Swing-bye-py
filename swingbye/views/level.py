@@ -130,7 +130,7 @@ class Level:
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
 		self.world = self.parse_level(level)
-		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.ui)
+		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
 		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
 
 	def begin(self):
