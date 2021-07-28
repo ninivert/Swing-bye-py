@@ -5,7 +5,7 @@ from .entity import ImplicitEntity
 from .ship import Ship
 from .planet import Planet
 from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
-from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N, SHIP_PREDICTION_DT
+from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N, SHIP_PREDICTION_DT, PLANET_PREDICTION_N, PLANET_PREDICTION_DT
 from .integrator import Integrator
 
 _logger = logging.getLogger(__name__)
@@ -57,6 +57,7 @@ class World():
 	def t(self, t: float):
 		self._t = t
 		self.update_planets_location()
+		self.update_planets_prediction()
 
 	# Game logic
 
@@ -78,17 +79,18 @@ class World():
 		temp_ship.pointing = self.ship.pointing
 		temp_ship.launch()
 
-		predictions = np.zeros((SHIP_PREDICTION_N, 2))
-
 		for i, t in enumerate(np.linspace(self._t, self._t + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
 			self.integrator(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
-			predictions[i, :] = temp_ship.x
-
-		self.ship.predictions = predictions
+			self.ship.predicted[i, :] = temp_ship.x
 
 	def update_planets_location(self):
 		for planet in self.planets:
 			planet.x = planet.get_pos(self.t)
+
+	def update_planets_prediction(self):
+		for planet in self.planets:
+			for i, t in enumerate(np.linspace(self._t, self._t + PLANET_PREDICTION_N*PLANET_PREDICTION_DT, PLANET_PREDICTION_N)):
+				planet.predicted[i, :] = planet.get_pos(t)
 
 	# Debug
 

@@ -6,7 +6,7 @@ from .hud import HUDgroup, wtfisthis
 from ..physics.ship import Ship
 from ..physics.world import World
 from ..physics.integrator import EulerIntegrator
-from ..gameobjects.planet import PlanetObject
+from ..gameobjects.planetobject import PlanetObject
 
 
 class DVD(pyglet.shapes.Rectangle):
