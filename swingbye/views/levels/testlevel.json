@@ -1,0 +1,24 @@
+{
+	[
+		'ship': {
+			[
+				'parent': 'planet'
+			]
+		},
+		'sun': {
+			[
+				'image': 'star1',
+				'r': 50,
+				'm': 20
+			]
+		},
+		'planet': {
+			[
+				'image': 'planet1',
+				'r': 20,
+				's': 400,
+				'parent': 'sun'
+			]
+		}
+	]
+}

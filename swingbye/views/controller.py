@@ -48,14 +48,16 @@ class ViewController(pyglet.window.Window):
 			pyglet.app.exit()
 		if symbol == key.SPACE:
 			self.pause = not self.pause
+		if symbol == key._0:
+			self.views['Level'].camera.reset()
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		self.dx += dx
-		self.dy += dy
+		self.views['Level'].camera.pan(dx, dy)
+		self.mouse_x = x
+		self.mouse_y = y
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-		self.zoom_factor += scroll_y / 10
-		self.zoom_factor = min(max(self.zoom_factor, 0.2), 4)
+		self.views['Level'].camera.zoom(x, y, scroll_y)
 
 	def on_mouse_motion(self, x, y, dx, dy):
 		self.mouse_x = x
@@ -63,11 +65,6 @@ class ViewController(pyglet.window.Window):
 
 	def on_draw(self):
 		self.clear()
-		# pyglet.gl.glRotatef(90, 0, 0, 1)
-		# pyglet.gl.glTranslatef(self.mouse_x, self.mouse_y, 0)
-		# pyglet.gl.glScalef(self.zoom_factor, self.zoom_factor, 1)
-		# pyglet.gl.glTranslatef(-self.mouse_x, -self.mouse_y, 0)
-		# pyglet.gl.glTranslatef(self.dx, self.dy, 0)
 		self.batch.draw()
 		self.fps_display.draw()
 

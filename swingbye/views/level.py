@@ -1,9 +1,9 @@
 import pyglet
 import numpy as np
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
-from ..physics.world import World
-from ..physics.planet import Planet
+from .camera import CameraTransformGroup
 from ..physics.ship import Ship
+from ..physics.world import World
 from ..physics.integrator import EulerIntegrator
 from ..gameobjects.planet import PlanetObject
 
@@ -46,27 +46,22 @@ class DVD(pyglet.shapes.Rectangle):
 		self.y += self.dy * dt
 		self.borders()
 
+class AxisCross:
 
-class LevelTransformGroup(pyglet.graphics.Group):
+	class Axis(pyglet.shapes.Line):
+		axis_dict = {
+			'x': (0, 0, 50, 0),
+			'y': (0, 0, 0, 50)
+		}
 
-	def __init__(self, ctx, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.ctx = ctx
+		def __init__(self, axis, *args, **kwargs):
+			super().__init__(*self.axis_dict[axis], *args, **kwargs)
 
-	def to_world_space(self, x, y):
-		return (
-			(x+(self.ctx.dx*self.ctx.zoom_factor))*self.ctx.zoom_factor, 
-			(y+(self.ctx.dy*self.ctx.zoom_factor))*self.ctx.zoom_factor, 
-		)
+	def __init__(self, batch, group):
+		self.x = self.Axis('x', batch=batch, group=group, color=(255, 20, 20))
+		self.y = self.Axis('y', batch=batch, group=group, color=(20, 255, 20))
 
-	def set_state(self):
-		pyglet.gl.glPushMatrix()
-		pyglet.gl.glTranslatef(WINDOW_WIDTH//2, WINDOW_HEIGHT//2, 0)
-		pyglet.gl.glScalef(self.ctx.zoom_factor, self.ctx.zoom_factor, 1)
-		pyglet.gl.glTranslatef(self.ctx.dx/self.ctx.zoom_factor, self.ctx.dy/self.ctx.zoom_factor, 0)
 
-	def unset_state(self):
-		pyglet.gl.glPopMatrix()
 
 class Level:
 
@@ -77,32 +72,11 @@ class Level:
 
 	def load_level(self):
 
-		world_group = LevelTransformGroup(self.ctx)
+		self.paralax = pyglet.graphics.OrderedGroup(0)
+		self.camera = CameraTransformGroup(self.ctx, 1)
+		self.ui = pyglet.graphics.OrderedGroup(2)
 
 		ship = Ship()
-
-		#        .`                                  `.             
-		#       bBBBBNbh}r_                  ~rxa8NBBBBg            
-		#        ^"!1L2MBBBB8L'          'imBBBBB2T<!"^`            
-		#             ^BBBBBBBBK'      'GBBBBBBBB"                  
-		#         .!smNBBBBN0OmU_      _XmO$NBBBBNOn!'              
-		#      "eMBBNmx!~`                    `~!xENBBQS"           
-		#     eBBD7_          `~"!<**<+"_`          _vDBBe          
-		#      '.         _LhMBBBBBBNNBBBBMkL^         `'           
-		#              ~eQBBB0mZylT77tseZKgBBBQy^                   
-		#            ^DBBgX7r!!!!!!!!!!!!!!=}GNBBb!                 
-		#           2BBRl!!!!!LVes=!!!!!!!!!!!=egBBS                
-		#          DBBmr!!!!!!Leez=!!!!!!!!!!!!!1$BB8               
-		#         lBBB1!!!!!!!!!!!!!!!!}yzL!!!!!!}NBBh              
-		#         bBBB=!!!!!!!!!!!!!!!+zeet!!!!!!TNBBB              
-		#         <NBB=!!!!!!!!!!!!!!!!!r+!!!!!!!tBBNl              
-		#           .`"!!!!!!!!!!!!!!!!!!!!!!!!!!^`.                
-		#             "!!!!!!!!!!!!!!!!!Lxt*!!!!!_                  
-		#             "!!!!!!<vv1!!!!!!>eeen!!!!!_                  
-		#             "!!!!!seeeex!!!!!!r*>!!!!!!_                  
-		#     `'_"!!!!!!!!!+neeees!!!!!!!!!!!!!!!!!!!!"_'           
-		# '"!!!!!!!!!!!!!!!!!*Li>!!!!!!!!!!!!!!!!!!!!!!!!!!!".      
-		#             `.-~^""!!!!!!!!!!!!!!""^~'.`                  
 
 		planet1_img = pyglet.resource.image('assets/sprites/planet1.png')
 		planet2_img = pyglet.resource.image('assets/sprites/planet2.png')
@@ -124,12 +98,12 @@ class Level:
 		planet6_img.anchor_y = planet6_img.height//2
 
 
-		planet1 = pyglet.sprite.Sprite(planet1_img, batch=self.ctx.batch, group=world_group)
-		planet2 = pyglet.sprite.Sprite(planet2_img, batch=self.ctx.batch, group=world_group)
-		planet3 = pyglet.sprite.Sprite(planet3_img, batch=self.ctx.batch, group=world_group)
-		planet4 = pyglet.sprite.Sprite(planet4_img, batch=self.ctx.batch, group=world_group)
-		planet5 = pyglet.sprite.Sprite(planet5_img, batch=self.ctx.batch, group=world_group)
-		planet6 = pyglet.sprite.Sprite(planet6_img, batch=self.ctx.batch, group=world_group)
+		planet1 = pyglet.sprite.Sprite(planet1_img, batch=self.ctx.batch, group=self.camera)
+		planet2 = pyglet.sprite.Sprite(planet2_img, batch=self.ctx.batch, group=self.camera)
+		planet3 = pyglet.sprite.Sprite(planet3_img, batch=self.ctx.batch, group=self.camera)
+		planet4 = pyglet.sprite.Sprite(planet4_img, batch=self.ctx.batch, group=self.camera)
+		planet5 = pyglet.sprite.Sprite(planet5_img, batch=self.ctx.batch, group=self.camera)
+		planet6 = pyglet.sprite.Sprite(planet6_img, batch=self.ctx.batch, group=self.camera)
 
 		sun = PlanetObject(planet5, r=200, x=np.array([0, 0]), m=20)
 		planets = [
@@ -144,7 +118,8 @@ class Level:
 		ìntegrator = EulerIntegrator()
 		self.world = World(ship, planets, ìntegrator)
 
-
+		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.ui)
+		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
 
 	def begin(self):
 		
@@ -166,3 +141,5 @@ class Level:
 	def run(self, dt):
 		# self.dvd.update(dt)
 		self.world.t += dt * 1000
+		self.line.x2, self.line.y2 = self.camera.to_screen_space(*self.world.planets[0].x)
+		self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.ctx.mouse_x, self.ctx.mouse_y)
