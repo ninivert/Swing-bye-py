@@ -79,14 +79,6 @@ class Level:
 
 		ship = Ship()
 
-		red = pyglet.resource.image('assets/red.png')
-		yellow = pyglet.resource.image('assets/yellow.png')
-		# red.anchor_x = red.width // 2
-		# red.anchor_y = red.height // 2
-		# yellow.anchor_x = yellow.width // 2
-		# yellow.anchor_y = yellow.height // 2
-
-
 		planet1_img = pyglet.resource.image('assets/sprites/planet1.png')
 		planet2_img = pyglet.resource.image('assets/sprites/planet2.png')
 		planet3_img = pyglet.resource.image('assets/sprites/planet3.png')
@@ -129,8 +121,6 @@ class Level:
 
 		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
 		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
-
-		self.slider_i_guess = wtfisthis(200, 200, yellow, red, edge=10, batch=self.ctx.batch, group=self.hud)
 
 	def begin(self):
 		
