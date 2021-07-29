@@ -6,8 +6,8 @@ class Base(pyglet.shapes.Rectangle):
 	over_color = (220, 220, 220)
 	down_color = (180, 180, 180)
 
-	def __init__(self, x, y, width, height, *args, **kwargs):
-		super().__init__(x, y, width, height, *args, color=self.base_color, **kwargs)
+	def __init__(self, width, height, *args, **kwargs):
+		super().__init__(0, 0, width, height, *args, color=self.base_color, **kwargs)
 
 	def hit(self, x, y):
 		return (self.x <= x <= self.x + self.width) and (self.y <= y <= self.y + self.height)
@@ -27,8 +27,8 @@ class Knob(pyglet.shapes.Circle):
 	over_color = (220, 220, 220)
 	down_color = (180, 180, 180)
 
-	def __init__(self, x, y, radius, *args, **kwargs):
-		super().__init__(x, y, radius, *args, color=self.base_color, **kwargs)
+	def __init__(self, radius, *args, **kwargs):
+		super().__init__(0, 0, radius, *args, color=self.base_color, **kwargs)
 
 	def hit(self, x, y):
 		return ((x - self.x)**2 + (y - self.y)**2)**0.5 <= self.radius

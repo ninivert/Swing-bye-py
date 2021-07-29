@@ -4,7 +4,9 @@ import json
 import logging
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
 from .camera import CameraGroup
-from .hud import HUDgroup, wtfisthis
+from .hud import HUDgroup
+from .components.slider import Base, Knob, Slider
+from .eventmanager import EventManager
 from .utils import create_sprite
 from ..physics.ship import Ship
 from ..physics.world import World
@@ -74,6 +76,28 @@ class Level:
 		self.levels = ['swingbye/views/levels/level1.json']
 		self.level_index = 0
 
+	def on_mouse_motion(self, x, y, dx, dy):
+		self.hud.on_mouse_motion(x, y, dx, dy)
+
+	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+		if self.hud.captured:
+			self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+		else:
+			self.camera.pan(dx, dy)
+
+	def on_mouse_press(self, x, y, buttons, modifiers):
+		if self.hud.hit(x, y):
+			self.hud.on_mouse_press(x, y, buttons, modifiers)
+
+	def on_mouse_release(self, x, y, buttons, modifiers):
+		self.hud.on_mouse_release(x, y, buttons, modifiers)
+
+	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+		if self.hud.hit(x, y):
+			self.hud.on_mouse_scroll(x, y, scroll_x, scroll_y)
+		else:
+			self.camera.zoom(x, y, scroll_y)
+
 	def parse_level(self, level: dict) -> World:
 		planets = []
 		ship = None
@@ -124,14 +148,37 @@ class Level:
 		self.camera = CameraGroup(self.ctx, 1)
 		self.hud = HUDgroup(2)
 
+		self.event_manager = EventManager(
+			self.ctx,
+			{
+				'on_mouse_motion': self.on_mouse_motion,
+				'on_mouse_drag': self.on_mouse_drag,
+				'on_mouse_press': self.on_mouse_press,
+				'on_mouse_release': self.on_mouse_release,
+				'on_mouse_scroll': self.on_mouse_scroll
+			}
+		)
+
 		with open(self.levels[self.level_index]) as file:
 			level = json.load(file)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
 		self.world = self.parse_level(level)
-		self.line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
+
+		self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
 		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
+
+		base = Base(1000, 5, batch=self.ctx.batch, group=self.hud)
+		knob = Knob(10, batch=self.ctx.batch, group=self.hud)
+		self.slider = Slider(
+			WINDOW_WIDTH//2 - 500, 20,
+			base, knob,
+			min_value=0, max_value=50000,
+			step=25,
+			edge=5
+		)
+		self.hud.add(self.slider)
 
 	def begin(self):
 		self.ctx.gui.clear()
@@ -150,6 +197,8 @@ class Level:
 
 	def run(self, dt):
 		# self.dvd.update(dt)
-		self.world.t += dt * 1000
-		self.line.x2, self.line.y2 = self.camera.to_screen_space(*self.world.planets[0].x)
+		self.hud.update()
+		if self.slider.updated:
+			self.world.t = self.slider.value
+		self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].x)
 		self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.ctx.mouse_x, self.ctx.mouse_y)
