@@ -2,8 +2,9 @@ def main():
 	import pyglet
 	from .pygletengine.controller import ViewController
 
+	pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
+	pyglet.options['search_local_libs'] = True
 
-	# https://github.com/pbedn/glooey-game-hud-example
 	window = ViewController(caption='Swing BYE')
 	pyglet.clock.schedule_interval(window.update, window.frame_rate)
 

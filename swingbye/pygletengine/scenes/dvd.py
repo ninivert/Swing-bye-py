@@ -9,13 +9,19 @@ class DVD(Scene):
 		super().__init__(*args, **kwargs)
 
 	def load(self):
-		self.bacth = pyglet.graphics.Batch()
-		self.dvd = DVDobject(0, 0, 100, 40, [
-			(255, 20, 20),
-			(20, 255, 20),
-			(20, 20, 255),
-			(255, 255, 20),
-			(255, 20, 255)],
+		self.batch = pyglet.graphics.Batch()
+		self.dvd = DVDobject(
+			'assets/dvd.png',
+			0, 0, 
+			200, 80, 
+			[
+				(255, 20, 20),
+				(20, 255, 20),
+				(20, 20, 255),
+				(255, 255, 20),
+				(255, 20, 255)
+			],
+			WINDOW_WIDTH, WINDOW_HEIGHT,
 			batch=self.batch
 		)
 

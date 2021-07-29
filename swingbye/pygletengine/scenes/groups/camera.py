@@ -1,7 +1,7 @@
 import pyglet
 import numpy as np
-from ...globals import WINDOW_WIDTH, WINDOW_HEIGHT
 from ...utils import clamp
+from ...globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
 class CameraGroup(pyglet.graphics.OrderedGroup):

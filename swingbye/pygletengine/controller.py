@@ -5,6 +5,7 @@ from .scenes.mainmenu import MainMenu
 from .scenes.level import Level
 from .scenes.levelselectmenu import LevelSelectMenu
 from .scenes.optionsmenu import OptionsMenu
+from .scenes.dvd import DVD
 from .eventmanager import EventManager
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -30,10 +31,11 @@ class ViewController(pyglet.window.Window):
 			'MainMenu': MainMenu(self.gui, self.transition_to_scene, self.event_manager),
 			'Level': Level(self.gui, self.transition_to_scene, self.event_manager),
 			'LevelSelectMenu': LevelSelectMenu(self.gui, self.transition_to_scene, self.event_manager),
-			'OptionsMenu': OptionsMenu(self.gui, self.transition_to_scene, self.event_manager)
+			'OptionsMenu': OptionsMenu(self.gui, self.transition_to_scene, self.event_manager),
+			'DVD': DVD(self.gui, self.transition_to_scene, self.event_manager)
 		}
 
-		self.transition_to_scene('MainMenu')
+		self.transition_to_scene('Level')
 
 	def transition_to_scene(self, scene: str):
 		self.current_scene = scene
