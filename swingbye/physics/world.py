@@ -1,124 +1,126 @@
 import numpy as np
 import logging
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Union
 from .entity import ImplicitEntity
 from .ship import Ship
 from .planet import Planet
 from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
 from ..globals import SHIP_PREDICTION_N, SHIP_PREDICTION_DT, PLANET_PREDICTION_N, PLANET_PREDICTION_DT
-from .integrator import Integrator
+from .integrator import Integrator, EulerIntegrator
 
 _logger = logging.getLogger(__name__)
 
+@dataclass
 class World():
-	def __init__(
-		self,
-		ship: Ship,
-		planets: List[Planet],
-		integrator: Integrator
-	):
-		self.planets = planets
-		self.ship = ship
-		self.integrator = integrator
-		self._t = 0
+	planets: List[Planet] = field(default_factory=list)
+	ship: Union[Ship, None] = None
+	integrator: Integrator = EulerIntegrator
+	time: float
+	_time: float = field(init=False, repr=False, default=0.0)
 
 	# Physics
 
-	def get_forces_on(self, titty: ImplicitEntity, t: float = None):
-		if t is None:
-			t = self._t
+	def get_forces_on(self, titty: ImplicitEntity, time: float = None):
+		if time is None:
+			time = self.time
 
 		f = np.zeros(2)
 		for planet in self.planets:
-			r = planet.get_pos(t) - titty.x
+			r = planet.pos_at(time) - titty.pos
 			d = np.linalg.norm(r)
 			n = r/d
-			f += GRAVITY_CST*(titty.m + planet.m)/(d+GRAVITY_SINGULARITY_OFFSET)**2 * n
+			f += GRAVITY_CST*(titty.mass + planet.mass)/(d+GRAVITY_SINGULARITY_OFFSET)**2 * n
 
 		return f
 
 	def step(self, dt: float):
 		if not self.ship.docked:
-			self.integrator(self.ship, self.get_forces_on, self._t, dt)
-
-		self._t += dt
+			self.integrator.integrate(self.ship, self.get_forces_on, self.time, dt)
+			self.time += dt
 
 	# Time handling
 
 	@property
-	def t(self):
-		if not self.ship.docked:
-			# _logger.warning('changing world time but ship is not docked to a planet !')
-			pass
+	def time(self):
+		return self._time
 
-		return self._t
+	@time.setter
+	def time(self, time: float):
+		if type(time) is property:
+			time = World._time
 
-	@t.setter
-	def t(self, t: float):
-		self._t = t
-		self.update_planets_location()
-		self.update_planets_prediction()
+		self._time = time
+
+		for planet in self.planets:
+			planet.time = time
+
+		self.ship.time = time
+
+		# TODO : this can probably be a property
+		# self.update_ship_prediction()
+		# self.update_planets_prediction()
 
 	# Game logic
 
 	def launch_ship(self):
 		self.ship.launch()
 
-	def point_ship(self, n: np.ndarray):
-		self.ship.pointing = n
+	def point_ship(self, pointing: np.ndarray):
+		self.ship.pointing = pointing
 
-	def update_ship_prediction(self):
-		if not self.ship.docked:
-			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+	# def update_ship_prediction(self):
+	# 	# TODO : use this, use a class attribute ?
 
-		# HACK : not using deepcopy as that would be too slow
-		temp_ship = Ship()
-		temp_ship.x = self.ship.x
-		temp_ship.m = self.ship.m
-		temp_ship.parent = self.ship.parent
-		temp_ship.pointing = self.ship.pointing
-		temp_ship.launch()
+	# 	if not self.ship.docked:
+	# 		_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
 
-		for i, t in enumerate(np.linspace(self._t, self._t + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
-			self.integrator(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
-			self.ship.predicted[i, :] = temp_ship.x
+	# 	temp_ship = dataclasses.replace(self.ship)
+	# 	temp_ship.launch()
 
-	def update_planets_location(self):
-		for planet in self.planets:
-			planet.x = planet.get_pos(self.t)
+	# 	predicted = np.zeros((SHIP_PREDICTION_N, 2))
 
-	def update_planets_prediction(self):
-		for planet in self.planets:
-			for i, t in enumerate(np.linspace(self._t, self._t + PLANET_PREDICTION_N*PLANET_PREDICTION_DT, PLANET_PREDICTION_N)):
-				planet.predicted[i, :] = planet.get_pos(t)
+	# 	for i, t in enumerate(np.linspace(self.time, self.time + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
+	# 		self.integrator.integrate(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
+	# 		predicted[i, :] = temp_ship.pos
+
+	# def update_planets_prediction(self):
+	# 	pass
 
 	# Debug
 
 	def __str__(self):
 		res = super().__str__()
-		res += '\n\t' + self.ship.__str__()
-		res += '\nPlanets'
+		res += '\n\t| ' + self.ship.__str__()
 		for planet in self.planets:
-			res += '\n\t' + planet.__str__()
+			res += '\n\t| ' + planet.__str__()
 		return res
 
 
 if __name__ == '__main__':
-	from .integrator import EulerIntegrator
+	from .integrator import EulerIntegrator, RK4Integrator
 
-	world = World(
-		Ship(np.array([100.0, 100.0])),
-		[Planet(s=50)],
-		EulerIntegrator()
-	)
+	for integrator in [EulerIntegrator, RK4Integrator]:
+		print(f'>>> using integrator {integrator}')
 
-	print(world)
+		world = World(
+			ship=Ship(pos=np.array([100.0, 100.0])),
+			planets=[Planet(maxis=50)],
+			integrator=integrator
+		)
 
-	world.step(0.1)
-	world.step(0.1)
+		print('>>> world after initialization')
+		print(world)
 
-	print(world)
+		print('>>> stepping 4 times by 0.1')
+		world.step(0.1)
+		world.step(0.1)
+		world.step(0.1)
+		world.step(0.1)
 
-	world.set_time(0)
+		print(world)
 
-	print(world)
+		print('>>> setting time to 0')
+		world.time = 0
+
+		print(world)
