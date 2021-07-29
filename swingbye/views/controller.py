@@ -52,12 +52,8 @@ class ViewController(pyglet.window.Window):
 			self.views['Level'].camera.reset()
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		self.views['Level'].camera.pan(dx, dy)
 		self.mouse_x = x
 		self.mouse_y = y
-
-	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-		self.views['Level'].camera.zoom(x, y, scroll_y)
 
 	def on_mouse_motion(self, x, y, dx, dy):
 		self.mouse_x = x
