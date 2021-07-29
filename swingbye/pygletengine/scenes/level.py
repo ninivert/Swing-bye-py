@@ -3,8 +3,8 @@ import numpy as np
 import json
 import logging
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
-from ..camera import CameraGroup
-from .hud import HUDgroup
+from .groups.camera import CameraGroup
+from .groups.hud import HUDgroup
 from ..components.slider import Base, Knob, Slider
 from ..eventmanager import EventManager
 from ..utils import create_sprite
