@@ -1,7 +1,7 @@
 import glooey
 from pyglet.app import exit
-from .globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
-from .scenes.scene import Scene
+from ..globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from .scene import Scene
 
 
 #####################

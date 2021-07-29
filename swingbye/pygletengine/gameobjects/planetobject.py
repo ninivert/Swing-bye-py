@@ -1,4 +1,4 @@
-from ..physics.planet import Planet
+from ...physics.planet import Planet
 
 class PlanetObject(Planet):
 

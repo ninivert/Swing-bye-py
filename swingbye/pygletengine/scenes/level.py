@@ -2,15 +2,15 @@ import pyglet
 import numpy as np
 import json
 import logging
-from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
-from .camera import CameraGroup
+from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from ..camera import CameraGroup
 from .hud import HUDgroup
-from .components.slider import Base, Knob, Slider
-from .eventmanager import EventManager
-from .utils import create_sprite
-from ..physics.ship import Ship
-from ..physics.world import World
-from ..physics.integrator import EulerIntegrator
+from ..components.slider import Base, Knob, Slider
+from ..eventmanager import EventManager
+from ..utils import create_sprite
+from ...physics.ship import Ship
+from ...physics.world import World
+from ...physics.integrator import EulerIntegrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
 
@@ -73,7 +73,7 @@ class AxisCross:
 class Level:
 	def __init__(self, ctx):
 		self.ctx = ctx
-		self.levels = ['swingbye/views/levels/level1.json']
+		self.levels = ['swingbye/levels/level1.json']
 		self.level_index = 0
 
 	def on_mouse_motion(self, x, y, dx, dy):

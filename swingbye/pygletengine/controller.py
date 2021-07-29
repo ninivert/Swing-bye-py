@@ -2,10 +2,10 @@ import pyglet
 from pyglet.window import key
 import glooey
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
-from .mainmenu import MainMenu
-from .level import Level
-from .levelselectmenu import LevelSelectMenu
-from .optionsmenu import OptionsMenu
+from .scenes.mainmenu import MainMenu
+from .scenes.level import Level
+from .scenes.levelselectmenu import LevelSelectMenu
+from .scenes.optionsmenu import OptionsMenu
 
 
 class ViewController(pyglet.window.Window):

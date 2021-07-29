@@ -1,6 +1,6 @@
 def main():
 	import pyglet
-	from .views.controller import ViewController
+	from .pygletengine.controller import ViewController
 
 
 	# https://github.com/pbedn/glooey-game-hud-example

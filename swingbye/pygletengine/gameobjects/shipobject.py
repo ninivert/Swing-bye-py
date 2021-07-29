@@ -1,4 +1,4 @@
-from ..physics.ship import Ship
+from ...physics.ship import Ship
 
 class ShipObject(Ship):
 
