@@ -1,6 +1,7 @@
 import glooey
 import pyglet
 from .globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from .scenes.scene import Scene
 
 
 ########################
@@ -73,13 +74,12 @@ class OptionsMenuCycle(glooey.Button):
 
 # Menu Layout
 
-class OptionsMenu:
+class OptionsMenu(Scene):
 
-	def __init__(self, ctx):
-		self.ctx = ctx
-		self.loaded = False
+	def __init__(self, ctx, *args, **kwargs):
+		super().__init__(ctx, *args, **kwargs)		
 
-	def load_items(self):
+	def load(self):
 		self.container = OptionsMenuContainer()
 
 		self.container.add(OptionsMenuTitle('Options'), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
@@ -89,17 +89,10 @@ class OptionsMenu:
 		self.container.add(OptionsMenuCycle(['Option ON', 'Option OFF']))
 		self.container.add(OptionsMenuButton('Back', action=self.ctx.views['MainMenu'].begin), size=0)
 
-		self.loaded = True
-
-	def unload_items(self):
-		self.loaded = False
-		self.container = None
-
 	def begin(self):
 		
 		self.ctx.gui.clear()
 
-		if not self.loaded:
-			self.load_items()
+		self.load()
 
 		self.ctx.gui.add(self.container)

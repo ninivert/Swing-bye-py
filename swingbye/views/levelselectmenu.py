@@ -1,5 +1,6 @@
 import glooey
 from .globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from .scenes.scene import Scene
 
 
 #############################
@@ -52,13 +53,12 @@ class LevelSelectMenuButton(glooey.Button):
 
 # Menu Layout
 
-class LevelSelectMenu:
+class LevelSelectMenu(Scene):
 
-	def __init__(self, ctx):
-		self.ctx = ctx
-		self.loaded = False
+	def __init__(self, ctx, *args, **kwargs):
+		super().__init__(ctx, *args, **kwargs)
 
-	def load_items(self):
+	def load(self):
 		self.container = LevelSelectMenuContainer()
 
 		level_grid = LevelSelectButtonsContainer()
@@ -72,17 +72,10 @@ class LevelSelectMenu:
 		self.container.add(level_grid)
 		self.container.add(LevelSelectMenuButton('Back', action=self.ctx.views['MainMenu'].begin), size=0)
 
-		self.loaded = True
-
-	def unload_items(self):
-		self.loaded = False
-		self.container = None
-
 	def begin(self):
 		
 		self.ctx.gui.clear()
 
-		if not self.loaded:
-			self.load_items()
+		self.load_items()
 
 		self.ctx.gui.add(self.container)

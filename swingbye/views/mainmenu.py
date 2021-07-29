@@ -1,6 +1,7 @@
 import glooey
 from pyglet.app import exit
 from .globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from .scenes.scene import Scene
 
 
 #####################
@@ -78,13 +79,12 @@ class QuitButton(MainMenuButton):
 	Foreground = QuitButtonLabel
 
 
-class MainMenu:
+class MainMenu(Scene):
 
-	def __init__(self, ctx):
-		self.ctx = ctx
-		self.loaded = False
+	def __init__(self, ctx, *args, **kwargs):
+		super().__init__(ctx, *args, **kwargs)
 
-	def load_items(self):
+	def load(self):
 		self.container = MainMenuContainer()
 		self.container.add(MainMenuTitle(), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
 		self.container.add(StartButton(action=self.ctx.views['Level'].begin))
@@ -92,17 +92,10 @@ class MainMenu:
 		self.container.add(OptionsButton(action=self.ctx.views['OptionsMenu'].begin))
 		self.container.add(QuitButton(action=exit))
 
-		self.loaded = True
-
-	def unload_items(self):
-		self.loaded = False
-		self.container = None
-
 	def begin(self):
 		
 		self.ctx.gui.clear()
 
-		if not self.loaded:
-			self.load_items()
+		self.load()
 
 		self.ctx.gui.add(self.container)
