@@ -6,7 +6,7 @@ class ShipObject(Ship):
 		super().__init__(*args, **kwargs)
 
 		self.sprite = sprite
-		scale = self.r / (self.sprite.width//2)
+		scale = 0.05  # self.r / (self.sprite.width//2)
 		self.sprite.update(x=self.x[0], y=self.x[1], scale=scale)
 
 	@property

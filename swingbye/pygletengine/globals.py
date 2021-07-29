@@ -1,3 +1,4 @@
+DEBUG = True
 
 # Window settings
 WINDOW_WIDTH = 1280

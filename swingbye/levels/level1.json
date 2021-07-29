@@ -51,7 +51,14 @@
 						"s": 600,
 						"r": 55
 					},
-					"children": []
+					"children": [
+						{
+							"type": "ship",
+							"sprite": "assets/sprites/ship_on.png",
+							"arguments": {},
+							"children": []
+						}
+					]
 				},
 				{
 					"type": "planet",

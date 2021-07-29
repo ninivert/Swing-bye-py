@@ -2,10 +2,10 @@ import pyglet
 
 
 class EventManager(pyglet.event.EventDispatcher):
-	def __init__(self, parent, callbacks):
+	def __init__(self, parent):
 		super().__init__()
 		self.parent = parent
-		self.callbacks = callbacks
+		self.callbacks = {}
 		self.capture_events()
 
 	def capture_events(self):

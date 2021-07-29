@@ -16,13 +16,14 @@ class MainMenuContainer(glooey.VBox):
 class MainMenuButton(glooey.Button):
 	custom_alignment = 'fill'
 
-	def __init__(self, action=None, *args, **kwargs):
+	def __init__(self, action=None, action_params=[], *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.action = action
+		self.action_params = action_params
 
 	def on_click(self, widget):
 		if self.action:
-			self.action()
+			self.action(*self.action_params)
 
 	class Base(glooey.Background):
 		custom_color = '#aa1e1e'
@@ -81,21 +82,24 @@ class QuitButton(MainMenuButton):
 
 class MainMenu(Scene):
 
-	def __init__(self, ctx, *args, **kwargs):
-		super().__init__(ctx, *args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 
 	def load(self):
 		self.container = MainMenuContainer()
 		self.container.add(MainMenuTitle(), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
-		self.container.add(StartButton(action=self.ctx.views['Level'].begin))
-		self.container.add(LevelSelectButton(action=self.ctx.views['LevelSelectMenu'].begin))
-		self.container.add(OptionsButton(action=self.ctx.views['OptionsMenu'].begin))
+		self.container.add(StartButton(action=self.callback, action_params=['Level']))
+		self.container.add(LevelSelectButton(action=self.callback, action_params=['LevelSelectMenu']))
+		self.container.add(OptionsButton(action=self.callback, action_params=['OptionsMenu']))
 		self.container.add(QuitButton(action=exit))
 
 	def begin(self):
 		
-		self.ctx.gui.clear()
+		self.gui.clear()
 
 		self.load()
 
-		self.ctx.gui.add(self.container)
+		self.gui.add(self.container)
+	
+	def draw(self):
+		self.gui.batch.draw()

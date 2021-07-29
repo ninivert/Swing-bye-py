@@ -1,31 +1,46 @@
 import pyglet
 import numpy as np
 from ...globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from ...utils import clamp
 
 
 class CameraGroup(pyglet.graphics.OrderedGroup):
 
-	def __init__(self, ctx, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.ctx = ctx
+		self.smooth = True
+		self.set_scale_limits(0.2, 4)
+		self.min_offset = None
+		self.max_offset = None
+
 		self.reset()
 
 	def to_world_space(self, x, y):
-		# I still don't understand why this doesn't need scaling...
 		return (np.array((x, y)) - self.offset) / self.scale
 
 	def to_screen_space(self, x, y):
-		return (np.array((x, y)) / self.scale) + self.offset
+		return (np.array((x, y)) * self.scale) + self.offset
+
+	def set_bounding_box(self, min_world, max_world):
+		self.min_offset = self.to_screen_space(*min_world)
+		self.max_offset = self.to_screen_space(*max_world)
+
+	def set_scale_limits(self, min_scale, max_scale):
+		self.min_scale = min_scale
+		self.max_scale = max_scale
 
 	def reset(self):
-		self.smooth = True
-		self.scale = 0.05
-		self.target_scale = 0.5
+		self.scale = 1
+		self.target_scale = 1
 		self.zoom_anchor = np.zeros(2)
 		self.offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
 		self.target_offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
 
 	def update(self):
+		self.target_scale = clamp(self.target_scale, self.min_scale, self.max_scale)
+		if self.min_offset and self.max_offset:
+			self.target_offset[0] = clamp(self.target_offset[0], self.min_offset[0], self.max_offset[0])
+			self.target_offset[1] = clamp(self.target_offset[1], self.min_offset[1], self.max_offset[1])
 		if self.smooth:
 			self.scale = self.lerp(self.scale, self.target_scale, 0.1)
 			self.offset = self.lerp(self.offset, self.target_offset, 0.2)

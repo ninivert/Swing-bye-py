@@ -55,8 +55,8 @@ class LevelSelectMenuButton(glooey.Button):
 
 class LevelSelectMenu(Scene):
 
-	def __init__(self, ctx, *args, **kwargs):
-		super().__init__(ctx, *args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 
 	def load(self):
 		self.container = LevelSelectMenuContainer()
@@ -70,12 +70,15 @@ class LevelSelectMenu(Scene):
 
 		self.container.add(LevelSelectMenuTitle('Level Select'), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
 		self.container.add(level_grid)
-		self.container.add(LevelSelectMenuButton('Back', action=self.ctx.views['MainMenu'].begin), size=0)
+		self.container.add(LevelSelectMenuButton('Back', action=self.callback, action_params=['MainMenu']), size=0)
 
 	def begin(self):
 		
-		self.ctx.gui.clear()
+		self.gui.clear()
 
-		self.load_items()
+		self.load()
 
-		self.ctx.gui.add(self.container)
+		self.gui.add(self.container)
+
+	def draw(self):
+		self.gui.batch.draw()

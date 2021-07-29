@@ -2,7 +2,7 @@ import pyglet
 import numpy as np
 import json
 import logging
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from .scene import Scene
 from .groups.camera import CameraGroup
 from .groups.hud import HUDgroup
 from ..components.slider import Base, Knob, Slider
@@ -13,77 +13,32 @@ from ...physics.world import World
 from ...physics.integrator import EulerIntegrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
+from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 _logger = logging.getLogger(__name__)
 
-class DVD(pyglet.shapes.Rectangle):
 
-	def __init__(self, x, y, width, height, colors, *args, **kwargs):
-		super().__init__(x, y, width, height, *args, **kwargs)
+class Level(Scene):
 
-		self.dx = 90
-		self.dy = 123
-		self.colors = colors
-		self.color_index = 0
-		self.color = self.colors[self.color_index]
-
-	def change_color(self):
-		self.color_index = (self.color_index + 1) % len(self.colors)
-		self.color = self.colors[self.color_index]
-
-	def borders(self):
-		if self.x < 0:
-			self.x = 0
-			self.dx *= -1
-			self.change_color()
-		elif self.x + self.width > WINDOW_WIDTH:
-			self.x = WINDOW_WIDTH - self.width
-			self.dx *= -1
-			self.change_color()
-		if self.y < 0:
-			self.y = 0
-			self.dy *= -1
-			self.change_color()
-		elif self.y + self.height > WINDOW_HEIGHT:
-			self.y = WINDOW_HEIGHT - self.height
-			self.dy *= -1
-			self.change_color()
-
-	def update(self, dt):
-		self.x += self.dx * dt
-		self.y += self.dy * dt
-		self.borders()
-
-class AxisCross:
-
-	class Axis(pyglet.shapes.Line):
-		axis_dict = {
-			'x': (0, 0, 50, 0),
-			'y': (0, 0, 0, 50)
-		}
-
-		def __init__(self, axis, *args, **kwargs):
-			super().__init__(*self.axis_dict[axis], *args, **kwargs)
-
-	def __init__(self, batch, group):
-		self.x = self.Axis('x', batch=batch, group=group, color=(255, 20, 20))
-		self.y = self.Axis('y', batch=batch, group=group, color=(20, 255, 20))
-
-
-class Level:
-	def __init__(self, ctx):
-		self.ctx = ctx
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self.levels = ['swingbye/levels/level1.json']
 		self.level_index = 0
+		self.mouse_x = 0
+		self.mouse_y = 0
 
 	def on_mouse_motion(self, x, y, dx, dy):
 		self.hud.on_mouse_motion(x, y, dx, dy)
+		self.mouse_x = x
+		self.mouse_y = y
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 		if self.hud.captured:
 			self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.pan(dx, dy)
+		self.mouse_x = x
+		self.mouse_y = y
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		if self.hud.hit(x, y):
@@ -98,7 +53,8 @@ class Level:
 		else:
 			self.camera.zoom(x, y, scroll_y)
 
-	def parse_level(self, level: dict) -> World:
+	@staticmethod
+	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
 		planets = []
 		ship = None
 		queue = [(child_dict, None) for child_dict in level['world']]
@@ -114,7 +70,7 @@ class Level:
 
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
-					create_sprite(child_dict['sprite'], batch=self.ctx.batch, group=self.camera),
+					create_sprite(child_dict['sprite'], batch=batch, group=group),
 					**dict(parent=parent, **child_dict['arguments'])
 				)
 				queue += [(_child_dict, planetobject) for _child_dict in child_dict['children']]
@@ -127,7 +83,7 @@ class Level:
 					continue
 
 				ship = ShipObject(
-					create_sprite(child_dict['sprite'], batch=self.ctx.batch, group=self.camera),
+					create_sprite(child_dict['sprite'], batch=batch, group=group),
 					**dict(parent=parent, **child_dict['arguments'])
 				)
 
@@ -143,34 +99,30 @@ class Level:
 		_logger.debug(f'finished parsing level, result\n`{world}`')
 		return world
 
-	def load_level(self):
+	def load(self):
+		self.batch = pyglet.graphics.Batch()
+
 		self.paralax = pyglet.graphics.OrderedGroup(0)
-		self.camera = CameraGroup(self.ctx, 1)
+		self.camera = CameraGroup(1)
 		self.hud = HUDgroup(2)
 
-		self.event_manager = EventManager(
-			self.ctx,
-			{
-				'on_mouse_motion': self.on_mouse_motion,
-				'on_mouse_drag': self.on_mouse_drag,
-				'on_mouse_press': self.on_mouse_press,
-				'on_mouse_release': self.on_mouse_release,
-				'on_mouse_scroll': self.on_mouse_scroll
-			}
-		)
+		self.event_manager.callbacks = {
+			'on_mouse_motion': self.on_mouse_motion,
+			'on_mouse_drag': self.on_mouse_drag,
+			'on_mouse_press': self.on_mouse_press,
+			'on_mouse_release': self.on_mouse_release,
+			'on_mouse_scroll': self.on_mouse_scroll
+		}
 
 		with open(self.levels[self.level_index]) as file:
 			level = json.load(file)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
-		self.world = self.parse_level(level)
+		self.world = self.parse_level(level, self.batch, self.camera)
 
-		self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.ctx.batch, group=self.hud)
-		self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.ctx.batch, group=self.camera)
-
-		base = Base(1000, 5, batch=self.ctx.batch, group=self.hud)
-		knob = Knob(10, batch=self.ctx.batch, group=self.hud)
+		base = Base(1000, 5, batch=self.batch, group=self.hud)
+		knob = Knob(10, batch=self.batch, group=self.hud)
 		self.slider = Slider(
 			WINDOW_WIDTH//2 - 500, 20,
 			base, knob,
@@ -180,25 +132,23 @@ class Level:
 		)
 		self.hud.add(self.slider)
 
+		if DEBUG:
+			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.hud)
+			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.batch, group=self.camera)
+
 	def begin(self):
-		self.ctx.gui.clear()
-		self.load_level()
+		self.gui.clear()
 
-		# self.dvd = DVD(0, 0, 100, 40, [
-		# 	(255, 20, 20),
-		# 	(20, 255, 20),
-		# 	(20, 20, 255),
-		# 	(255, 255, 20),
-		# 	(255, 20, 255)],
-		# 	batch=self.ctx.batch
-		# )
+		self.load()
 
-		self.ctx.game_loop = self.run
+	def draw(self):
+		self.batch.draw()
 
 	def run(self, dt):
-		# self.dvd.update(dt)
 		self.hud.update()
 		if self.slider.updated:
 			self.world.t = self.slider.value
-		self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].x)
-		self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.ctx.mouse_x, self.ctx.mouse_y)
+
+		if DEBUG:
+			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[5].x)
+			self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.mouse_x, self.mouse_y)

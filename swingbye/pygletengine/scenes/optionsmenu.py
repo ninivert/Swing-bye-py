@@ -76,8 +76,8 @@ class OptionsMenuCycle(glooey.Button):
 
 class OptionsMenu(Scene):
 
-	def __init__(self, ctx, *args, **kwargs):
-		super().__init__(ctx, *args, **kwargs)		
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 
 	def load(self):
 		self.container = OptionsMenuContainer()
@@ -87,12 +87,15 @@ class OptionsMenu(Scene):
 		self.container.add(OptionsMenuButton('Option Button 2'))
 		self.container.add(OptionsMenuCycle(['Option cycle 1', 'Option cycle 2', 'Option cycle 3']))
 		self.container.add(OptionsMenuCycle(['Option ON', 'Option OFF']))
-		self.container.add(OptionsMenuButton('Back', action=self.ctx.views['MainMenu'].begin), size=0)
+		self.container.add(OptionsMenuButton('Back', action=self.callback, action_params=['MainMenu']), size=0)
 
 	def begin(self):
 		
-		self.ctx.gui.clear()
+		self.gui.clear()
 
 		self.load()
 
-		self.ctx.gui.add(self.container)
+		self.gui.add(self.container)
+
+	def draw(self):
+		self.gui.batch.draw()
