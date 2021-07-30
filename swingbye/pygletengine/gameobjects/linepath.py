@@ -2,10 +2,9 @@ import pyglet
 
 
 class LinePath:
-
-	def __init__(self, point_count=0, points=[], color=(255, 255, 255), batch=batch, group=group):
+	def __init__(self, point_count=0, points=[], color=(255, 255, 255), batch=None, group=None):
 		if point_count > len(points):
-			raise ValueError(f'Provided {length=} is less than length of vertices={len(verticies)}')
+			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
 		# Extend points to match point_count
 		if len(points) < point_count:
@@ -17,8 +16,10 @@ class LinePath:
 		self._load_vertices_from_tuples(points)
 		self._generate_vertex_color_list(color)
 
-		self.batch = batch
-		self.group = group
+		if batch is not None:
+			self.batch = batch
+		if group is not None:
+			self.group = group
 
 		self.vertex_list = self.batch.add(
 			self.vertex_length,
@@ -32,7 +33,7 @@ class LinePath:
 		self._vertices = [*tuple_list[0]]
 		for vert in tuple_list:
 			self._vertices.extend(vert)
-		self._vertices.extend(*vertices_tupple[-1])
+		self._vertices.extend(*tuple_list[-1])
 
 	def _generate_vertex_color_list(self, color):
 		self._color = []
