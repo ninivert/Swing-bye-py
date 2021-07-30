@@ -10,7 +10,7 @@ from ..components.slider import Base, Knob, Slider
 from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
-from ...physics.world import World
+from ...physics.world import World, WorldStates
 from ...physics.integrator import EulerIntegrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
@@ -96,7 +96,8 @@ class Level(Scene):
 		self.hud_rect = self.hud_container.get_rect()  # haha get rekt
 
 	def on_slider_value_update(self, value):
-		self.world.time = value
+		if self.world.state == WorldStates.PRE_LAUNCH:
+			self.world.time = value
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -160,7 +161,7 @@ class Level(Scene):
 			step=25,
 			edge=10
 		)
-		launch = HUDButton('LAUNCH')
+		launch = HUDButton('LAUNCH', action=self.launch_ship)
 
 		self.hud_container.pack(reset)
 		self.hud_container.pack(pause)
@@ -204,9 +205,7 @@ class Level(Scene):
 
 	def begin(self):
 		self.gui.clear()
-
 		self.load()
-
 		self.load_hud()
 
 	def draw(self):
@@ -214,6 +213,14 @@ class Level(Scene):
 		self.gui.batch.draw()
 
 	def run(self, dt):
+		if self.world.state == WorldStates.POST_LAUNCH:
+			self.world.step(dt*100)
+
 		if DEBUG:
 			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)
 			self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.mouse_x, self.mouse_y)
+
+	# Game logic
+
+	def launch_ship(self):
+		self.world.launch_ship()

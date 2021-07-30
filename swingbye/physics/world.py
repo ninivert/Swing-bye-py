@@ -8,8 +8,13 @@ from .planet import Planet
 from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
 from ..globals import SHIP_PREDICTION_N, SHIP_PREDICTION_DT, PLANET_PREDICTION_N, PLANET_PREDICTION_DT
 from .integrator import Integrator, EulerIntegrator
+from enum import Enum, auto
 
 _logger = logging.getLogger(__name__)
+
+class WorldStates(Enum):
+	PRE_LAUNCH = auto()
+	POST_LAUNCH = auto()
 
 @dataclass
 class World():
@@ -18,6 +23,7 @@ class World():
 	integrator: Integrator = EulerIntegrator
 	time: float
 	_time: float = field(init=False, repr=False, default=0.0)
+	state: WorldStates = WorldStates.PRE_LAUNCH
 
 	# Physics
 
@@ -36,8 +42,8 @@ class World():
 
 	def step(self, dt: float):
 		if not self.ship.docked:
-			self.integrator.integrate(self.ship, self.get_forces_on, self.time, dt)
 			self.time += dt
+			self.integrator.integrate(self.ship, self.get_forces_on, self.time, dt)
 
 	# Time handling
 
@@ -67,6 +73,7 @@ class World():
 	# Game logic
 
 	def launch_ship(self):
+		self.state = WorldStates.POST_LAUNCH
 		self.ship.launch()
 
 	def point_ship(self, pointing: np.ndarray):

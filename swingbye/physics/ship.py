@@ -7,6 +7,7 @@ from ..globals import SHIP_LAUNCH_SPEED
 
 _logger = logging.getLogger(__name__)
 
+
 @dataclass
 class Ship(ImplicitEntity):
 	# Parent
@@ -41,15 +42,18 @@ class Ship(ImplicitEntity):
 
 	# Pointing
 
-	@property
-	def pointing(self):
+	def _get_pointing(self):
 		if self.docked:
 			return self._pointing
 		else:
-			return self.vel / np.linalg.norm(self.vel)
+			# When initializing, pointing is called to generate the field, however at the parent may not be yet initialized
+			speed = np.linalg.norm(self.vel)
+			if speed == 0.0:
+				_logger.warning('divide by zero encountered in `_get_pointing`, returning default `Ship._pointing`')
+				return Ship._pointing
+			return self.vel / speed
 
-	@pointing.setter
-	def pointing(self, pointing):
+	def _set_pointing(self, pointing):
 		if type(pointing) is property:
 			pointing = Ship._pointing
 
@@ -59,9 +63,13 @@ class Ship(ImplicitEntity):
 
 		self._pointing = pointing
 
+	pointing = property(_get_pointing, _set_pointing)
+
 	# Game logic
 
 	def launch(self):
+		_logger.info('launching ship')
+
 		if not self.docked:
 			_logger.warning('cannot launch a ship that is not docked, ignoring')
 			return
