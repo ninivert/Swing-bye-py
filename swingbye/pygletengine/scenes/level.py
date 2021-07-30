@@ -70,6 +70,11 @@ class Level(Scene):
 		super().__init__(*args, **kwargs)
 		self.levels = ['swingbye/levels/level1.json']
 		self.level_index = 0
+
+		# TODO : cleanup this
+		self.mouse_press_x = 0
+		self.mouse_press_y = 0
+
 		self.mouse_x = 0
 		self.mouse_y = 0
 
@@ -85,7 +90,16 @@ class Level(Scene):
 		self.mouse_x = x
 		self.mouse_y = y
 
+	def on_mouse_press(self, x, y, buttons, modifiers):
+		self.mouse_press_x = x
+		self.mouse_press_y = y
+
 	def on_mouse_release(self, x, y, dx, dy):
+		clicked = self.mouse_press_x == x and self.mouse_press_y == y
+
+		if clicked:
+			self.world.point_ship(self.camera.to_world_space(x, y))
+
 		self.slider.on_mouse_release(x, y, dx, dy)
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
@@ -189,6 +203,7 @@ class Level(Scene):
 			'on_mouse_drag': self.on_mouse_drag,
 			'on_mouse_release': self.on_mouse_release,
 			'on_mouse_scroll': self.on_mouse_scroll,
+			'on_mouse_press': self.on_mouse_press,
 			'on_resize': self.on_resize
 		}
 

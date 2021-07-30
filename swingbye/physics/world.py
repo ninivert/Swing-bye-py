@@ -76,7 +76,16 @@ class World():
 		self.state = WorldStates.POST_LAUNCH
 		self.ship.launch()
 
-	def point_ship(self, pointing: np.ndarray):
+	def point_ship(self, clickpos: np.ndarray):
+		pointing = clickpos - self.ship.pos
+		pointing_norm = np.linalg.norm(pointing)
+
+		if pointing_norm == 0.0:
+			_logger.warning('pointing click happened on ship, cannot determine pointing vector, ignoring')
+			return
+
+		pointing /= pointing_norm
+
 		self.ship.pointing = pointing
 
 	# def update_ship_prediction(self):
