@@ -7,7 +7,9 @@ from random import randrange
 from .scene import Scene
 from .groups.parallax import ParallaxGroup
 from .groups.camera import CameraGroup
-from ..components.slider import Base, Knob, Slider
+from ..components.slider import Slider
+from ..components.buttons import Button, CycleButton
+from ..components.containers import VBox, HBox
 from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
@@ -21,51 +23,6 @@ from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 _logger = logging.getLogger(__name__)
 
 
-###############
-# HUD Classes #
-###############
-
-
-class HUDContainer(glooey.HBox):
-	custom_cell_padding = 5
-	custom_alignment = 'fill'
-
-
-class HUDButtonLabel(glooey.Label):
-	custom_alignment = 'center'
-	custom_font_size = 26
-
-
-class HUDButton(glooey.Button):
-	Foreground = HUDButtonLabel
-	custom_alignment = 'fill'
-
-	def __init__(self, *args, action=None, action_params=[], **kwargs):
-		super().__init__(*args, **kwargs)
-		self.action = action
-		self.action_params = action_params
-
-	def on_click(self, widget):
-		if self.action:
-			self.action(*self.action_params)
-
-	class Base(glooey.Background):
-		custom_color = '#aa1e1e'
-
-	class Over(glooey.Background):
-		custom_color = '#cc3f3f'
-
-	class Down(glooey.Background):
-		custom_color = '#ff5d5d'
-
-
-class HUDSlider(Slider):
-	custom_alignment = 'fill'
-
-
-#############
-
-
 class Level(Scene):
 
 	def __init__(self, *args, **kwargs):
@@ -76,7 +33,9 @@ class Level(Scene):
 		# TODO : cleanup this
 		self.mouse_press_x = 0
 		self.mouse_press_y = 0
+
 		self.simulation_speed = 1
+		self.paused = False
 
 		self.mouse_x = 0
 		self.mouse_y = 0
@@ -128,6 +87,12 @@ class Level(Scene):
 
 	def on_speed_slider_value_update(self, value):
 		self.simulation_speed = int(value)
+
+	def on_pause_button_pressed(self, state):
+		if state == 'PAUSED':
+			self.paused = True
+		elif state == 'NOT PAUSED':
+			self.paused = False
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -181,23 +146,23 @@ class Level(Scene):
 
 	def load_hud(self):
 		self.container = glooey.VBox()
-		self.hud_container = HUDContainer()
+		self.hud_container = glooey.HBox()
 
-		reset = HUDButton('Reset', action=self.reset)
-		pause = HUDButton('Pause')
-		self.speed_slider = HUDSlider(
+		reset = Button('Reset', action=self.reset)
+		pause = CycleButton({'NOT PAUSED': 'Pause', 'PAUSED': 'Resume'}, state_change_callback=self.on_pause_button_pressed)
+		self.speed_slider = Slider(
 			self.on_speed_slider_value_update,
 			min_value=1, max_value=16,
 			step=1,
 			edge=10
 		)
-		self.time_slider = HUDSlider(
+		self.time_slider = Slider(
 			self.on_time_slider_value_update,
 			min_value=0, max_value=50000,
 			step=25,
 			edge=10
 		)
-		launch = HUDButton('LAUNCH', action=self.launch_ship)
+		launch = Button('LAUNCH', action=self.launch_ship)
 
 		self.hud_container.pack(reset)
 		self.hud_container.pack(pause)
@@ -282,9 +247,10 @@ class Level(Scene):
 		self.gui.batch.draw()
 
 	def run(self, dt):
-		if self.world.state == WorldStates.POST_LAUNCH:
-			for i in range(self.simulation_speed):
-				self.world.step(dt*200)
+		if not self.paused:
+			if self.world.state == WorldStates.POST_LAUNCH:
+				for i in range(self.simulation_speed):
+					self.world.step(dt*200)
 
 		if DEBUG:
 			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)

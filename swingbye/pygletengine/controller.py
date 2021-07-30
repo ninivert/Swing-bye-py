@@ -17,7 +17,6 @@ class ViewController(pyglet.window.Window):
 
 		self.gui_batch = pyglet.graphics.Batch()
 		self.frame_rate = 1/60.0
-		self.paused = False
 
 		self.keys = key.KeyStateHandler()
 		self.push_handlers(self.keys)
@@ -47,8 +46,6 @@ class ViewController(pyglet.window.Window):
 			pyglet.app.exit()
 		if symbol == key.F4 and modifier & key.MOD_ALT:
 			pyglet.app.exit()
-		if symbol == key.SPACE:
-			self.paused = not self.paused
 		if symbol == key._0:
 			self.scenes['Level'].camera.reset()
 
@@ -65,5 +62,4 @@ class ViewController(pyglet.window.Window):
 			self.fps_display.draw()
 
 	def update(self, dt):
-		if not self.paused:
-			self.scenes[self.current_scene].run(dt)
+		self.scenes[self.current_scene].run(dt)

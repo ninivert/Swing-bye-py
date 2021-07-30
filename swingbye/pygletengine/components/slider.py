@@ -3,49 +3,8 @@ import glooey
 from ..utils import clamp
 
 
-class Base(pyglet.shapes.Rectangle):
-	base_color = (255, 255, 255)
-	over_color = (220, 220, 220)
-	down_color = (180, 180, 180)
-
-	def __init__(self, width, height, *args, **kwargs):
-		super().__init__(0, 0, width, height, *args, color=self.base_color, **kwargs)
-
-	def hit(self, x, y):
-		return (self.x <= x <= self.x + self.width) and (self.y <= y <= self.y + self.height)
-
-	def slider_base(self):
-		self.color = self.base_color
-
-	def over(self):
-		self.color = self.over_color
-
-	def down(self):
-		self.color = self.down_color
-
-
-class Knob(pyglet.shapes.Circle):
-	base_color = (255, 255, 255)
-	over_color = (220, 220, 220)
-	down_color = (180, 180, 180)
-
-	def __init__(self, radius, *args, **kwargs):
-		super().__init__(0, 0, radius, *args, color=self.base_color, **kwargs)
-
-	def hit(self, x, y):
-		return ((x - self.x)**2 + (y - self.y)**2)**0.5 <= self.radius
-
-	def slider_base(self):
-		self.color = self.base_color
-
-	def over(self):
-		self.color = self.over_color
-
-	def down(self):
-		self.color = self.down_color
-
-
 class Slider(glooey.Widget):
+	custom_alignment = 'fill'
 	custom_base = pyglet.shapes.Rectangle
 	custom_knob = pyglet.shapes.Circle
 
