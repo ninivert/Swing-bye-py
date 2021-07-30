@@ -22,6 +22,7 @@ class ViewController(pyglet.window.Window):
 		self.keys = key.KeyStateHandler()
 		self.push_handlers(self.keys)
 		self.fps_display = pyglet.window.FPSDisplay(self)
+		self.fps_display.label.x, self.fps_display.label.y = 0, WINDOW_HEIGHT-50
 
 		self.event_manager = EventManager(self)
 
@@ -35,7 +36,7 @@ class ViewController(pyglet.window.Window):
 			'DVD': DVD(self.gui, self.transition_to_scene, self.event_manager)
 		}
 
-		self.transition_to_scene('Level')
+		self.transition_to_scene('MainMenu')
 
 	def transition_to_scene(self, scene: str):
 		self.current_scene = scene
@@ -47,9 +48,15 @@ class ViewController(pyglet.window.Window):
 		if symbol == key.F4 and modifier & key.MOD_ALT:
 			pyglet.app.exit()
 		if symbol == key.SPACE:
-			self.pause = not self.pause
+			self.paused = not self.paused
 		if symbol == key._0:
 			self.scenes['Level'].camera.reset()
+
+	def on_resize(self, width, height):
+		super().on_resize(width, height)
+		global WINDOW_WIDTH, WINDOW_HEIGHT
+		WINDOW_WIDTH = width
+		WINDOW_HEIGHT = height
 
 	def on_draw(self):
 		self.clear()

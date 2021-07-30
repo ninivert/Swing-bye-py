@@ -5,7 +5,7 @@ def main():
 	pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
 	pyglet.options['search_local_libs'] = True
 
-	window = ViewController(caption='Swing BYE')
+	window = ViewController(caption='Swing BYE', resizable=True)
 	pyglet.clock.schedule_interval(window.update, window.frame_rate)
 
 	pyglet.app.run()

@@ -8,15 +8,26 @@ from .scene import Scene
 # Main Menu Classes #
 #####################
 
+
+class MainMenuTitle(glooey.Label):
+	custom_alignment = "center"
+	custom_font_size = 60
+
+
 class MainMenuContainer(glooey.VBox):
 	custom_cell_padding = 5
 	custom_alignment = 'fill'
 
+class MainMenuButtonLabel(glooey.Label):
+	custom_alignment = 'center'
+	custom_font_size = 26
+
 
 class MainMenuButton(glooey.Button):
+	Foreground = MainMenuButtonLabel
 	custom_alignment = 'fill'
 
-	def __init__(self, action=None, action_params=[], *args, **kwargs):
+	def __init__(self, *args, action=None, action_params=[], **kwargs):
 		super().__init__(*args, **kwargs)
 		self.action = action
 		self.action_params = action_params
@@ -35,49 +46,7 @@ class MainMenuButton(glooey.Button):
 		custom_color = '#ff5d5d'
 
 
-class MainMenuButtonLabel(glooey.Label):
-	custom_alignment = 'center'
-	custom_font_size = 26
-
-
-# Main Menu Items
-
-class MainMenuTitle(glooey.Label):
-	custom_text = "Swing BYE"
-	custom_alignment = "center"
-	custom_font_size = 60
-
-
-class StartButtonLabel(MainMenuButtonLabel):
-	custom_text = 'Start Gaming'
-
-
-class StartButton(MainMenuButton):
-	Foreground = StartButtonLabel
-
-
-class LevelSelectButtonLabel(MainMenuButtonLabel):
-	custom_text = 'Select Level'
-
-
-class LevelSelectButton(MainMenuButton):
-	Foreground = LevelSelectButtonLabel
-
-
-class OptionsButtonLabel(MainMenuButtonLabel):
-	custom_text = 'Options'
-
-
-class OptionsButton(MainMenuButton):
-	Foreground = OptionsButtonLabel
-
-
-class QuitButtonLabel(MainMenuButtonLabel):
-	custom_text = 'Quit game'
-
-
-class QuitButton(MainMenuButton):
-	Foreground = QuitButtonLabel
+##############
 
 
 class MainMenu(Scene):
@@ -87,11 +56,11 @@ class MainMenu(Scene):
 
 	def load(self):
 		self.container = MainMenuContainer()
-		self.container.add(MainMenuTitle(), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
-		self.container.add(StartButton(action=self.callback, action_params=['Level']))
-		self.container.add(LevelSelectButton(action=self.callback, action_params=['LevelSelectMenu']))
-		self.container.add(OptionsButton(action=self.callback, action_params=['OptionsMenu']))
-		self.container.add(QuitButton(action=exit))
+		self.container.add(MainMenuTitle('Swing BYE'), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
+		self.container.add(MainMenuButton('Start game', action=self.callback, action_params=['Level']))
+		self.container.add(MainMenuButton('Select level', action=self.callback, action_params=['LevelSelectMenu']))
+		self.container.add(MainMenuButton('Options', action=self.callback, action_params=['OptionsMenu']))
+		self.container.add(MainMenuButton('Quit game', action=exit))
 
 	def begin(self):
 		

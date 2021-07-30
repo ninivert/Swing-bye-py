@@ -33,3 +33,7 @@ class EventManager(pyglet.event.EventDispatcher):
 	def on_mouse_drag(self, *args):
 		if 'on_mouse_drag' in self.callbacks.keys():
 			self.callbacks['on_mouse_drag'](*args)
+
+	def on_resize(self, *args):
+		if 'on_resize' in self.callbacks.keys():
+			self.callbacks['on_resize'](*args)

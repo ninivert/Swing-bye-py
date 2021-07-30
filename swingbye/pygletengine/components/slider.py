@@ -1,4 +1,6 @@
 import pyglet
+import glooey
+from ..utils import clamp
 
 
 class Base(pyglet.shapes.Rectangle):
@@ -43,91 +45,39 @@ class Knob(pyglet.shapes.Circle):
 		self.color = self.down_color
 
 
-class Slider:
+class Slider(glooey.Widget):
+	custom_base = pyglet.shapes.Rectangle
+	custom_knob = pyglet.shapes.Circle
 
-	def __init__(self, x, y, slider_base, slider_knob, value=0, min_value=0, max_value=100, step=1, edge=0, parent=None):
-		self.updated = True
-		self.hovering = False
+	class Bin(glooey.Bin):
+		pass
+
+	def __init__(self, value_update_callback, value=0, min_value=0, max_value=100, step=1, edge=0):
+		super().__init__()
+		
+		bin_container = self.Bin()
+
+		self.base = None
+		self.knob = None
+
 		self.captured = False
+		self.on_value_update_callback = value_update_callback
 
-		self._x = x
-		self._y = y
-		self.width = slider_base.width
-		self.height = slider_base.height // 2
-		self.slider_width = self.width - 2 * edge
-
-		slider_base.position = x, y
-		slider_knob.position = x+edge, y+(slider_base.height//2)
-
-		self.slider_base = slider_base
-		self.slider_knob = slider_knob
-		self._value = value
-		self._old_value = value
+		self.value = value
+		self.old_value = None
 		self.min_value = min_value
 		self.max_value = max_value
 		self.step = step
 		self.edge = edge
-		self.parent = parent
 
-	@property
-	def value(self):
-		self.updated = False
-		return self._value
-
-	@value.setter
-	def value(self, value):
-		if self.min_value <= value <= self.max_value:
-			self._value = value
-			self.update()
-		else:
-			print('sdfvghjksdfgbhjksdfgvhbjnk')
-
-	@property
-	def x(self):
-		return self._x
-
-	@value.setter
-	def x(self, x):
-		self._x = x
-		self.slider_knob.x = self.calculate_knob_position()
-		self.slider_base.x = x
-
-	@property
-	def y(self):
-		return self._y
-
-	@value.setter
-	def y(self, y):
-		self._y = y
-		self.slider_knob.y = y + (self.height // 2)
-		self.slider_base.y = y
-
-	def attach_parent(self, parent):
-		self.parent = parent
-
-	def detach_parent(self):
-		self.parent = None
-
-	def base(self):
-		self.slider_knob.slider_base()
-		self.slider_base.slider_base()
-
-	def over(self):
-		self.slider_knob.over()
-		self.slider_base.over()
-
-	def down(self):
-		self.slider_knob.down()
-		self.slider_base.down()
-
-	def hit(self, x, y):
-		return self.slider_knob.hit(x, y) or self.slider_base.hit(x, y)
+		self._attach_child(bin_container)
 
 	def get_value_range(self):
 		return self.max_value - self.min_value
 
 	def get_closest_value(self, x, y):
-		progress = (x - self._x - self.edge) / self.slider_width
+		self.x, self.y = self.get_rect().bottom_left
+		progress = (x - self.x - self.edge) / self.slider_width
 		exact_value = self.get_value_range() * progress - (self.step//2)
 		remainder = abs(exact_value) % self.step;
 		if remainder == 0:
@@ -138,46 +88,64 @@ class Slider:
 			return exact_value + self.step - remainder
 
 	def calculate_knob_position(self):
-		return self._x + self.edge + (self.slider_width*((self._value - self.min_value) / self.get_value_range()))
+		return self.base.x + self.edge + ((self.slider_width - 2*self.edge)*((self.value - self.min_value) / self.get_value_range()))
 
-	def clamp(self, value):
-		return min(max(value, self.min_value), self.max_value)
+	def load(self):
+		self.base_height = 10
+		self.knob_size = 10
+		self.x, self.y = self.get_rect().bottom_left
+		self.slider_width = self.width - 2*self.horz_padding[0] - 2*self.knob_size
+		if self.custom_base is not None:
+			self.base = self.custom_base(0, 0, self.slider_width, self.base_height, batch=self.batch, group=self.group)
+			self.base.x = self.x + self.horz_padding[0] + self.knob_size
+			self.base.y = self.y + self.height//2 - self.base_height//2
+		if self.custom_knob is not None:
+			self.knob = self.custom_knob(0, 0, self.knob_size, batch=self.batch, group=self.group)
 
-	def update(self):
-		self.slider_knob.x = self.calculate_knob_position()
+	def update_value(self, new_value):
+		self.value = clamp(new_value, self.min_value, self.max_value)
+		if self.value != self.old_value:
+			self.on_value_update_callback(self.value)
+			self.old_value = self.value
+			self._draw()
+
+	def do_resize(self):
+		self.base_height = 10
+		self.knob_size = 10
+		self.x, self.y = self.get_rect().bottom_left
+		self.slider_width = self.width - 2*self.horz_padding[0] - 2*self.knob_size
+		if self.base is not None:
+			self.base.width = self.slider_width
+			self.base.x = self.x + self.horz_padding[0] + self.knob_size
+			self.base.y = self.y + self.height//2 - self.base_height//2
+
+	def do_draw(self):
+		if self.base is None or self.knob is None:
+			self.load()
+
+		self.knob.x = self.calculate_knob_position()
+		self.knob.y = self.y + self.height//2
 		
-		if self._value != self._old_value:
-			self.updated = True
-			self._old_value = self._value
+		self.base.visible = True
+		self.knob.visible = True
+
+	def do_undraw(self):
+		if self.base is not None:
+			self.base.visible = False
+		if self.knob is not None:
+			self.knob.visible = False
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-		if self.hit(x, y):
-			self._value = self.clamp(self._value + (self.step * scroll_y))
+		self.update_value(self.value + (self.step * scroll_y))
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
-		if self.hit(x, y):
-			self._value = self.clamp(self.get_closest_value(x, y))
-			self.captured = True
-			self.down()
+		self.update_value(self.get_closest_value(x, y))
+		self.captured = True
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		self.captured = False
-		if self.hit(x, y):
-			self.hovering = True
-			self.over()
-		else:
-			self.hovering = False
-			self.base()
-
-	def on_mouse_motion(self, x, y, dx, dy):
-		if not self.captured:
-			if self.hit(x, y):
-				self.hovering = True
-				self.over()
-			else:
-				self.hovering = False
-				self.base()
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 		if self.captured:
-			self._value = self.clamp(self.get_closest_value(x, y))
+			self.update_value(self.get_closest_value(x, y))
+
