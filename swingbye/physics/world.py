@@ -54,6 +54,9 @@ class World():
 
 		for planet in self.planets:
 			planet.time = time
+			# position is updated lazily for planets, so we call planet.pos to resolve it and force an update
+			# this should normally not be needed, but since we are drawing every frame the sprite positions need to be updated
+			planet.pos
 
 		self.ship.time = time
 
@@ -105,7 +108,11 @@ if __name__ == '__main__':
 
 		world = World(
 			ship=Ship(pos=np.array([100.0, 100.0])),
-			planets=[Planet(maxis=50)],
+			planets=[
+				p1 := Planet(anchor=np.array([2.0, 3.0])),
+				p2 := Planet(parent=p1, maxis=5.0),
+				p3 := Planet(parent=p2, maxis=2.0, radius=0.3)
+			],
 			integrator=integrator
 		)
 
@@ -119,6 +126,7 @@ if __name__ == '__main__':
 		world.step(0.1)
 
 		print(world)
+		# print(world.planets[2].pos)
 
 		print('>>> setting time to 0')
 		world.time = 0

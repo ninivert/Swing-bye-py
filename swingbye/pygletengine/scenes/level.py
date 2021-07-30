@@ -63,15 +63,18 @@ class Level(Scene):
 			child_dict, parent = queue.pop()
 
 			# Convert the position list to a numpy array
-			if 'x' in child_dict:
-				child_dict['x'] = np.array(child_dict['x'])
+			if 'pos' in child_dict:
+				child_dict['pos'] = np.array(child_dict['pos'])
+			if 'anchor' in child_dict:
+				child_dict['anchor'] = np.array(child_dict['anchor'])
 
 			_logger.debug(f'parsing {child_dict}')
 
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
-					create_sprite(child_dict['sprite'], batch=batch, group=group),
-					**dict(parent=parent, **child_dict['arguments'])
+					sprite=create_sprite(child_dict['sprite'], batch=batch, group=group),
+					parent=parent,
+					**child_dict['arguments']
 				)
 				queue += [(_child_dict, planetobject) for _child_dict in child_dict['children']]
 				planets.append(planetobject)
@@ -83,8 +86,9 @@ class Level(Scene):
 					continue
 
 				ship = ShipObject(
-					create_sprite(child_dict['sprite'], batch=batch, group=group),
-					**dict(parent=parent, **child_dict['arguments'])
+					sprite=create_sprite(child_dict['sprite'], batch=batch, group=group),
+					parent=parent,
+					**child_dict['arguments']
 				)
 
 			else:
@@ -95,7 +99,7 @@ class Level(Scene):
 			_logger.warning(f'no ship found, instanciating default ship')
 			ship = Ship()
 
-		world = World(ship, planets, EulerIntegrator())
+		world = World(ship=ship, planets=planets, integrator=EulerIntegrator)
 		_logger.debug(f'finished parsing level, result\n`{world}`')
 		return world
 
@@ -147,8 +151,8 @@ class Level(Scene):
 	def run(self, dt):
 		self.hud.update()
 		if self.slider.updated:
-			self.world.t = self.slider.value
+			self.world.time = self.slider.value
 
 		if DEBUG:
-			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[5].x)
+			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[5].pos)
 			self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.mouse_x, self.mouse_y)

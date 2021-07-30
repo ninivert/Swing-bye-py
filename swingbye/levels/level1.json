@@ -6,36 +6,36 @@
 			"type": "planet",
 			"sprite": "assets/sprites/star1.png",
 			"arguments": {
-				"x": [0, 0],
-				"m": 20,
-				"r": 200
+				"anchor": [0, 0],
+				"mass": 20,
+				"radius": 200
 			},
 			"children": [
 				{
 					"type": "planet",
 					"sprite": "assets/sprites/planet1.png",
 					"arguments": {
-						"m": 10,
-						"s": 400,
-						"r": 20
+						"mass": 10,
+						"maxis": 400,
+						"radius": 20
 					},
 					"children": [
 						{
 							"type": "planet",
 							"sprite": "assets/sprites/planet5.png",
 							"arguments": {
-								"m": 5,
-								"s": 34,
-								"r": 5
+								"mass": 5,
+								"maxis": 34,
+								"radius": 5
 							},
 							"children": [
 								{
 									"type": "planet",
 									"sprite": "assets/sprites/planet2.png",
 									"arguments": {
-										"m": 1,
-										"s": 5,
-										"r": 2
+										"mass": 1,
+										"maxis": 5,
+										"radius": 2
 									},
 									"children": []
 								}
@@ -47,9 +47,9 @@
 					"type": "planet",
 					"sprite": "assets/sprites/planet3.png",
 					"arguments": {
-						"m": 10,
-						"s": 600,
-						"r": 55
+						"mass": 10,
+						"maxis": 600,
+						"radius": 55
 					},
 					"children": [
 						{
@@ -64,9 +64,10 @@
 					"type": "planet",
 					"sprite": "assets/sprites/planet4.png",
 					"arguments": {
-						"m": 10,
-						"s": 800,
-						"r": 32
+						"mass": 10,
+						"maxis": 800,
+						"radius": 32,
+						"ecc": 0.5
 					},
 					"children": []
 				}

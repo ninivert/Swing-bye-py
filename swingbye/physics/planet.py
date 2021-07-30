@@ -29,12 +29,25 @@ class Planet(ExplicitEntity):
 	parent: Union[None, 'Planet'] = None
 
 	def pos_at(self, time: float) -> np.ndarray:
-		# TODO : ellipticity fucks up uwu
+		pos = np.zeros(2)
+		parent = self
 
-		if self.parent is None:
-			return self._pos
+		while parent is not None:
+			pos += parent.rel_pos_at(time)
+			if parent.parent is None:
+				pos += parent.anchor
+			parent = parent.parent
+
+		return pos
+
+	def rel_pos_at(self, time: float) -> np.ndarray:
+		# FIXME : ellipticity fucks up uwu
 
 		pos = np.zeros(2)
+
+		if self.parent is None:
+			return pos
+
 		mu = GRAVITY_CST*(self.mass + self.parent.mass)
 
 		if 0 <= self.ecc and self.ecc < 1:
@@ -106,3 +119,22 @@ class Planet(ExplicitEntity):
 			predicted[i, :] = self.pos_at(self, t)
 
 		return predicted
+
+
+if __name__ == '__main__':
+	p1 = Planet(anchor=np.array([2.0, 3.0]))
+	p2 = Planet(parent=p1, maxis=5.0)
+	p3 = Planet(parent=p2, maxis=2.0, radius=0.3)
+
+	print('>>> initialized planets')
+	print(p1, p2, p3, sep='\n')
+
+	print('>>> positions at time 0')
+	print(p1.pos_at(0))
+	print(p2.pos_at(0))
+	print(p3.pos_at(0))
+
+	print('>>> positions at time 1')
+	print(p1.pos_at(1))
+	print(p2.pos_at(1))
+	print(p3.pos_at(1))

@@ -1,19 +1,9 @@
 from ...physics.ship import Ship
+from .utils import SpriteMixin
+from dataclasses import dataclass
 
-class ShipObject(Ship):
-
-	def __init__(self, sprite, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-
-		self.sprite = sprite
+@dataclass
+class ShipObject(SpriteMixin, Ship):
+	def __post_init__(self):
 		scale = 0.05  # self.r / (self.sprite.width//2)
-		self.sprite.update(x=self.x[0], y=self.x[1], scale=scale)
-
-	@property
-	def x(self):
-		return self._x
-
-	@x.setter
-	def x(self, x):
-		self.sprite.position = x[0], x[1]
-		self._x = x
+		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
