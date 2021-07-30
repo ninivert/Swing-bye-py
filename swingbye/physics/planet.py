@@ -89,7 +89,7 @@ class Planet(ExplicitEntity):
 
 			r = self.maxis * (1 - self.ecc*math.cosh(H))
 			costheta = (self.ecc - math.cosh(H)) / (self.ecc*math.cosh(H) - 1)
-			sintheta = math.sign(H)*math.sin(math.acos(costheta))
+			sintheta = math.copysign(1, H)*math.sin(math.acos(costheta))
 
 		pos[0] = r*costheta
 		pos[1] = r*sintheta
@@ -101,8 +101,7 @@ class Planet(ExplicitEntity):
 		pos[1] = posx*math.sin(self.parg) + posy*math.cos(self.parg)
 
 		# Inclination
-		# TODO : this bitch bugs
-		# pos[0] *= np.cos(self.incl)
+		pos[0] *= np.cos(self.incl)
 
 		return pos
 

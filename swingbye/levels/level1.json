@@ -67,7 +67,20 @@
 						"mass": 10,
 						"maxis": 800,
 						"radius": 32,
+						"parg": 1.57079,
 						"ecc": 0.5
+					},
+					"children": []
+				},
+				{
+					"type": "planet",
+					"sprite": "assets/sprites/missingtexture.png",
+					"arguments": {
+						"mass": 10,
+						"maxis": -400,
+						"radius": 32,
+						"ecc": 1.3,
+						"time0": 8000
 					},
 					"children": []
 				}
