@@ -99,8 +99,9 @@ class Level(Scene):
 	def on_mouse_release(self, x, y, dx, dy):
 		clicked = self.mouse_press_x == x and self.mouse_press_y == y
 
-		if clicked:
-			self.world.point_ship(self.camera.to_world_space(x, y))
+		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
+			if clicked:
+				self.world.point_ship(self.camera.to_world_space(x, y))
 
 		self.slider.on_mouse_release(x, y, dx, dy)
 
@@ -169,7 +170,7 @@ class Level(Scene):
 		self.container = glooey.VBox()
 		self.hud_container = HUDContainer()
 
-		reset = HUDButton('Reset')
+		reset = HUDButton('Reset', action=self.reset)
 		pause = HUDButton('Pause')
 		self.slider = HUDSlider(
 			self.on_slider_value_update,
@@ -191,6 +192,17 @@ class Level(Scene):
 
 		self.hud_rect = self.hud_container.get_rect()
 
+	def load_level(self):
+		with open(self.levels[self.level_index]) as file:
+			level = json.load(file)
+
+		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.parallax)
+		self.background.opacity = 180
+
+		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
+
+		self.world = self.parse_level(level, self.batch, self.camera)
+
 	def load(self):
 		self.batch = pyglet.graphics.Batch()
 
@@ -209,24 +221,16 @@ class Level(Scene):
 			'on_resize': self.on_resize
 		}
 
-		with open(self.levels[self.level_index]) as file:
-			level = json.load(file)
-
-		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.parallax)
-		self.background.opacity = 180
-
-		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
-
-		self.world = self.parse_level(level, self.batch, self.camera)
-
 		if DEBUG:
 			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.hud)
 			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.batch, group=self.camera)
 
+		self.load_level()
+		self.load_hud()
+
 	def begin(self):
 		self.gui.clear()
 		self.load()
-		self.load_hud()
 
 	def draw(self):
 		self.batch.draw()
@@ -244,3 +248,7 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
+
+	def reset(self):
+		self.slider.update_value(0)
+		self.load_level()
