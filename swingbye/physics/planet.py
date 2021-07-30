@@ -41,8 +41,6 @@ class Planet(ExplicitEntity):
 		return pos
 
 	def rel_pos_at(self, time: float) -> np.ndarray:
-		# FIXME : ellipticity fucks up uwu
-
 		pos = np.zeros(2)
 
 		if self.parent is None:
