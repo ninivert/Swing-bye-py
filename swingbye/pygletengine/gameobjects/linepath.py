@@ -1,5 +1,4 @@
 import pyglet
-import numpy as np
 
 
 class LinePath:
