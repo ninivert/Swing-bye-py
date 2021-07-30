@@ -7,7 +7,7 @@ from .scenes.levelselectmenu import LevelSelectMenu
 from .scenes.optionsmenu import OptionsMenu
 from .scenes.dvd import DVD
 from .eventmanager import EventManager
-from .globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from .globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 
 class ViewController(pyglet.window.Window):
@@ -61,7 +61,8 @@ class ViewController(pyglet.window.Window):
 	def on_draw(self):
 		self.clear()
 		self.scenes[self.current_scene].draw()
-		self.fps_display.draw()
+		if DEBUG:
+			self.fps_display.draw()
 
 	def update(self, dt):
 		if not self.paused:
