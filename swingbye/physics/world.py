@@ -77,7 +77,7 @@ class World():
 		self.ship.launch()
 
 	def point_ship(self, clickpos: np.ndarray):
-		pointing = clickpos - self.ship.pos
+		pointing = clickpos - self.ship.parent.pos
 		pointing_norm = np.linalg.norm(pointing)
 
 		if pointing_norm == 0.0:
