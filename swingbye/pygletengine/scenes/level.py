@@ -11,7 +11,7 @@ from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates
-from ...physics.integrator import EulerIntegrator
+from ...physics.integrator import EulerIntegrator, RK4Integrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
@@ -145,7 +145,7 @@ class Level(Scene):
 			_logger.warning(f'no ship found, instanciating default ship')
 			ship = Ship()
 
-		world = World(ship=ship, planets=planets, integrator=EulerIntegrator)
+		world = World(ship=ship, planets=planets, integrator=RK4Integrator)
 		_logger.debug(f'finished parsing level, result\n`{world}`')
 		return world
 
