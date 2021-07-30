@@ -32,7 +32,7 @@ class Ship(ImplicitEntity):
 		self._time = time
 
 		if self.docked:
-			self.pos = self.parent.pos_at(time) + self.pointing*self.parent.radius
+			self.update_docked_pos()
 
 	# Docked
 
@@ -53,19 +53,23 @@ class Ship(ImplicitEntity):
 				return Ship._pointing
 			return self.vel / speed
 
+	def _set_pointing_safe(self, pointing):
+		if not self.docked:
+			_logger.warning('cannot point ship that is launched, ignoring')
+			return
+
+		self._set_pointing(pointing)
+
+		if self.docked:
+			self.update_docked_pos()
+
 	def _set_pointing(self, pointing):
 		if type(pointing) is property:
 			pointing = Ship._pointing
 
-		# DIRTY : normally you shouldn't be able to point a ship that is launched,
-		# but this needs to be set internally so that the sprite can react to rotation
-		# if not self.docked:
-		# 	_logger.warning('cannot point ship that is launched, ignoring')
-		# 	return
-
 		self._pointing = pointing
 
-	pointing = property(_get_pointing, _set_pointing)
+	pointing = property(_get_pointing, _set_pointing_safe)
 
 	# Game logic
 
@@ -82,3 +86,9 @@ class Ship(ImplicitEntity):
 
 		# Undock the ship
 		self.parent = None
+
+	def update_docked_pos(self):
+		if self.docked:
+			self.pos = self.parent.pos_at(self.time) + self.pointing*self.parent.radius
+		else:
+			_logger.warning('trying to update docked position, but the ship is launched, ignoring')

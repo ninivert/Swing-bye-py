@@ -9,16 +9,16 @@ class ShipObject(SpriteMixin, Ship):
 		scale = 0.05  # self.r / (self.sprite.width//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
 
-	def _get_pos(self):
-		return super().pos
+	def _get_vel(self):
+		return super().vel
 
-	def _set_pos(self, pos):
-		super()._set_pos(pos)
-		# HACK : we override _set_pos because it gets called while the game is running,
+	def _set_vel(self, pos):
+		super()._set_vel(pos)
+		# HACK : we override _set_ve, because it gets called while the game is running,
 		# so that we can orient the ship in the correct direction
 		self._set_pointing(self._get_pointing())
 
-	pos = property(_get_pos, _set_pos)
+	vel = property(_get_vel, _set_vel)
 
 	def _get_pointing(self):
 		return super().pointing
@@ -28,4 +28,4 @@ class ShipObject(SpriteMixin, Ship):
 		if type(pointing) is not property:
 			self.sprite.rotation = -math.degrees(math.atan2(pointing[1], pointing[0])) + 90
 
-	pointing = property(_get_pointing, _set_pointing)
+	pointing = property(_get_pointing, Ship._set_pointing_safe)
