@@ -4,10 +4,10 @@ import numpy as np
 
 class ParallaxGroup(pyglet.graphics.OrderedGroup):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, parallax_factor, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.parallax_factor = 10
+		self.parallax_factor = parallax_factor
 		self._world_offset = np.zeros(2)
 		self._parallax_offset = np.zeros(2)
 

@@ -3,10 +3,10 @@ import glooey
 import numpy as np
 import json
 import logging
+from random import randrange
 from .scene import Scene
 from .groups.parallax import ParallaxGroup
 from .groups.camera import CameraGroup
-from .groups.hud import HUDgroup
 from ..components.slider import Base, Knob, Slider
 from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
@@ -15,6 +15,7 @@ from ...physics.world import World, WorldStates
 from ...physics.integrator import EulerIntegrator, RK4Integrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
+from ..gameobjects.starobject import StarObject
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 _logger = logging.getLogger(__name__)
@@ -88,7 +89,8 @@ class Level(Scene):
 			self.slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.pan(dx, dy)
-			self.parallax.world_offset = self.camera.offset
+			for layer in self.parallax_layers:
+				layer.world_offset = self.camera.offset
 		self.mouse_x = x
 		self.mouse_y = y
 
@@ -196,21 +198,45 @@ class Level(Scene):
 		with open(self.levels[self.level_index]) as file:
 			level = json.load(file)
 
-		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.parallax)
+		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.background_layer)
 		self.background.opacity = 180
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
 		self.world = self.parse_level(level, self.batch, self.camera)
+	
+	def load_background(self):
+		self.stars = []
+		stars_img = [
+			'assets/sprites/particle_star1_1.png',
+			'assets/sprites/particle_star1_2.png',
+			'assets/sprites/particle_star2_1.png',
+			'assets/sprites/particle_star2_2.png'
+		]
+		for i in range(100):
+			self.stars.append(
+				StarObject(
+					pos=np.random.rand(2)*np.array((WINDOW_WIDTH, WINDOW_HEIGHT)),
+					sprite=create_sprite(
+						np.random.choice(stars_img),
+						size=(5, 5),
+						batch=self.batch,
+						group=np.random.choice(self.parallax_layers)
+					)
+				)
+			)
 
 	def load(self):
 		self.batch = pyglet.graphics.Batch()
 
-		self.parallax = ParallaxGroup(0)
-		self.camera = CameraGroup(1)
-		# This is no longer needed since we are now using glooey for the hud
-		self.hud = HUDgroup(2)
-		# Waiting to delete
+		self.parallax_layers = [
+			ParallaxGroup(100, 0),
+			ParallaxGroup(50, 1),
+			ParallaxGroup(10, 2)
+		]
+		self.background_layer = pyglet.graphics.OrderedGroup(3)
+		self.camera = CameraGroup(4)
+		self.top_layer = pyglet.graphics.OrderedGroup(5)
 
 		self.event_manager.callbacks = {
 			'on_mouse_motion': self.on_mouse_motion,
@@ -222,11 +248,12 @@ class Level(Scene):
 		}
 
 		if DEBUG:
-			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.hud)
+			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.top_layer)
 			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.batch, group=self.camera)
 
 		self.load_level()
 		self.load_hud()
+		self.load_background()
 
 	def begin(self):
 		self.gui.clear()
