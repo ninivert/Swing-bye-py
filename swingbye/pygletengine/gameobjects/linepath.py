@@ -2,8 +2,8 @@ import pyglet
 
 
 class LinePath:
-	def __init__(self, point_count=0, points=[], color=(255, 255, 255), batch=None, group=None):
-		if point_count > len(points):
+	def __init__(self, point_count=1, points=[], color=(255, 255, 255), batch=None, group=None):
+		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
 		# Extend points to match point_count
