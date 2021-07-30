@@ -57,9 +57,11 @@ class Ship(ImplicitEntity):
 		if type(pointing) is property:
 			pointing = Ship._pointing
 
-		if not self.docked:
-			_logger.warning('cannot point ship that is launched, ignoring')
-			return
+		# DIRTY : normally you shouldn't be able to point a ship that is launched,
+		# but this needs to be set internally so that the sprite can react to rotation
+		# if not self.docked:
+		# 	_logger.warning('cannot point ship that is launched, ignoring')
+		# 	return
 
 		self._pointing = pointing
 
