@@ -2,10 +2,20 @@ import pyglet
 from typing import Union
 
 
-def create_sprite(path: str, **kwargs) -> pyglet.sprite.Sprite:
+def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.sprite.Sprite:
 	image = pyglet.resource.image(path)
-	image.anchor_x = image.width // 2
-	image.anchor_y = image.height // 2
+	
+	if anchor == 'center':
+		image.anchor_x = image.width // 2
+		image.anchor_y = image.height // 2
+	elif anchor == 'bottom_left':
+		image.anchor_x = 0
+		image.anchor_y = 0
+
+	if size is not None:
+		image.width = size[0]
+		image.height = size[1]
+
 	return pyglet.sprite.Sprite(image, **kwargs)
 
 def clamp(value: Union[int, float], mini: Union[int, float], maxi: Union[int, float]) -> Union[int, float]:

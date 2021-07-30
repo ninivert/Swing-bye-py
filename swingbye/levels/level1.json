@@ -1,6 +1,7 @@
 {
 	"title": "Level 1",
 	"description": "Launch the ship bitch",
+	"background_sprite": "assets/bg1.png",
 	"world": [
 		{
 			"type": "planet",

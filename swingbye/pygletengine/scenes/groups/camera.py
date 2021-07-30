@@ -15,11 +15,11 @@ class CameraGroup(pyglet.graphics.OrderedGroup):
 
 		self.reset()
 
-	def to_world_space(self, x, y):
-		return (np.array((x, y)) - self.offset) / self.scale
+	def to_world_space(self, x: float, y: float) -> np.ndarray:
+		return (np.array((x, y)) - (self.offset + self.default_offset)) / self.scale
 
-	def to_screen_space(self, x, y):
-		return (np.array((x, y)) * self.scale) + self.offset
+	def to_screen_space(self, x: float, y: float) -> np.ndarray:
+		return (np.array((x, y)) * self.scale) + (self.offset + self.default_offset)
 
 	def set_bounding_box(self, min_world, max_world):
 		self.min_offset = self.to_screen_space(*min_world)
@@ -33,8 +33,9 @@ class CameraGroup(pyglet.graphics.OrderedGroup):
 		self.scale = 1
 		self.target_scale = 1
 		self.zoom_anchor = np.zeros(2)
-		self.offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
-		self.target_offset = np.array(((WINDOW_WIDTH//2, WINDOW_HEIGHT//2)), dtype=np.float64)
+		self.default_offset = np.array((WINDOW_WIDTH//2, WINDOW_HEIGHT//2), dtype=np.float64)
+		self.offset = np.zeros(2)
+		self.target_offset = np.zeros(2)
 
 	def update(self):
 		self.target_scale = clamp(self.target_scale, self.min_scale, self.max_scale)
@@ -67,10 +68,10 @@ class CameraGroup(pyglet.graphics.OrderedGroup):
 
 	def set_state(self):
 		pyglet.gl.glPushMatrix()
-		pyglet.gl.glTranslatef(*self.offset, 0)
+		pyglet.gl.glTranslatef(*(self.offset + self.default_offset), 0)
 		pyglet.gl.glScalef(self.scale, self.scale, 1)
-		pyglet.gl.glTranslatef(*-self.offset, 0)
-		pyglet.gl.glTranslatef(*(self.offset), 0)
+		# pyglet.gl.glTranslatef(*-(self.offset + self.default_offset), 0)
+		# pyglet.gl.glTranslatef(*(self.offset + self.default_offset), 0)
 		self.update()
 
 	def unset_state(self):

@@ -4,6 +4,7 @@ import numpy as np
 import json
 import logging
 from .scene import Scene
+from .groups.parallax import ParallaxGroup
 from .groups.camera import CameraGroup
 from .groups.hud import HUDgroup
 from ..components.slider import Base, Knob, Slider
@@ -87,6 +88,7 @@ class Level(Scene):
 			self.slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.pan(dx, dy)
+			self.parallax.world_offset = self.camera.offset
 		self.mouse_x = x
 		self.mouse_y = y
 
@@ -192,7 +194,7 @@ class Level(Scene):
 	def load(self):
 		self.batch = pyglet.graphics.Batch()
 
-		self.paralax = pyglet.graphics.OrderedGroup(0)
+		self.parallax = ParallaxGroup(0)
 		self.camera = CameraGroup(1)
 		# This is no longer needed since we are now using glooey for the hud
 		self.hud = HUDgroup(2)
@@ -209,6 +211,9 @@ class Level(Scene):
 
 		with open(self.levels[self.level_index]) as file:
 			level = json.load(file)
+
+		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.parallax)
+		self.background.opacity = 180
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
