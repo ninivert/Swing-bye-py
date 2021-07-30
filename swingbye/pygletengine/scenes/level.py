@@ -113,6 +113,10 @@ class Level(Scene):
 
 	def on_resize(self, width, height):
 		self.hud_rect = self.hud_container.get_rect()  # haha get rekt
+		self.background.update(
+			scale_x=width/self.background.width,
+			scale_y=height/self.background.height
+		)
 
 	def on_slider_value_update(self, value):
 		if self.world.state == WorldStates.PRE_LAUNCH:
@@ -230,9 +234,9 @@ class Level(Scene):
 		self.batch = pyglet.graphics.Batch()
 
 		self.parallax_layers = [
-			ParallaxGroup(100, 0),
-			ParallaxGroup(50, 1),
-			ParallaxGroup(10, 2)
+			ParallaxGroup(35, 0),
+			ParallaxGroup(25, 1),
+			ParallaxGroup(20, 2)
 		]
 		self.background_layer = pyglet.graphics.OrderedGroup(3)
 		self.camera = CameraGroup(4)
@@ -265,7 +269,7 @@ class Level(Scene):
 
 	def run(self, dt):
 		if self.world.state == WorldStates.POST_LAUNCH:
-			self.world.step(dt*100)
+			self.world.step(dt*200)
 
 		if DEBUG:
 			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)
