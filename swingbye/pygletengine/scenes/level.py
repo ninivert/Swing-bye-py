@@ -85,6 +85,9 @@ class Level(Scene):
 		self.mouse_x = x
 		self.mouse_y = y
 
+	def on_mouse_release(self, x, y, dx, dy):
+		self.slider.on_mouse_release(x, y, dx, dy)
+
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
 		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
 			self.camera.zoom(x, y, scroll_y)
@@ -183,6 +186,7 @@ class Level(Scene):
 		self.event_manager.callbacks = {
 			'on_mouse_motion': self.on_mouse_motion,
 			'on_mouse_drag': self.on_mouse_drag,
+			'on_mouse_release': self.on_mouse_release,
 			'on_mouse_scroll': self.on_mouse_scroll,
 			'on_resize': self.on_resize
 		}
