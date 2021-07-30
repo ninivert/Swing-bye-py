@@ -76,6 +76,7 @@ class Level(Scene):
 		# TODO : cleanup this
 		self.mouse_press_x = 0
 		self.mouse_press_y = 0
+		self.simulation_speed = 1
 
 		self.mouse_x = 0
 		self.mouse_y = 0
@@ -85,8 +86,10 @@ class Level(Scene):
 		self.mouse_y = y
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		if point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size) or self.slider.captured:
-			self.slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+		if self.time_slider.captured:
+			self.time_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+		elif self.speed_slider.captured:
+			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.pan(dx, dy)
 			for layer in self.parallax_layers:
@@ -105,7 +108,8 @@ class Level(Scene):
 			if clicked:
 				self.world.point_ship(self.camera.to_world_space(x, y))
 
-		self.slider.on_mouse_release(x, y, dx, dy)
+		self.time_slider.on_mouse_release(x, y, dx, dy)
+		self.speed_slider.on_mouse_release(x, y, dx, dy)
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
 		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
@@ -118,9 +122,12 @@ class Level(Scene):
 			scale_y=height/self.background.height
 		)
 
-	def on_slider_value_update(self, value):
+	def on_time_slider_value_update(self, value):
 		if self.world.state == WorldStates.PRE_LAUNCH:
 			self.world.time = value
+
+	def on_speed_slider_value_update(self, value):
+		self.simulation_speed = int(value)
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -178,8 +185,14 @@ class Level(Scene):
 
 		reset = HUDButton('Reset', action=self.reset)
 		pause = HUDButton('Pause')
-		self.slider = HUDSlider(
-			self.on_slider_value_update,
+		self.speed_slider = HUDSlider(
+			self.on_speed_slider_value_update,
+			min_value=1, max_value=16,
+			step=1,
+			edge=10
+		)
+		self.time_slider = HUDSlider(
+			self.on_time_slider_value_update,
 			min_value=0, max_value=50000,
 			step=25,
 			edge=10
@@ -188,7 +201,8 @@ class Level(Scene):
 
 		self.hud_container.pack(reset)
 		self.hud_container.pack(pause)
-		self.hud_container.add(self.slider)
+		self.hud_container.add(self.speed_slider, size=100)
+		self.hud_container.add(self.time_slider)
 		self.hud_container.pack(launch)
 
 		self.container.add(glooey.Bin())
@@ -269,7 +283,8 @@ class Level(Scene):
 
 	def run(self, dt):
 		if self.world.state == WorldStates.POST_LAUNCH:
-			self.world.step(dt*200)
+			for i in range(self.simulation_speed):
+				self.world.step(dt*200)
 
 		if DEBUG:
 			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)
@@ -281,5 +296,5 @@ class Level(Scene):
 		self.world.launch_ship()
 
 	def reset(self):
-		self.slider.update_value(0)
+		self.time_slider.update_value(0)
 		self.load_level()
