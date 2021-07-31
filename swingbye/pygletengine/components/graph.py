@@ -85,14 +85,14 @@ class Graph(glooey.Widget):
 			pyglet.clock.schedule_interval(self.update_data, self.sample_rate)
 
 	def update_data(self, dt):
-		if len(self.samples) >= self.sample_size:
-			self.samples.pop(0)
-
-		self.samples.append(self.query())
-
-		self.y_scale_modes[self.y_scale_mode]()
-
 		if self.graph is not None:
+			if len(self.samples) >= self.sample_size:
+				self.samples.pop(0)
+
+			self.samples.append(self.query())
+
+			self.y_scale_modes[self.y_scale_mode]()
+
 			self.graph.vertices = self._calulate_point_positions()
 
 	def reset(self):
@@ -109,4 +109,4 @@ class Graph(glooey.Widget):
 		if self.graph is not None:
 			self.graph.delete()
 			self.graph = None
-
+			pyglet.clock.unschedule(self.update_data)

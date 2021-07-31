@@ -7,14 +7,15 @@ Rendering
 - [ ] Fix background parallax on resize
 - [ ] Create Background class to hold all stars and background image
 - [ ] Give each level a seed to keep the background consistant
-- [ ] Fix weird glitch with hiding / unhiding Graph (becomes blocky for some reason?)
+- [X] Fix weird glitch with hiding / unhiding Graph (becomes blocky for some reason?)
 - [ ] Planet / comet labels
+- [ ] FIX THE GODDAMN CAMERA
 
 
 UI
 
 - [ ] Make it not ugly
-- [ ] Custom main screen w/ animations?
+- [ ] Custom main menu w/ animations?
 - [ ] Make options actually do something
 - [ ] Make level selection work
 
@@ -28,5 +29,6 @@ Physics
 Game
 
 - [ ] Make more levels
+- [ ] Animations on level entry (e.g. zoom in, time autoscroll, cutscene????)
 - [ ] Add the goal (black hole?) to the levels
 - [ ] Integrate easter eggs
