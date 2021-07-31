@@ -11,7 +11,6 @@ from ..components.slider import Slider
 from ..components.graph import Graph
 from ..components.buttons import Button, CycleButton
 from ..components.containers import VBox, HBox, Board
-from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates
@@ -19,6 +18,7 @@ from ...physics.integrator import EulerIntegrator, RK4Integrator
 from ..gameobjects.planetobject import PlanetObject
 from ..gameobjects.shipobject import ShipObject
 from ..gameobjects.starobject import StarObject
+from ..gameobjects.backgroundobject import BackgroundObject
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 _logger = logging.getLogger(__name__)
@@ -233,14 +233,14 @@ class Level(Scene):
 		self.camera = CameraGroup(4)
 		self.top_layer = pyglet.graphics.OrderedGroup(5)
 
-		self.event_manager.callbacks = {
-			'on_mouse_motion': self.on_mouse_motion,
-			'on_mouse_drag': self.on_mouse_drag,
-			'on_mouse_release': self.on_mouse_release,
-			'on_mouse_scroll': self.on_mouse_scroll,
-			'on_mouse_press': self.on_mouse_press,
-			'on_resize': self.on_resize
-		}
+		# self.add_event_handlers(
+		# 	self.on_mouse_motion,
+		# 	self.on_mouse_drag,
+		# 	self.on_mouse_press,
+		# 	self.on_mouse_release,
+		# 	self.on_mouse_scroll,
+		# 	self.on_resize
+		# )
 
 		if DEBUG:
 			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.top_layer)

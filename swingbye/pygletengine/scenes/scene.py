@@ -1,25 +1,21 @@
-import abc
+import pyglet
 
 
-class Scene(abc.ABC):
+class Scene:
 
-	def __init__(self, gui, callback, event_manager, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, gui, callback, *args, **kwargs):
+		super().__init__()
 		self.gui = gui
 		self.callback = callback
-		self.event_manager = event_manager
 
-	@abc.abstractmethod
 	def begin(self):
-		raise NotImplementedError()
+		raise NotImplementedError('abstract')
 
-	@abc.abstractmethod
 	def load(self):
-		raise NotImplementedError()
+		raise NotImplementedError('abstract')
 
-	@abc.abstractmethod
 	def draw(self):
-		raise NotImplementedError()
+		raise NotImplementedError('abstract')
 
 	def run(self, dt):
 		pass

@@ -7,7 +7,7 @@ from .scenes.levelselectmenu import LevelSelectMenu
 from .scenes.optionsmenu import OptionsMenu
 from .scenes.dvd import DVD
 from .scenes.testing import Test
-from .eventmanager import EventManager
+from .eventdispatcher import EventDispatcher
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 
@@ -24,23 +24,25 @@ class ViewController(pyglet.window.Window):
 		self.fps_display = pyglet.window.FPSDisplay(self)
 		self.fps_display.label.x, self.fps_display.label.y = 0, WINDOW_HEIGHT-50
 
-		self.event_manager = EventManager(self)
-
 		self.gui = glooey.Gui(self, batch=self.gui_batch)
 
 		self.scenes = {
-			'MainMenu': MainMenu(self.gui, self.transition_to_scene, self.event_manager),
-			'Level': Level(self.gui, self.transition_to_scene, self.event_manager),
-			'LevelSelectMenu': LevelSelectMenu(self.gui, self.transition_to_scene, self.event_manager),
-			'OptionsMenu': OptionsMenu(self.gui, self.transition_to_scene, self.event_manager),
-			'DVD': DVD(self.gui, self.transition_to_scene, self.event_manager),
-			'Test': Test(self.gui, self.transition_to_scene, self.event_manager)
+			'MainMenu': MainMenu(self.gui, self.transition_to_scene),
+			'Level': Level(self.gui, self.transition_to_scene),
+			'LevelSelectMenu': LevelSelectMenu(self.gui, self.transition_to_scene),
+			'OptionsMenu': OptionsMenu(self.gui, self.transition_to_scene),
+			'DVD': DVD(self.gui, self.transition_to_scene),
+			'Test': Test(self.gui, self.transition_to_scene)
 		}
+
+		self.push_handlers()
 
 		self.transition_to_scene('MainMenu')
 
 	def transition_to_scene(self, scene: str):
 		self.current_scene = scene
+		self.pop_handlers()
+		self.push_handlers(self.scenes[self.current_scene])
 		self.scenes[self.current_scene].begin()
 
 	def on_key_press(self, symbol, modifier):
