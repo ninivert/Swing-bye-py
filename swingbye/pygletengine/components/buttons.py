@@ -43,6 +43,14 @@ class CycleButton(glooey.Button):
 		self.foreground.text = self.states[self.state_keys[self.state_index]]
 		if self.state_change_callback is not None:
 			self.state_change_callback(self.state_keys[self.state_index])
+
+	def do_claim(self):
+		max_x, max_y = 0, 0
+		for text in self.states.values():
+			test_label = self.Foreground(text)
+			text_width, text_height = test_label.do_claim()
+			max_x, max_y = max(max_x, text_width), max(max_y, text_height)
+		return max_x, max_y
 	
 	class Base(glooey.Background):
 		custom_color = '#aa1e1eff'

@@ -43,7 +43,9 @@ class ViewController(pyglet.window.Window):
 
 	def on_key_press(self, symbol, modifier):
 		if symbol == key.ESCAPE:
-			pyglet.app.exit()
+			if self.current_scene == 'MainMenu':
+				pyglet.app.exit()
+			self.transition_to_scene('MainMenu')
 		if symbol == key.F4 and modifier & key.MOD_ALT:
 			pyglet.app.exit()
 		if symbol == key._0:

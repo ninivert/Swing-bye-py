@@ -68,6 +68,9 @@ class Slider(glooey.Widget):
 			self.old_value = self.value
 			self._draw()
 
+	def reset(self):
+		self.update_value(self.min_value)
+
 	def do_resize(self):
 		self.base_height = 10
 		self.knob_size = 10
