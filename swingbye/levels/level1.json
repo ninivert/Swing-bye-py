@@ -6,6 +6,7 @@
 		{
 			"type": "planet",
 			"sprite": "assets/sprites/star1.png",
+			"name": "THE SUN IS A DEADLY LAZER",
 			"arguments": {
 				"anchor": [0, 0],
 				"mass": 20,
@@ -15,6 +16,7 @@
 				{
 					"type": "planet",
 					"sprite": "assets/sprites/planet1.png",
+					"name": "Planet 1",
 					"arguments": {
 						"mass": 10,
 						"maxis": 400,
@@ -24,6 +26,7 @@
 						{
 							"type": "planet",
 							"sprite": "assets/sprites/planet5.png",
+							"name": "Planet 2",
 							"arguments": {
 								"mass": 5,
 								"maxis": 34,
@@ -33,6 +36,7 @@
 								{
 									"type": "planet",
 									"sprite": "assets/sprites/planet2.png",
+									"name": "Planet 3",
 									"arguments": {
 										"mass": 1,
 										"maxis": 5,
@@ -47,6 +51,7 @@
 				{
 					"type": "planet",
 					"sprite": "assets/sprites/planet3.png",
+					"name": "Planet 4",
 					"arguments": {
 						"mass": 10,
 						"maxis": 600,
@@ -64,6 +69,7 @@
 				{
 					"type": "planet",
 					"sprite": "assets/sprites/planet4.png",
+					"name": "Planet 5",
 					"arguments": {
 						"mass": 10,
 						"maxis": 800,
@@ -76,6 +82,7 @@
 				{
 					"type": "planet",
 					"sprite": "assets/sprites/missingtexture.png",
+					"name": "WEEEEEEEEE",
 					"arguments": {
 						"mass": 10,
 						"maxis": -400,

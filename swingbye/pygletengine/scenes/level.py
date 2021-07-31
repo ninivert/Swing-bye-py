@@ -115,6 +115,7 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], batch=batch, group=group),
+					# name=child_dict['name'],
 					parent=parent,
 					**child_dict['arguments']
 				)

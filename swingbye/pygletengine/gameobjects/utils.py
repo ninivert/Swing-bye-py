@@ -7,6 +7,7 @@ class SpriteMixin:
 	"""SpriteMixin adds a sprite to a `physics.entity.ExplicitEntity` or `physics.entity.ImplicitEntity` class, and intercepts the position setter to update its own sprite position"""
 
 	sprite: pyglet.sprite.Sprite = create_sprite('assets/sprites/missingtexture.png')
+	# name: str = ''
 
 	def _get_pos(self):
 		return super().pos
