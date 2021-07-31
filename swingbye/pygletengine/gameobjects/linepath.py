@@ -6,12 +6,10 @@ class LinePath:
 		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
-		# Extend points to match point_count
-		if len(points) < point_count:
-			for i in range(point_count - len(points)):
-				points.append((0, 0))
-
 		self._vertex_length = point_count + 2
+
+		# Extend points to match point_count
+		points = self._complete_vertices_with_empty(points)
 
 		self._load_vertices_from_tuples(points)
 		self._generate_vertex_color_list(color)
@@ -27,6 +25,19 @@ class LinePath:
 			('c3B/dynamic', self._color)
 		)
 
+	def _complete_vertices_with_empty(self, points):
+		if len(points) < self._vertex_length - 2:
+			for i in range(self._vertex_length - 2 - len(points)):
+				points.append((0, 0))
+		return points
+
+	def _complete_vertices_with_duplicates(self, points):
+		if len(points) < self._vertex_length - 2:
+			last_point = points[-1]
+			for i in range(self._vertex_length - 2 - len(points)):
+				points.append(last_point)
+		return points
+
 	def _load_vertices_from_tuples(self, tuple_list):
 		self._vertices = [*tuple_list[0]]
 		for vert in tuple_list:
@@ -38,12 +49,16 @@ class LinePath:
 		for i in range(self._vertex_length):
 			self._color.extend(color)
 
+	def delete(self):
+		self.vertex_list.delete()
+
 	@property
 	def vertices(self):
 		return self._vertices
 
 	@vertices.setter
 	def vertices(self, points):
+		self._complete_vertices_with_duplicates(points)
 		self._load_vertices_from_tuples(points)
 		self.vertex_list.vertices = self._vertices
 
