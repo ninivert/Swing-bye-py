@@ -1,5 +1,4 @@
 import pyglet
-from typing import Union
 
 
 def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.sprite.Sprite:
@@ -18,8 +17,8 @@ def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.spr
 
 	return pyglet.sprite.Sprite(image, **kwargs)
 
-def clamp(value: Union[int, float], mini: Union[int, float], maxi: Union[int, float]) -> Union[int, float]:
+def clamp(value: float, mini: float, maxi: float) -> float:
 	return min(max(value, mini), maxi)
 
-def point_in_rect(x: Union[int, float], y: Union[int, float], rect_x: Union[int, float], rect_y: Union[int, float], width: Union[int, float], height: Union[int, float]):
+def point_in_rect(x: float, y: float, rect_x: float, rect_y: float, width: float, height: float) -> bool:
 	return (rect_x <= x <= rect_x + width) and (rect_y <= y <= rect_y + height)
