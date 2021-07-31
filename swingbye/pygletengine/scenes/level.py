@@ -8,8 +8,9 @@ from .scene import Scene
 from .groups.parallax import ParallaxGroup
 from .groups.camera import CameraGroup
 from ..components.slider import Slider
+from ..components.graph import Graph
 from ..components.buttons import Button, CycleButton
-from ..components.containers import VBox, HBox
+from ..components.containers import VBox, HBox, Board
 from ..eventmanager import EventManager
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
@@ -147,6 +148,16 @@ class Level(Scene):
 	def load_hud(self):
 		self.container = glooey.VBox()
 		self.hud_container = glooey.HBox()
+		board = Board()
+
+		self.graph = Graph(
+			100, 100,
+			y_scale_mode='fixed_min',
+			min_y=0,
+			query=lambda: np.linalg.norm(self.world.ship.vel)
+		)
+		self.graph.hide()
+		board.add(self.graph, left=10, bottom=10)
 
 		reset = Button('Reset', action=self.reset)
 		pause = CycleButton({'NOT PAUSED': 'Pause', 'PAUSED': 'Resume'}, state_change_callback=self.on_pause_button_pressed)
@@ -170,7 +181,7 @@ class Level(Scene):
 		self.hud_container.add(self.time_slider)
 		self.hud_container.pack(launch)
 
-		self.container.add(glooey.Bin())
+		self.container.add(board)
 		self.container.add(self.hud_container, size=0)
 
 		self.gui.add(self.container)
@@ -260,7 +271,10 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
+		self.graph.unhide()
 
 	def reset(self):
-		self.time_slider.update_value(0)
+		self.time_slider.reset()
+		self.graph.reset()
+		self.graph.hide()
 		self.load_level()
