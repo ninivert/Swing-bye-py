@@ -81,7 +81,7 @@
 				},
 				{
 					"type": "planet",
-					"sprite": "assets/sprites/missingtexture.png",
+					"sprite": "assets/sprites/comete_roche.png",
 					"name": "WEEEEEEEEE",
 					"arguments": {
 						"mass": 10,

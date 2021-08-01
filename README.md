@@ -9,6 +9,7 @@ Rendering
 - [ ] Give each level a seed to keep the background consistant
 - [X] Fix weird glitch with hiding / unhiding Graph (becomes blocky for some reason?)
 - [ ] Planet / comet labels
+- [X] Texture comets
 - [ ] FIX THE GODDAMN CAMERA
 
 
