@@ -52,8 +52,7 @@ class Level(Scene):
 			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.pan(dx, dy)
-			for layer in self.parallax_layers:
-				layer.world_offset = self.camera.offset
+			self.background.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		self.mouse_x = x
 		self.mouse_y = y
 
@@ -77,10 +76,7 @@ class Level(Scene):
 
 	def on_resize(self, width, height):
 		self.hud_rect = self.hud_container.get_rect()  # haha get rekt
-		self.background.update(
-			scale_x=width/self.background.width,
-			scale_y=height/self.background.height
-		)
+		self.background.on_resize(width, height)
 
 	def on_time_slider_value_update(self, value):
 		if self.world.state == WorldStates.PRE_LAUNCH:
@@ -117,7 +113,7 @@ class Level(Scene):
 
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
-					sprite=create_sprite(child_dict['sprite'], batch=batch, group=group),
+					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
 					# name=child_dict['name'],
 					parent=parent,
 					**child_dict['arguments']
@@ -132,7 +128,7 @@ class Level(Scene):
 					continue
 
 				ship = ShipObject(
-					sprite=create_sprite(child_dict['sprite'], batch=batch, group=group),
+					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
 					parent=parent,
 					**child_dict['arguments']
 				)
@@ -198,54 +194,22 @@ class Level(Scene):
 		with open(self.levels[self.level_index]) as file:
 			level = json.load(file)
 
-		self.background = create_sprite(level['background_sprite'], anchor='bottom_left', size=(WINDOW_WIDTH, WINDOW_HEIGHT), batch=self.batch, group=self.background_layer)
-		self.background.opacity = 180
+		self.background = BackgroundObject(
+			level['background_sprite'],
+			self.batch,
+			self.background_layer
+		)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
 		self.world = self.parse_level(level, self.batch, self.camera)
-	
-	def load_background(self):
-		self.stars = []
-		stars_img = [
-			'assets/sprites/particle_star1_1.png',
-			'assets/sprites/particle_star1_2.png',
-			'assets/sprites/particle_star2_1.png',
-			'assets/sprites/particle_star2_2.png'
-		]
-		for i in range(100):
-			self.stars.append(
-				StarObject(
-					pos=np.random.rand(2)*np.array((WINDOW_WIDTH, WINDOW_HEIGHT)),
-					sprite=create_sprite(
-						np.random.choice(stars_img),
-						size=(5, 5),
-						batch=self.batch,
-						group=np.random.choice(self.parallax_layers)
-					)
-				)
-			)
 
 	def load(self):
 		self.batch = pyglet.graphics.Batch()
 
-		self.parallax_layers = [
-			ParallaxGroup(35, 0),
-			ParallaxGroup(25, 1),
-			ParallaxGroup(20, 2)
-		]
 		self.background_layer = pyglet.graphics.OrderedGroup(3)
 		self.camera = CameraGroup(4)
 		self.top_layer = pyglet.graphics.OrderedGroup(5)
-
-		# self.add_event_handlers(
-		# 	self.on_mouse_motion,
-		# 	self.on_mouse_drag,
-		# 	self.on_mouse_press,
-		# 	self.on_mouse_release,
-		# 	self.on_mouse_scroll,
-		# 	self.on_resize
-		# )
 
 		if DEBUG:
 			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.top_layer)
@@ -253,7 +217,6 @@ class Level(Scene):
 
 		self.load_level()
 		self.load_hud()
-		self.load_background()
 
 		self.camera.offset_parent = self.world.planets[6]
 
