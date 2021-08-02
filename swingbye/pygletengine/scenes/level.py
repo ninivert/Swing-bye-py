@@ -255,6 +255,8 @@ class Level(Scene):
 		self.load_hud()
 		self.load_background()
 
+		self.camera.offset_parent = self.world.planets[6]
+
 	def begin(self):
 		self.gui.clear()
 		self.load()
@@ -270,6 +272,8 @@ class Level(Scene):
 					self.world.step(dt*200)
 
 		if DEBUG:
+			# WARNING: lines are always late by 1 frame
+			# do not trust them too much on fast moving entities
 			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)
 			self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.mouse_x, self.mouse_y)
 
@@ -284,4 +288,5 @@ class Level(Scene):
 		self.graph.reset()
 		self.graph_frame.hide()
 		self.background.reset()
+		self.camera.reset()
 		self.load_level()
