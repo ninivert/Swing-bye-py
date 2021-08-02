@@ -10,7 +10,7 @@ from .groups.camera import CameraGroup
 from ..components.slider import Slider
 from ..components.graph import Graph
 from ..components.buttons import Button, CycleButton
-from ..components.containers import VBox, HBox, Board
+from ..components.containers import VBox, HBox, Board, Frame
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates
@@ -88,12 +88,15 @@ class Level(Scene):
 
 	def on_speed_slider_value_update(self, value):
 		self.simulation_speed = int(value)
+		self.graph.sample_rate = 1/10 / int(value)
 
 	def on_pause_button_pressed(self, state):
 		if state == 'PAUSED':
 			self.paused = True
+			self.graph.pause_sampling()
 		elif state == 'NOT PAUSED':
 			self.paused = False
+			self.graph.resume_sampling()
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -149,6 +152,7 @@ class Level(Scene):
 	def load_hud(self):
 		self.container = glooey.VBox()
 		self.hud_container = glooey.HBox()
+		self.graph_frame = Frame()
 		board = Board()
 
 		self.graph = Graph(
@@ -157,8 +161,9 @@ class Level(Scene):
 			min_y=0,
 			query=lambda: np.linalg.norm(self.world.ship.vel)
 		)
-		self.graph.hide()
-		board.add(self.graph, left=10, bottom=10)
+		self.graph_frame.add(self.graph)
+		self.graph_frame.hide()
+		board.add(self.graph_frame, left=10, bottom=10)
 
 		reset = Button('Reset', action=self.reset)
 		pause = CycleButton({'NOT PAUSED': 'Pause', 'PAUSED': 'Resume'}, state_change_callback=self.on_pause_button_pressed)
@@ -272,10 +277,11 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
-		self.graph.unhide()
+		self.graph_frame.unhide()
 
 	def reset(self):
 		self.time_slider.reset()
 		self.graph.reset()
-		self.graph.hide()
+		self.graph_frame.hide()
+		self.background.reset()
 		self.load_level()
