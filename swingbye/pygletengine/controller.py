@@ -7,7 +7,6 @@ from .scenes.levelselectmenu import LevelSelectMenu
 from .scenes.optionsmenu import OptionsMenu
 from .scenes.dvd import DVD
 from .scenes.testing import Test
-from .eventdispatcher import EventDispatcher
 from .globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
 
 
@@ -19,10 +18,9 @@ class ViewController(pyglet.window.Window):
 		self.gui_batch = pyglet.graphics.Batch()
 		self.frame_rate = 1/60.0
 
-		self.keys = key.KeyStateHandler()
-		self.push_handlers(self.keys)
-		self.fps_display = pyglet.window.FPSDisplay(self)
-		self.fps_display.label.x, self.fps_display.label.y = 0, WINDOW_HEIGHT-50
+		if DEBUG:
+			self.fps_display = pyglet.window.FPSDisplay(self)
+			self.fps_display.label.x, self.fps_display.label.y = 0, WINDOW_HEIGHT-50
 
 		self.gui = glooey.Gui(self, batch=self.gui_batch)
 
@@ -54,12 +52,6 @@ class ViewController(pyglet.window.Window):
 			pyglet.app.exit()
 		if symbol == key._0:
 			self.scenes['Level'].camera.reset()
-
-	def on_resize(self, width, height):
-		super().on_resize(width, height)
-		global WINDOW_WIDTH, WINDOW_HEIGHT
-		WINDOW_WIDTH = width
-		WINDOW_HEIGHT = height
 
 	def on_draw(self):
 		self.clear()
