@@ -1,7 +1,6 @@
 import pyglet
 import glooey
 from numpy import interp, inf
-from .containers import Frame
 from ..gameobjects.linepath import LinePath
 
 
@@ -10,13 +9,13 @@ class Graph(glooey.Widget):
 
 	def __init__(self, width, height, color=(255, 255, 255), y_scale_mode='auto', min_y=0, max_y=1, query=None, sample_size=100, sample_rate=1/10):
 		super().__init__()
-		
-		self.frame = Frame()
 
+		# Graph options
 		self.graph_width = width
 		self.graph_height = height
 		self.color = color
 
+		# Graph scaling options
 		self.y_scale_modes = {
 			'auto': self._auto_y_scale,
 			'smooth': self._smooth_y_scale,
@@ -30,14 +29,19 @@ class Graph(glooey.Widget):
 		if self.y_scale_mode not in self.y_scale_modes:
 			raise ValueError(f'y_scale_mode can only be {list(self.y_scale_modes.keys())} while you provided `{y_scale_mode}`')
 
-		self.query = query
-		self.sample_size = sample_size
-		self.sample_rate = sample_rate
+		# Graph data
+		self._query = query
+		self._sample_size = sample_size
+		self._sample_rate = sample_rate
 		self.samples = []
 
 		self.graph = None
 
-		self._attach_child(self.frame)
+		self.label_font_size = 10
+		self.max_label = None
+		self.min_label = None
+
+		self.loaded = False
 
 	def _get_min_max_y(self):
 		min_y, max_y = +inf, -inf
@@ -74,39 +78,106 @@ class Graph(glooey.Widget):
 			vertices.append((int(x), int(y)))  # casting to ints for safety
 		return vertices
 
+	@property
+	def sample_rate(self):
+		return self._sample_rate
+
+	@sample_rate.setter
+	def sample_rate(self, sample_rate):
+		self._sample_rate = sample_rate
+		pyglet.clock.unschedule(self.update_data)
+		pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
+
+	@property
+	def sample_size(self):
+		return self._sample_size
+
+	@sample_size.setter
+	def sample_size(self, sample_size):
+		self._sample_size = sample_size
+		self.graph.vertex_length = self._sample_size
+
+	@property
+	def query(self):
+		return self._query
+
+	@query.setter
+	def query(self, query):
+		self._query = query
+		if self._query is None:
+			pyglet.clock.unschedule(self.update_data)
+		else:
+			pyglet.clock.unschedule(self.update_data)
+			pyglet.clock.schedule_interval(self.update_data)
+
 	def load(self):
+		x, y = self.get_rect().bottom_left
 		self.graph = LinePath(
 			self.batch,
-			point_count=self.sample_size,
+			point_count=self._sample_size,
 			points=self._calulate_point_positions(),
-			color=self.color
+			color=self.color,
+			group=self.group
 		)
-		if self.query is not None:
-			pyglet.clock.schedule_interval(self.update_data, self.sample_rate)
+		self.max_label = pyglet.text.Label(
+			font_size=self.label_font_size,
+			x=x, y=y+self.graph_height,
+			anchor_x='left', anchor_y='top',
+			batch=self.batch,
+			group=self.group
+		)
+		self.min_label = pyglet.text.Label(
+			font_size=self.label_font_size,
+			x=x, y=y,
+			anchor_x='left', anchor_y='bottom',
+			batch=self.batch,
+			group=self.group
+		)
+		self.resume_sampling()
+		self.loaded = True
+
+	def update_labels(self):
+		self.max_label.text = f'{self.max_y:.1f}'
+		self.min_label.text = f'{self.min_y:.1f}'
 
 	def update_data(self, dt):
-		if self.graph is not None:
-			if len(self.samples) >= self.sample_size:
+		if self.loaded:
+			if len(self.samples) >= self._sample_size:
 				self.samples.pop(0)
 
-			self.samples.append(self.query())
+			self.samples.append(self._query())
 
 			self.y_scale_modes[self.y_scale_mode]()
+
+			self.update_labels()
 
 			self.graph.vertices = self._calulate_point_positions()
 
 	def reset(self):
 		self.samples.clear()
 
+	def pause_sampling(self):
+		if self._query is not None:
+			pyglet.clock.unschedule(self.update_data)
+
+	def resume_sampling(self):
+		if self._query is not None:
+			pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
+
 	def do_claim(self):
-		return self.graph_width, self.graph_height
+		return self.graph_width + sum(self.horz_padding), self.graph_height + sum(self.vert_padding)
 
 	def do_draw(self):
-		if self.graph is None:
+		if not self.loaded:
 			self.load()
 
 	def do_undraw(self):
-		if self.graph is not None:
+		if self.loaded:
 			self.graph.delete()
 			self.graph = None
-			pyglet.clock.unschedule(self.update_data)
+			self.max_label.delete()
+			self.max_label = None
+			self.min_label.delete()
+			self.min_label = None
+			self.loaded = False
+			self.pause_sampling()
