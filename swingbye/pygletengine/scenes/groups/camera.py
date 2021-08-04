@@ -46,7 +46,7 @@ class CameraGroup(pyglet.graphics.OrderedGroup):
 			self.parent_offset = -self.offset_parent.pos*self.scale
 		if self.smooth:
 			self.scale = self.lerp(self.scale, self.target_scale, 0.1)
-			self.offset = self.lerp(self.offset, self.target_offset + self.parent_offset, 0.1)
+			self.offset = self.lerp(self.offset, self.target_offset + self.parent_offset, 0.2)
 		else:
 			self.scale = self.target_scale
 			self.offset = self.target_offset + self.parent_offset
@@ -56,17 +56,14 @@ class CameraGroup(pyglet.graphics.OrderedGroup):
 
 	def pan(self, dx, dy):
 		self.target_offset += (np.array((dx, dy)))
-		self.update()
 
 	def zoom(self, x, y, direction):
-		# self.parent_offset = self.offset - np.array((x, y))
 		if direction == 1:
 			self.target_scale *= 1.3
 		elif direction == -1:
 			self.target_scale *= 0.7
 		else:
 			raise(ValueError(f'direction can only be 1 or -1, but you provided {direction}'))
-		# self.update()
 
 	def set_state(self):
 		self.update()

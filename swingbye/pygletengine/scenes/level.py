@@ -218,7 +218,7 @@ class Level(Scene):
 		self.load_level()
 		self.load_hud()
 
-		self.camera.offset_parent = self.world.planets[6]
+		self.camera.offset_parent = self.world.ship
 
 	def begin(self):
 		self.gui.clear()
