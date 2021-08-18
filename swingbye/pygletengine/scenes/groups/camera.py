@@ -1,76 +1,102 @@
 import pyglet
-import numpy as np
-from ...utils import clamp
+from ...utils import clamp, lerp
 from ...globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
-class CameraGroup(pyglet.graphics.OrderedGroup):
+class Camera:
+	""" A simple 2D camera that contains the speed and offset."""
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, window, min_zoom=0.2, max_zoom=4, parent=None):
+		assert min_zoom <= max_zoom, "Minimum zoom must not be greater than maximum zoom"
+
 		self.smooth = True
-		self.set_scale_limits(0.2, 4)
-		self.min_offset = None
-		self.max_offset = None
 
-		self.reset()
+		self.window = window
 
-	def to_world_space(self, x: float, y: float) -> np.ndarray:
-		return (np.array((x, y)) - (self.offset)) / self.scale
+		self.offset_x = 0
+		self.offset_y = 0
+		self.target_offset_x = self.offset_x
+		self.target_offset_y = self.offset_y
+		self.parent_offset_x = 0
+		self.parent_offset_y = 0
+		self.anchor_x = self.window.width//2
+		self.anchor_y = self.window.width//2
 
-	def to_screen_space(self, x: float, y: float) -> np.ndarray:
-		return (np.array((x, y)) * self.scale) + (self.offset)
+		self.set_zoom_limits(min_zoom, max_zoom)
+		self.zoom = max(min(2, self.max_zoom), self.min_zoom)
+		self.target_zoom = self.zoom
 
-	def set_bounding_box(self, min_world, max_world):
-		self.min_offset = self.to_screen_space(*min_world)
-		self.max_offset = self.to_screen_space(*max_world)
+		self.set_parent(parent)
 
-	def set_scale_limits(self, min_scale, max_scale):
-		self.min_scale = min_scale
-		self.max_scale = max_scale
+	def world_to_screen(self, x, y):
+		return ((x - self.offset_x) * self.zoom + self.anchor_x, (y - self.offset_y) * self.zoom + self.anchor_y)
 
-	def reset(self):
-		self.offset_parent = None
-		self.scale = 1
-		self.target_scale = 1
-		self.offset = np.array((WINDOW_WIDTH//2, WINDOW_HEIGHT//2), dtype=np.float64)
-		self.target_offset = self.offset
-		self.parent_offset = np.zeros(2)
+	def screen_to_world(self, x, y):
+		return (self.offset_x + (x - self.anchor_x) / self.zoom, self.offset_y + (y - self.anchor_y) / self.zoom)
+
+	def set_zoom_limits(self, min_zoom, max_zoom):
+		self.min_zoom = min_zoom
+		self.max_zoom = max_zoom
+
+	def set_parent(self, parent):
+		self.parent = parent
+		if self.parent is None:
+			self.target_offset_x += self.parent_offset_x
+			self.target_offset_y += self.parent_offset_y
+			self.parent_offset_x, self.parent_offset_y = 0, 0
+		else:
+			self.parent_offset_x, self.parent_offset_y = self.world_to_screen(*self.parent.pos)
+
+	def move(self, dx, dy):
+		self.target_offset_x += dx / self.zoom
+		self.target_offset_y += dy / self.zoom
+
+	def zoom_at(self, x, y, direction):
+		self.offset_x += (x - self.anchor_x) / self.zoom
+		self.offset_y += (y - self.anchor_y) / self.zoom
+		self.target_offset_x += (x - self.anchor_x) / self.zoom
+		self.target_offset_y += (y - self.anchor_y) / self.zoom
+		self.anchor_x = x
+		self.anchor_y = y
+		if direction == 1:
+			self.target_zoom *= 1.3
+		elif direction == -1:
+			self.target_zoom *= 0.7
+		else:
+			raise ValueError(f'direction must be -1 or 1, but you provided {direction}')
+		self.target_zoom = clamp(self.target_zoom, self.min_zoom, self.max_zoom)
 
 	def update(self):
-		self.target_scale = clamp(self.target_scale, self.min_scale, self.max_scale)
-		if self.min_offset is not None and self.max_offset is not None:
-			self.target_offset[0] = clamp(self.target_offset[0], self.min_offset[0], self.max_offset[0])
-			self.target_offset[1] = clamp(self.target_offset[1], self.min_offset[1], self.max_offset[1])
-		if self.offset_parent is not None:
-			self.parent_offset = -self.offset_parent.pos*self.scale
+		if self.parent is not None:
+			self.parent_offset_x, self.parent_offset_y = self.parent.pos
 		if self.smooth:
-			self.scale = self.lerp(self.scale, self.target_scale, 0.1)
-			self.offset = self.lerp(self.offset, self.target_offset + self.parent_offset, 0.2)
+			self.zoom = lerp(self.zoom, self.target_zoom, 0.2)
+			self.offset_x = lerp(self.offset_x, self.target_offset_x + self.parent_offset_x, 0.2)
+			self.offset_y = lerp(self.offset_y, self.target_offset_y + self.parent_offset_y, 0.2)
 		else:
-			self.scale = self.target_scale
-			self.offset = self.target_offset + self.parent_offset
+			self.zoom = self.target_zoom
+			self.offset_x = self.target_offset_x + self.parent_offset_x
+			self.offset_y = self.target_offset_y + self.parent_offset_y
 
-	def lerp(self, value1, value2, percentage):
-		return value1 + (value2 - value1) * percentage
-
-	def pan(self, dx, dy):
-		self.target_offset += (np.array((dx, dy)))
-
-	def zoom(self, x, y, direction):
-		if direction == 1:
-			self.target_scale *= 1.3
-		elif direction == -1:
-			self.target_scale *= 0.7
-		else:
-			raise(ValueError(f'direction can only be 1 or -1, but you provided {direction}'))
-
-	def set_state(self):
+	def begin(self):
 		self.update()
-		pyglet.gl.glPushMatrix()
-		pyglet.gl.glTranslatef(*(self.offset), 0)
-		pyglet.gl.glScalef(self.scale, self.scale, 1)
+		x = -self.anchor_x/self.zoom + self.offset_x
+		y = -self.anchor_y/self.zoom + self.offset_y
 
-	def unset_state(self):
-		pyglet.gl.glPopMatrix()
+		pyglet.gl.glTranslatef(-x * self.zoom, -y * self.zoom, 0)
 
+		pyglet.gl.glScalef(self.zoom, self.zoom, 1)
+
+	def end(self):
+		x = -self.anchor_x/self.zoom + self.offset_x
+		y = -self.anchor_y/self.zoom + self.offset_y
+
+		pyglet.gl.glScalef(1 / self.zoom, 1 / self.zoom, 1)
+
+		pyglet.gl.glTranslatef(x * self.zoom, y * self.zoom, 0)
+
+	def __enter__(self):
+		self.begin()
+
+	def __exit__(self, exception_type, exception_value, traceback):
+		self.end()

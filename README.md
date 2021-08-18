@@ -10,7 +10,7 @@ Rendering
 - [X] Fix weird glitch with hiding / unhiding Graph (becomes blocky for some reason?)
 - [ ] Planet / comet labels
 - [X] Texture comets
-- [ ] FIX THE GODDAMN CAMERA
+- [X] FIX THE GODDAMN CAMERA (Y A T T A)
 
 
 UI

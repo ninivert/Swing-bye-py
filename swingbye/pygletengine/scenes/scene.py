@@ -3,8 +3,9 @@ import pyglet
 
 class Scene:
 
-	def __init__(self, gui, callback, *args, **kwargs):
+	def __init__(self, window, gui, callback, *args, **kwargs):
 		super().__init__()
+		self.window = window
 		self.gui = gui
 		self.callback = callback
 

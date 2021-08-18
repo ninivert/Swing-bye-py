@@ -20,21 +20,9 @@ class BackgroundObject:
 			group=group
 		)
 
-		scale_x, scale_y = WINDOW_WIDTH / self.sprite.width, WINDOW_HEIGHT / self.sprite.height
-		self.sprite.update(scale_x=scale_x, scale_y=scale_y)
-		self.sprite.opacity = 180
+		self.old_width, self.old_height = WINDOW_WIDTH, WINDOW_HEIGHT
 
-		np.random.seed(random_seed)
-
-		self.n_stars = n_stars
-		self.n_layers = n_layers
-		self.layers = [ParallaxGroup(20 + 5*n, n) for n in range(self.n_layers)]
-
-		# MESS
-		self.old_width = WINDOW_WIDTH
-		self.old_height = WINDOW_HEIGHT
-
-		self.populate_stars()
+		# self.populate_stars()
 
 	def populate_stars(self):
 		self.stars = []
@@ -57,28 +45,13 @@ class BackgroundObject:
 				)
 			)
 
-	def reset(self):
-		# I attempted to fix the background not moving issue on reset, did not work...
-		for i in range(self.n_stars-1, 0, -1):
-			self.stars[i].sprite.delete()
-			self.stars.pop(i)
+	def delete(self):
 		self.sprite.delete()
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		for layer in self.layers:
-			layer.offset += (dx, dy)
+		pass
 
 	def on_resize(self, width, height):
-		scale_x, scale_y = width / WINDOW_WIDTH, height / WINDOW_HEIGHT
+		scale_x, scale_y = width / self.old_width, height / self.old_height
 		self.sprite.update(scale_x=scale_x, scale_y=scale_y)
-		# Inexpensive resize
-		# for layer in self.layers:
-		# 	layer.scale_x = width / WINDOW_WIDTH
-		# 	layer.scale_y = height / WINDOW_HEIGHT
-
-		# Expensive resize
-		for star in self.stars:
-			star.sprite.x *= width / self.old_width
-			star.sprite.y *= height / self.old_height
-
 		self.old_width, self.old_height = width, height

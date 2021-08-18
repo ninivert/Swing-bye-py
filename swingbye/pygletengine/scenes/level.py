@@ -6,7 +6,7 @@ import logging
 from random import randrange
 from .scene import Scene
 from .groups.parallax import ParallaxGroup
-from .groups.camera import CameraGroup
+from .groups.camera import Camera
 from ..components.slider import Slider
 from ..components.graph import Graph
 from ..components.buttons import Button, CycleButton
@@ -51,7 +51,7 @@ class Level(Scene):
 		elif self.speed_slider.captured:
 			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
-			self.camera.pan(dx, dy)
+			self.camera.move(-dx, -dy)
 			self.background.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		self.mouse_x = x
 		self.mouse_y = y
@@ -65,14 +65,15 @@ class Level(Scene):
 
 		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
 			if clicked:
-				self.world.point_ship(self.camera.to_world_space(x, y))
+				self.world.point_ship(self.camera.screen_to_world(x, y))
 
 		self.time_slider.on_mouse_release(x, y, dx, dy)
 		self.speed_slider.on_mouse_release(x, y, dx, dy)
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
 		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
-			self.camera.zoom(x, y, scroll_y)
+			if scroll_y != 0:
+				self.camera.zoom_at(x, y, scroll_y)
 
 	def on_resize(self, width, height):
 		self.hud_rect = self.hud_container.get_rect()  # haha get rekt
@@ -196,36 +197,42 @@ class Level(Scene):
 
 		self.background = BackgroundObject(
 			level['background_sprite'],
-			self.batch,
-			self.background_layer
+			self.gui_batch,
+			self.background_group
 		)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
-		self.world = self.parse_level(level, self.batch, self.camera)
+		self.world = self.parse_level(level, self.world_batch, self.world_group)
 
 	def load(self):
-		self.batch = pyglet.graphics.Batch()
+		self.gui_batch = pyglet.graphics.Batch()
+		self.world_batch = pyglet.graphics.Batch()
 
-		self.background_layer = pyglet.graphics.OrderedGroup(3)
-		self.camera = CameraGroup(4)
-		self.top_layer = pyglet.graphics.OrderedGroup(5)
+		self.background_group = pyglet.graphics.OrderedGroup(0)
+		self.world_group = pyglet.graphics.OrderedGroup(1)
+		self.foreground_group = pyglet.graphics.OrderedGroup(2)
+
+		self.camera = Camera(self.window)
 
 		if DEBUG:
-			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.top_layer)
-			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.batch, group=self.camera)
+			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.gui_batch, group=self.foreground_group)
+			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.world_batch, group=self.foreground_group)
+			self.mouse_world_to_screen_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 255, 20), batch=self.gui_batch, group=self.foreground_group)
 
 		self.load_level()
 		self.load_hud()
 
-		self.camera.offset_parent = self.world.ship
+		self.camera.set_parent(self.world.ship)
 
 	def begin(self):
 		self.gui.clear()
 		self.load()
 
 	def draw(self):
-		self.batch.draw()
+		self.gui_batch.draw()
+		with self.camera:
+			self.world_batch.draw()
 		self.gui.batch.draw()
 
 	def run(self, dt):
@@ -237,8 +244,9 @@ class Level(Scene):
 		if DEBUG:
 			# WARNING: lines are always late by 1 frame
 			# do not trust them too much on fast moving entities
-			self.offset_line.x2, self.offset_line.y2 = self.camera.to_screen_space(*self.world.planets[0].pos)
-			self.mouse_line.x2, self.mouse_line.y2 = self.camera.to_world_space(self.mouse_x, self.mouse_y)
+			self.offset_line.x2, self.offset_line.y2 = self.camera.world_to_screen(*self.world.planets[0].pos)
+			self.mouse_line.x2, self.mouse_line.y2 = self.camera.screen_to_world(self.mouse_x, self.mouse_y)
+			self.mouse_world_to_screen_line.x2, self.mouse_world_to_screen_line.y2 = self.camera.world_to_screen(*self.camera.screen_to_world(self.mouse_x, self.mouse_y))
 
 	# Game logic
 
@@ -250,6 +258,5 @@ class Level(Scene):
 		self.time_slider.reset()
 		self.graph.reset()
 		self.graph_frame.hide()
-		self.background.reset()
-		self.camera.reset()
+		self.background.delete()
 		self.load_level()

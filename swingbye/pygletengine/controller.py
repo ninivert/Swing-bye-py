@@ -25,12 +25,12 @@ class ViewController(pyglet.window.Window):
 		self.gui = glooey.Gui(self, batch=self.gui_batch)
 
 		self.scenes = {
-			'MainMenu': MainMenu(self.gui, self.transition_to_scene),
-			'Level': Level(self.gui, self.transition_to_scene),
-			'LevelSelectMenu': LevelSelectMenu(self.gui, self.transition_to_scene),
-			'OptionsMenu': OptionsMenu(self.gui, self.transition_to_scene),
-			'DVD': DVD(self.gui, self.transition_to_scene),
-			'Test': Test(self.gui, self.transition_to_scene)
+			'MainMenu': MainMenu(self, self.gui, self.transition_to_scene),
+			'Level': Level(self, self.gui, self.transition_to_scene),
+			'LevelSelectMenu': LevelSelectMenu(self, self.gui, self.transition_to_scene),
+			'OptionsMenu': OptionsMenu(self, self.gui, self.transition_to_scene),
+			'DVD': DVD(self, self.gui, self.transition_to_scene),
+			'Test': Test(self, self.gui, self.transition_to_scene)
 		}
 
 		self.push_handlers()
@@ -50,8 +50,12 @@ class ViewController(pyglet.window.Window):
 			self.transition_to_scene('MainMenu')
 		if symbol == key.F4 and modifier & key.MOD_ALT:
 			pyglet.app.exit()
+
+		# For testing only
 		if symbol == key._0:
-			self.scenes['Level'].camera.reset()
+			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.planets[0])
+		if symbol == key._1:
+			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.ship)
 
 	def on_draw(self):
 		self.clear()
