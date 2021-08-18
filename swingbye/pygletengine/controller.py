@@ -53,8 +53,10 @@ class ViewController(pyglet.window.Window):
 
 		# For testing only
 		if symbol == key._0:
-			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.planets[0])
+			self.scenes['Level'].camera.set_parent(None)
 		if symbol == key._1:
+			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.planets[0])
+		if symbol == key._2:
 			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.ship)
 
 	def on_draw(self):
