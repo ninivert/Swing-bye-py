@@ -108,7 +108,7 @@ class Graph(glooey.Widget):
 			pyglet.clock.unschedule(self.update_data)
 		else:
 			pyglet.clock.unschedule(self.update_data)
-			pyglet.clock.schedule_interval(self.update_data)
+			pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
 
 	def load(self):
 		x, y = self.get_rect().bottom_left

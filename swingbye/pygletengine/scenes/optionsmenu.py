@@ -15,12 +15,24 @@ class OptionsMenu(Scene):
 	def load(self):
 		self.container = VBox()
 
-		self.container.add(Title('Options'), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
-		self.container.add(Button('Option Button 1'))
-		self.container.add(Button('Option Button 2'))
-		self.container.add(CycleButton({'1': 'Option cycle 1', '2': 'Option cycle 2', '3': 'Option cycle 3'}))
-		self.container.add(CycleButton({'ON': 'Option ON', 'OFF': 'Option OFF'}))
-		self.container.add(Button('Back', action=self.callback, action_params=['MainMenu']), size=0)
+		self.title = Title('Options')
+		self.option_1_button = Button('Option Button 1')
+		self.option_2_button = Button('Option Button 2')
+		self.option_1_cycle = CycleButton({'1': 'Option cycle 1', '2': 'Option cycle 2', '3': 'Option cycle 3'})
+		self.option_2_cycle = CycleButton({'ON': 'Option ON', 'OFF': 'Option OFF'})
+		self.back_button = Button('Back')
+
+		self.back_button.set_handler('on_press', self.to_main_menu)
+
+		self.container.add(self.title, size=int(self.window.height*TITLE_SIZE_PROPORTION))
+		self.container.add(self.option_1_button)
+		self.container.add(self.option_2_button)
+		self.container.add(self.option_1_cycle)
+		self.container.add(self.option_2_cycle)
+		self.container.add(self.back_button)
+
+	def to_main_menu(self):
+		self.window.transition_to_scene('MainMenu')
 
 	def begin(self):
 		

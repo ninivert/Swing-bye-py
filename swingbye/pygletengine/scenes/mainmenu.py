@@ -15,11 +15,31 @@ class MainMenu(Scene):
 	def load(self):
 		self.container = VBox()
 
-		self.container.add(Title('Swing BYE'), size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
-		self.container.add(Button('Start game', action=self.callback, action_params=['Level']))
-		self.container.add(Button('Select level', action=self.callback, action_params=['LevelSelectMenu']))
-		self.container.add(Button('Options', action=self.callback, action_params=['OptionsMenu']))
-		self.container.add(Button('Quit game', action=exit))
+		self.title = Title('Swing BYE')
+		self.start_button = Button('Start game')
+		self.level_select_button = Button('Select level')
+		self.options_button = Button('Options')
+		self.quit_button = Button('Quit game')
+
+		self.start_button.set_handler('on_press', self.to_game)
+		self.level_select_button.set_handler('on_press', self.to_level_select_menu)
+		self.options_button.set_handler('on_press', self.to_options_menu)
+		self.quit_button.set_handler('on_press', exit)
+
+		self.container.add(self.title, size=int(self.window.height*TITLE_SIZE_PROPORTION))
+		self.container.add(self.start_button)
+		self.container.add(self.level_select_button)
+		self.container.add(self.options_button)
+		self.container.add(self.quit_button)
+
+	def to_game(self):
+		self.window.transition_to_scene('Level')
+
+	def to_level_select_menu(self):
+		self.window.transition_to_scene('LevelSelectMenu')
+
+	def to_options_menu(self):
+		self.window.transition_to_scene('OptionsMenu')
 
 	def begin(self):
 		

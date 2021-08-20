@@ -8,19 +8,16 @@ class Slider(glooey.Widget):
 	custom_base = pyglet.shapes.Rectangle
 	custom_knob = pyglet.shapes.Circle
 
-	class Bin(glooey.Bin):
-		pass
-
-	def __init__(self, value_update_callback, value=0, min_value=0, max_value=100, step=1, edge=0):
+	def __init__(self, min_width=100, min_height=0, value=0, min_value=0, max_value=100, step=1, edge=0):
 		super().__init__()
 		
-		bin_container = self.Bin()
+		self.min_width = min_width
+		self.min_height = min_height
 
 		self.base = None
 		self.knob = None
 
 		self.captured = False
-		self.on_value_update_callback = value_update_callback
 
 		self.value = value
 		self.old_value = None
@@ -28,8 +25,6 @@ class Slider(glooey.Widget):
 		self.max_value = max_value
 		self.step = step
 		self.edge = edge
-
-		self._attach_child(bin_container)
 
 	def get_value_range(self):
 		return self.max_value - self.min_value
@@ -64,7 +59,7 @@ class Slider(glooey.Widget):
 	def update_value(self, new_value):
 		self.value = clamp(new_value, self.min_value, self.max_value)
 		if self.value != self.old_value:
-			self.on_value_update_callback(self.value)
+			self.dispatch_event('on_change', self.value)
 			self.old_value = self.value
 			self._draw()
 
@@ -72,7 +67,7 @@ class Slider(glooey.Widget):
 		self.update_value(self.min_value)
 
 	def do_claim(self):
-		return 0, 0
+		return self.min_width, self.min_height
 
 	def do_resize(self):
 		self.base_height = 10
@@ -114,3 +109,5 @@ class Slider(glooey.Widget):
 		if self.captured:
 			self.update_value(self.get_closest_value(x, y))
 
+
+Slider.register_event_type('on_change')

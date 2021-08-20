@@ -38,10 +38,10 @@ class ViewController(pyglet.window.Window):
 		self.transition_to_scene('MainMenu')
 
 	def transition_to_scene(self, scene: str):
-		self.current_scene = scene
 		self.pop_handlers()
-		self.push_handlers(self.scenes[self.current_scene])
+		self.current_scene = scene
 		self.scenes[self.current_scene].begin()
+		self.push_handlers(self.scenes[self.current_scene])
 
 	def on_key_press(self, symbol, modifier):
 		if symbol == key.ESCAPE:
