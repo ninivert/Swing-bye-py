@@ -5,8 +5,8 @@ import json
 import logging
 from random import randrange
 from .scene import Scene
-from .groups.parallax import ParallaxGroup
-from .groups.camera import Camera
+from .layers.parallax import ParallaxGroup
+from .layers.camera import Camera
 from ..utils import create_sprite, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates

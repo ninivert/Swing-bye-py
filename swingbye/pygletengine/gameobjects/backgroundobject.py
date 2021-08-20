@@ -2,7 +2,7 @@ import pyglet
 import numpy as np
 from .starobject import StarObject
 from ..utils import create_sprite
-from ..scenes.groups.parallax import ParallaxGroup
+from ..scenes.layers.parallax import ParallaxGroup
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
