@@ -47,7 +47,6 @@ class Level(Scene):
 			self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		else:
 			self.camera.move(-dx, -dy)
-			self.background.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		self.mouse_x = x
 		self.mouse_y = y
 
@@ -160,8 +159,10 @@ class Level(Scene):
 
 		self.background = BackgroundObject(
 			level['background_sprite'],
+			self.camera,
 			self.batch,
-			self.background_group
+			self.background_group,
+			layers=self.tmp_parallax_layers
 		)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
@@ -172,9 +173,17 @@ class Level(Scene):
 		self.batch = pyglet.graphics.Batch()
 		self.world_batch = pyglet.graphics.Batch()
 
-		self.background_group = pyglet.graphics.OrderedGroup(0)
-		self.world_group = pyglet.graphics.OrderedGroup(1)
-		self.foreground_group = pyglet.graphics.OrderedGroup(2)
+		self.background_group = pyglet.graphics.OrderedGroup(3)
+		self.world_group = pyglet.graphics.OrderedGroup(4)
+		self.foreground_group = pyglet.graphics.OrderedGroup(5)
+
+		# TODO: find a way to put this in the background object
+		# such that it doesn't break when reset
+		# I believe the issues comes from recreating a group with the same order
+		# whilst the old one is still in memory somewhere
+		self.tmp_parallax_layers = [
+			ParallaxGroup(i, rate=1/(i+6)**2) for i in range(3)
+		]
 
 		self.camera = Camera(self.window)
 
@@ -199,6 +208,10 @@ class Level(Scene):
 		self.gui.batch.draw()
 
 	def run(self, dt):
+		# TODO: find a way to update the camera here instead of before drawing (make it independent of fps)
+		# self.camera.update()
+		self.background.update()
+
 		if not self.paused:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
