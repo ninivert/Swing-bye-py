@@ -28,6 +28,9 @@ class Camera:
 		# Assign parent
 		self.set_parent(parent)
 
+	def on_resize(self, width, height):
+		self.anchor = np.array((width//2, height//2))
+
 	def world_to_screen(self, x, y):
 		return (np.array((x, y)) - self.offset) * self.zoom + self.anchor
 
@@ -44,6 +47,14 @@ class Camera:
 			self.target_offset *= 0
 			self.anchor = np.array((self.window.width//2, self.window.height//2))
 			self.parent_offset = self.parent.pos.copy()
+
+	def set_position(self, x, y):
+		self.offset = np.array((x, y))
+		self.target_offset = np.array((x, y))
+
+	def set_zoom(self, zoom):
+		self.zoom = zoom
+		self.target_zoom = zoom
 
 	def move(self, dx, dy):
 		self.target_offset += (dx / self.zoom, dy / self.zoom)

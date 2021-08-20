@@ -72,6 +72,7 @@ class Level(Scene):
 	def on_resize(self, width, height):
 		self.hud_rect = self.hud.rect
 		self.background.on_resize(width, height)
+		self.camera.on_resize(width, height)
 
 	def on_speed_change(self, value):
 		self.simulation_speed = int(value)
@@ -219,7 +220,9 @@ class Level(Scene):
 	def reset(self):
 		self.hud.reset()
 		self.hud.hide_graph()
+		self.camera.set_parent(None)
 
 		# This is very bad, old objects are not getting cleaned up (sprites need to be removed from batches etc)
 		# When reset is spammed, memory usage increases greatly
 		self.load_level()
+		self.camera.set_parent(self.world.ship)
