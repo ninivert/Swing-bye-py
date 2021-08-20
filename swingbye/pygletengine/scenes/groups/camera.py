@@ -40,10 +40,7 @@ class Camera:
 
 	def set_parent(self, parent):
 		self.parent = parent
-		if self.parent is None:
-			self.target_offset += self.parent_offset
-			self.parent_offset *= 0
-		else:
+		if self.parent is not None:
 			self.target_offset *= 0
 			self.anchor = np.array((self.window.width//2, self.window.height//2))
 			self.parent_offset = self.parent.pos.copy()
