@@ -16,13 +16,14 @@ class ViewController(pyglet.window.Window):
 		super().__init__(g.WINDOW_WIDTH, g.WINDOW_HEIGHT, *args, **kwargs)
 
 		self.gui_batch = pyglet.graphics.Batch()
+		self.gui_group = pyglet.graphics.Group()
 		self.frame_rate = 1/60.0
 
 		if g.DEBUG_PERF:
 			self.fps_display = pyglet.window.FPSDisplay(self)
 			self.fps_display.label.x, self.fps_display.label.y = 0, g.WINDOW_HEIGHT-50
 
-		self.gui = glooey.Gui(self, batch=self.gui_batch)
+		self.gui = glooey.Gui(self, batch=self.gui_batch, group=self.gui_group)
 
 		self.scenes = {
 			'MainMenu': MainMenu(self, self.gui, self.transition_to_scene),

@@ -41,6 +41,7 @@ class LinePath(Path):
 		self._batch = batch
 
 		if batch is not None:
+			self.vertex_list.delete()
 			self.vertex_list = self.batch.add(
 				self._vertex_length,
 				pyglet.gl.GL_LINE_STRIP,
