@@ -1,8 +1,8 @@
 import pyglet
-
+from typing import Union
 
 class LinePath:
-	def __init__(self, batch, point_count=1, points=[], color=(255, 255, 255), group=None):
+	def __init__(self, batch=None, point_count=1, points=[], color=(255, 255, 255), group=None):
 		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
@@ -14,16 +14,25 @@ class LinePath:
 		self._load_vertices_from_tuples(points)
 		self._generate_vertex_color_list(color)
 
-		self.batch = batch
 		self.group = group
+		self.batch = batch
 
-		self.vertex_list = self.batch.add(
-			self._vertex_length,
-			pyglet.gl.GL_LINE_STRIP,
-			self.group,
-			('v2i/stream', self._vertices),
-			('c3B/dynamic', self._color)
-		)
+	@property
+	def batch(self):
+		return self._batch
+
+	@batch.setter
+	def batch(self, batch: Union[None, pyglet.graphics.Batch]):
+		self._batch = batch
+
+		if batch is not None:
+			self.vertex_list = self.batch.add(
+				self._vertex_length,
+				pyglet.gl.GL_LINE_STRIP,
+				self.group,
+				('v2i/stream', self._vertices),
+				('c3B/dynamic', self._color)
+			)
 
 	def _complete_vertices_with_empty(self, points):
 		if len(points) < self._vertex_length - 2:
