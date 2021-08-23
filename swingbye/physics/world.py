@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import dataclasses
 from dataclasses import dataclass, field
 from typing import List, Union
 from .entity import ImplicitEntity
@@ -66,9 +67,8 @@ class World():
 
 		self.ship.time = time
 
-		# TODO : this can probably be a property
-		# self.update_ship_prediction()
-		# self.update_planets_prediction()
+		self.update_ship_prediction()
+		self.update_planets_prediction()
 
 	# Game logic
 
@@ -91,23 +91,25 @@ class World():
 
 		self.ship.pointing = pointing
 
-	# def update_ship_prediction(self):
-	# 	# TODO : use this, use a class attribute ?
+	def update_ship_prediction(self):
+		if not self.ship.docked:
+			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
 
-	# 	if not self.ship.docked:
-	# 		_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+		temp_ship = dataclasses.replace(self.ship)
+		temp_ship.launch()
 
-	# 	temp_ship = dataclasses.replace(self.ship)
-	# 	temp_ship.launch()
+		for i, t in enumerate(np.linspace(self.time, self.time + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
+			self.integrator.integrate(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
+			self.ship.predicted[i, :] = temp_ship.pos
 
-	# 	predicted = np.zeros((SHIP_PREDICTION_N, 2))
+	def update_planets_prediction(self):
+		for planet in self.planets:
+			# predicted = np.zeros((PLANET_PREDICTION_N, 2))
 
-	# 	for i, t in enumerate(np.linspace(self.time, self.time + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
-	# 		self.integrator.integrate(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
-	# 		predicted[i, :] = temp_ship.pos
+			for i, t in enumerate(np.linspace(self.time, self.time + PLANET_PREDICTION_N*PLANET_PREDICTION_DT, PLANET_PREDICTION_N)):
+				planet.predicted[i, :] = self.pos_at(self, t)
 
-	# def update_planets_prediction(self):
-	# 	pass
+			# planet.predicted = predicted
 
 	# Debug
 

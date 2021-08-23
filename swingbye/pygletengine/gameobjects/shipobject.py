@@ -14,7 +14,7 @@ class ShipObject(SpriteMixin, Ship):
 
 	def _set_vel(self, pos):
 		super()._set_vel(pos)
-		# HACK : we override _set_ve, because it gets called while the game is running,
+		# HACK : we override _set_vel, because it gets called while the game is running,
 		# so that we can orient the ship in the correct direction
 		self._set_pointing(self._get_pointing())
 

@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Union
 from .entity import ImplicitEntity
-from ..globals import SHIP_LAUNCH_SPEED
+from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
 
@@ -18,6 +18,8 @@ class Ship(ImplicitEntity):
 	_time: float = field(init=False, repr=False, default=0.0)
 	pointing: np.ndarray
 	_pointing: np.ndarray = field(init=False, repr=False, default=np.array([0.0, 1.0]))
+	prediction: np.ndarray
+	_prediction: np.ndarray = field(init=False, repr=False, default=np.zeros((SHIP_PREDICTION_N, 2)))
 
 	# Time updating (keeping track of the docked ship on the planet)
 
@@ -70,6 +72,19 @@ class Ship(ImplicitEntity):
 		self._pointing = pointing
 
 	pointing = property(_get_pointing, _set_pointing_safe)
+
+	# Prediction
+
+	def _get_prediction(self):
+		return self._prediction
+
+	def _set_prediction(self, prediction):
+		if type(prediction) is property:
+			prediction = Ship._prediction
+
+		self._prediction = prediction
+
+	prediction = property(_get_prediction, _set_prediction)
 
 	# Game logic
 

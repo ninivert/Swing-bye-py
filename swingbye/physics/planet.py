@@ -1,11 +1,11 @@
 import numpy as np
 import logging
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Union
 from .entity import ExplicitEntity
 from .globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
-from ..globals import PLANET_PREDICTION_N, PLANET_PREDICTION_DT
+from ..globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
 
@@ -27,6 +27,11 @@ class Planet(ExplicitEntity):
 	# NOTE : type hint is `'Planet'` instead of `Planet`,
 	# since the class is not defined at this point
 	parent: Union[None, 'Planet'] = None
+	# Prediction
+	prediction: np.ndarray
+	_prediction: np.ndarray = field(init=False, repr=False, default=np.zeros((PLANET_PREDICTION_N, 2)))
+
+	# Position solver
 
 	def pos_at(self, time: float) -> np.ndarray:
 		pos = np.zeros(2)
@@ -103,19 +108,24 @@ class Planet(ExplicitEntity):
 
 		return pos
 
+	# Velocity hack
+
 	def vel_at(self, time: float) -> np.ndarray:
 		dt = 0.016666
 		return (self.pos_at(time+dt/2)-self.pos_at(time-dt/2))/dt
 
-	@property
-	def predicted(self):
-		# TODO : add dirty state
-		predicted = np.zeros((PLANET_PREDICTION_N, 2))
+	# Prediction
 
-		for i, t in enumerate(np.linspace(self._t, self._t + PLANET_PREDICTION_N*PLANET_PREDICTION_DT, PLANET_PREDICTION_N)):
-			predicted[i, :] = self.pos_at(self, t)
+	def _get_prediction(self):
+		return self._prediction
 
-		return predicted
+	def _set_prediction(self, prediction):
+		if type(prediction) is property:
+			prediction = Planet._prediction
+
+		self._prediction = prediction
+
+	prediction = property(_get_prediction, _set_prediction)
 
 
 if __name__ == '__main__':
