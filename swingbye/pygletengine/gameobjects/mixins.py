@@ -1,6 +1,6 @@
 import pyglet
 from swingbye.pygletengine.utils import create_sprite
-from swingbye.pygletengine.gameobjects.pointpath import PointPath
+from swingbye.pygletengine.components.paths import Path, LinePath
 from dataclasses import dataclass
 
 
@@ -24,8 +24,8 @@ class SpriteMixin:
 
 @dataclass
 class PredictionMixin:
-	# TODO : union LinePath
-	path: PointPath = PointPath()
+	# TODO : union LinePath and PointPath
+	path: Path = LinePath()
 
 	def _get_prediction(self):
 		return super().prediction

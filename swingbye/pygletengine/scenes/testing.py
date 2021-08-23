@@ -1,4 +1,3 @@
-import glooey
 import pyglet
 import math
 from swingbye.pygletengine.scenes.scene import Scene

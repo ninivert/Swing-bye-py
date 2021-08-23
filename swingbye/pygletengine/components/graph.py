@@ -1,6 +1,6 @@
 import pyglet
 import glooey
-from swingbye.pygletengine.gameobjects.linepath import LinePath
+from swingbye.pygletengine.components.paths import LinePath
 from numpy import interp, inf
 
 

@@ -1,7 +1,17 @@
-from swingbye.physics.ship import Ship
-from swingbye.pygletengine.gameobjects.utils import SpriteMixin, PredictionMixin
-from dataclasses import dataclass
 import math
+from random import random
+from swingbye.physics.ship import Ship
+from swingbye.physics.planet import Planet
+from swingbye.physics.entity import ImplicitEntity
+from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PredictionMixin
+from dataclasses import dataclass
+
+
+@dataclass
+class StarObject(SpriteMixin, ImplicitEntity):
+	def __post_init__(self):
+		scale = 1 + random()
+		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
 
 
 @dataclass
@@ -30,3 +40,10 @@ class ShipObject(SpriteMixin, PredictionMixin, Ship):
 			self.sprite.rotation = -math.degrees(math.atan2(pointing[1], pointing[0])) + 90
 
 	pointing = property(_get_pointing, Ship._set_pointing_safe)
+
+
+@dataclass
+class PlanetObject(SpriteMixin, PredictionMixin, Planet):
+	def __post_init__(self):
+		scale = self.radius / (self.sprite.width//2)
+		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)

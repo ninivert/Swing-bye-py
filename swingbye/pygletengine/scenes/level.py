@@ -1,20 +1,16 @@
 import pyglet
-import glooey
 import numpy as np
 import json
 import logging
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
 from swingbye.pygletengine.scenes.layers.camera import Camera
-from swingbye.pygletengine.utils import create_sprite, clamp, point_in_rect
-from swingbye.pygletengine.gameobjects.pointpath import PointPath
-from swingbye.pygletengine.gameobjects.linepath import LinePath
+from swingbye.pygletengine.utils import create_sprite, point_in_rect
+from swingbye.pygletengine.components.paths import PointPath, LinePath
 from swingbye.physics.ship import Ship
 from swingbye.physics.world import World, WorldStates
-from swingbye.physics.integrator import EulerIntegrator, RK4Integrator
-from swingbye.pygletengine.gameobjects.planetobject import PlanetObject
-from swingbye.pygletengine.gameobjects.shipobject import ShipObject
-from swingbye.pygletengine.gameobjects.starobject import StarObject
+from swingbye.physics.integrator import RK4Integrator
+from swingbye.pygletengine.gameobjects.entities import ShipObject, PlanetObject, StarObject
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
 from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState

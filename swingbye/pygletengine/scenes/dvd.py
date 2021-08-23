@@ -12,8 +12,8 @@ class DVD(Scene):
 		self.batch = pyglet.graphics.Batch()
 		self.dvd = DVDobject(
 			'assets/dvd.png',
-			0, 0, 
-			200, 80, 
+			0, 0,
+			200, 80,
 			[
 				(255, 20, 20),
 				(20, 255, 20),

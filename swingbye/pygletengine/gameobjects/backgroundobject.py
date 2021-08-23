@@ -1,6 +1,6 @@
 import pyglet
 import numpy as np
-from swingbye.pygletengine.gameobjects.starobject import StarObject
+from swingbye.pygletengine.gameobjects.entities import StarObject
 from swingbye.pygletengine.utils import create_sprite
 from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
 import swingbye.pygletengine.globals as g
@@ -9,7 +9,6 @@ import swingbye.pygletengine.globals as g
 class BackgroundObject:
 
 	def __init__(self, background_image, camera, batch, group, random_seed=0, n_stars=100, n_layers=3, layers=[]):
-		
 		self.camera = camera
 		self.batch = batch
 		self.group = group
@@ -20,7 +19,7 @@ class BackgroundObject:
 			background_image,
 			anchor='bottom_left',
 			size=(g.WINDOW_WIDTH, g.WINDOW_HEIGHT),
-			batch=batch, 
+			batch=batch,
 			group=group
 		)
 		self.sprite.opacity = 180
