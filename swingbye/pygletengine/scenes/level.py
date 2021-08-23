@@ -17,7 +17,7 @@ from ..gameobjects.shipobject import ShipObject
 from ..gameobjects.starobject import StarObject
 from ..gameobjects.backgroundobject import BackgroundObject
 from ..gameobjects.hudobject import HudObject
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG, GameState
+from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState
 from ...globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
