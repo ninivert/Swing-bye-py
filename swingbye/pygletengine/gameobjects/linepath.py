@@ -2,7 +2,7 @@ import pyglet
 from typing import Union
 
 class LinePath:
-	def __init__(self, batch=None, point_count=1, points=[], color=(255, 255, 255), group=None):
+	def __init__(self, point_count=1, points=[], color=(255, 255, 255), batch=None, group=None):
 		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
@@ -21,7 +21,10 @@ class LinePath:
 			('c3B/dynamic', self._color)
 		)
 
-		self.group = group
+		if group is None:
+			self.group = pyglet.graphics.Group()
+		else:
+			self.group = group
 		self.batch = batch
 
 	@property

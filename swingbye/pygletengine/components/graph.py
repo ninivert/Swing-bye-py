@@ -114,10 +114,10 @@ class Graph(glooey.Widget):
 	def load(self):
 		x, y = self.get_rect().bottom_left
 		self.graph = LinePath(
-			self.batch,
 			point_count=self._sample_size,
 			points=self._calulate_point_positions(),
 			color=self.color,
+			batch=self.batch,
 			group=self.group
 		)
 		self.max_label = pyglet.text.Label(

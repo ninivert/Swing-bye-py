@@ -109,7 +109,7 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
-					linepath=create_linepath(batch=batch, group=group, point_count=PLANET_PREDICTION_N),
+					linepath=create_linepath(batch=batch, point_count=PLANET_PREDICTION_N),
 					# name=child_dict['name'],
 					parent=parent,
 					**child_dict['arguments']

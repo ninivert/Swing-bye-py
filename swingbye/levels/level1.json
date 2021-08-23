@@ -32,19 +32,7 @@
 								"maxis": 34,
 								"radius": 5
 							},
-							"children": [
-								{
-									"type": "planet",
-									"sprite": "assets/sprites/planet2.png",
-									"name": "Planet 3",
-									"arguments": {
-										"mass": 1,
-										"maxis": 5,
-										"radius": 2
-									},
-									"children": []
-								}
-							]
+							"children": []
 						}
 					]
 				},

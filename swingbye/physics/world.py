@@ -111,7 +111,6 @@ class World():
 				planet.prediction[i, :] = planet.pos_at(t)  # Doesn't call the setter
 
 			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PredictionMixin
-			print(planet.linepath.vertices)
 
 	# Debug
 
