@@ -114,6 +114,17 @@ class World():
 
 			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PredictionMixin
 
+	# Energy
+
+	def kinetic_energy(self):
+		return 0.5 * np.linalg.norm(self.ship.vel)**2 * self.ship.mass
+
+	def potential_energy(self):
+		u = 0
+		for planet in self.planets:
+			u += -GRAVITY_CST * planet.mass * self.ship.mass / np.linalg.norm(planet.pos - self.ship.pos)
+		return u
+
 	# Debug
 
 	def __str__(self):

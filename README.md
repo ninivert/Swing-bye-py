@@ -11,6 +11,7 @@ Rendering
 - [ ] Planet / comet labels
 - [X] Texture comets
 - [X] FIX THE GODDAMN CAMERA (Y A T T A)
+- [ ] KE and PE graphs
 
 
 UI
@@ -23,9 +24,9 @@ UI
 
 Physics
 
-- [ ] Ship prediction
-- [ ] Orbit lines
-- [ ] KE and PE graphs
+- [X] Ship prediction
+- [X] Orbit lines
+- [ ] KE and PE
 
 
 Game
