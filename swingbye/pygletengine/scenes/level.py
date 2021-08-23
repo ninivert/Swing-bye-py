@@ -19,7 +19,7 @@ from ..gameobjects.starobject import StarObject
 from ..gameobjects.backgroundobject import BackgroundObject
 from ..gameobjects.hudobject import HudObject
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG, GameState
-from ...globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N
+from ...globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
 
@@ -110,8 +110,8 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
-					# TODO: colors!
-					path=PointPath(batch=batch, point_count=PLANET_PREDICTION_N, points=[]),
+					# TODO: colors
+					path=PointPath(batch=batch, point_count=PLANET_PREDICTION_N),
 					# TODO : named planets
 					# name=child_dict['name'],
 					parent=parent,
@@ -128,7 +128,7 @@ class Level(Scene):
 
 				ship = ShipObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
-					path=PointPath(batch=batch, point_count=SHIP_PREDICTION_N),
+					path=LinePath(batch=batch, point_count=SHIP_PREDICTION_N),
 					parent=parent,
 					**child_dict['arguments']
 				)
@@ -221,8 +221,7 @@ class Level(Scene):
 		if not self.paused:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
-					# TODO: make physics framerate independent
-					self.world.step(dt*200)
+					self.world.step(PHYSICS_DT)
 
 		if DEBUG:
 			# WARNING: lines are always late by 1 frame
@@ -244,5 +243,6 @@ class Level(Scene):
 
 		# This is very bad, old objects are not getting cleaned up (sprites need to be removed from batches etc)
 		# When reset is spammed, memory usage increases greatly
-		self.load_level()
+		# TODO : cleanup this because it reconstructs the HUD, very overkill such excess
+		self.load()
 		self.camera.set_parent(self.world.ship)
