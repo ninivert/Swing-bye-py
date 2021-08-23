@@ -14,6 +14,13 @@ class LinePath:
 		self._load_vertices_from_tuples(points)
 		self._generate_vertex_color_list(color)
 
+		# Default empty vertex list
+		self.vertex_list = pyglet.graphics.vertex_list(
+			self._vertex_length,
+			('v2f/stream', self._vertices),
+			('c3B/dynamic', self._color)
+		)
+
 		self.group = group
 		self.batch = batch
 
@@ -30,7 +37,7 @@ class LinePath:
 				self._vertex_length,
 				pyglet.gl.GL_LINE_STRIP,
 				self.group,
-				('v2i/stream', self._vertices),
+				('v2f/stream', self._vertices),
 				('c3B/dynamic', self._color)
 			)
 

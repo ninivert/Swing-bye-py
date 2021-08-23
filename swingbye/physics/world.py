@@ -101,21 +101,17 @@ class World():
 		temp_ship = dataclasses.replace(self.ship)
 		temp_ship.launch()
 
-		for i, t in enumerate(np.linspace(self.time, self.time + SHIP_PREDICTION_N*SHIP_PREDICTION_DT, SHIP_PREDICTION_N)):
+		for i, t in enumerate(np.linspace(self.time, self.time + self.ship.prediction.shape[0]*SHIP_PREDICTION_DT, self.ship.prediction.shape[0])):
 			self.integrator.integrate(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
 			self.ship.prediction[i, :] = temp_ship.pos
 
 	def update_planets_prediction(self):
-		# TODO
-		return
-
 		for planet in self.planets:
-			# prediction = np.zeros((PLANET_PREDICTION_N, 2))
+			for i, t in enumerate(np.linspace(self.time, self.time + planet.prediction.shape[0]*PLANET_PREDICTION_DT, planet.prediction.shape[0])):
+				planet.prediction[i, :] = planet.pos_at(t)  # Doesn't call the setter
 
-			for i, t in enumerate(np.linspace(self.time, self.time + PLANET_PREDICTION_N*PLANET_PREDICTION_DT, PLANET_PREDICTION_N)):
-				planet.prediction[i, :] = planet.pos_at(t)
-
-			# planet.prediction = prediction
+			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PredictionMixin
+			print(planet.linepath.vertices)
 
 	# Debug
 

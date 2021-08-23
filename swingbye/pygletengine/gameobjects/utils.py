@@ -32,3 +32,5 @@ class PredictionMixin:
 		super()._set_prediction(prediction)
 		if type(prediction) is not property:
 			self.linepath.vertices = prediction
+
+	prediction = property(_get_prediction, _set_prediction)

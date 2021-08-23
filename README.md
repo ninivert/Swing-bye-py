@@ -25,6 +25,7 @@ Physics
 
 - [ ] Ship prediction
 - [ ] Orbit lines
+- [ ] KE and PE graphs
 
 
 Game

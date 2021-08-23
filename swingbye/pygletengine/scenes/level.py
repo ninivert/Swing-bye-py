@@ -7,7 +7,7 @@ from random import randrange
 from .scene import Scene
 from .layers.parallax import ParallaxGroup
 from .layers.camera import Camera
-from ..utils import create_sprite, clamp, point_in_rect
+from ..utils import create_sprite, create_linepath, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates
 from ...physics.integrator import EulerIntegrator, RK4Integrator
@@ -17,6 +17,7 @@ from ..gameobjects.starobject import StarObject
 from ..gameobjects.backgroundobject import BackgroundObject
 from ..gameobjects.hudobject import HudObject
 from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
+from ...globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ class Level(Scene):
 	def on_speed_change(self, value):
 		self.simulation_speed = int(value)
 		self.hud.graph.sample_rate = 1/10 / int(value)
-		
+
 	def on_time_change(self, value):
 		self.world.time = value
 
@@ -108,6 +109,7 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
+					linepath=create_linepath(batch=batch, group=group, point_count=PLANET_PREDICTION_N),
 					# name=child_dict['name'],
 					parent=parent,
 					**child_dict['arguments']
