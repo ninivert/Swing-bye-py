@@ -1,6 +1,6 @@
 def main():
 	import pyglet
-	from .pygletengine.controller import ViewController
+	from swingbye.pygletengine.controller import ViewController
 
 	pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
 	pyglet.options['search_local_libs'] = True
@@ -12,5 +12,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
-
