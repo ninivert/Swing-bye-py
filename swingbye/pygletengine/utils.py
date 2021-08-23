@@ -1,5 +1,6 @@
 import pyglet
 from .gameobjects.linepath import LinePath
+from .gameobjects.pointpath import PointPath
 
 def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.sprite.Sprite:
 	image = pyglet.resource.image(path)
@@ -19,6 +20,9 @@ def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.spr
 
 def create_linepath(*args, **kwargs):
 	return LinePath(*args, **kwargs)
+
+def create_pointpath(*args, **kwargs):
+	return PointPath(*args, **kwargs)
 
 def clamp(value: float, mini: float, maxi: float) -> float:
 	return min(max(value, mini), maxi)

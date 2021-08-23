@@ -7,7 +7,7 @@ from random import randrange
 from .scene import Scene
 from .layers.parallax import ParallaxGroup
 from .layers.camera import Camera
-from ..utils import create_sprite, create_linepath, clamp, point_in_rect
+from ..utils import create_sprite, create_linepath, create_pointpath, clamp, point_in_rect
 from ...physics.ship import Ship
 from ...physics.world import World, WorldStates
 from ...physics.integrator import EulerIntegrator, RK4Integrator
@@ -109,7 +109,8 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
-					linepath=create_linepath(batch=batch, point_count=PLANET_PREDICTION_N),
+					# TODO: colors! 
+					path=create_pointpath(batch=batch, point_count=PLANET_PREDICTION_N),
 					# name=child_dict['name'],
 					parent=parent,
 					**child_dict['arguments']

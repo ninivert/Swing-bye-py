@@ -1,5 +1,5 @@
 from ..utils import create_sprite
-from .linepath import LinePath
+from .pointpath import PointPath
 from dataclasses import dataclass
 import pyglet
 
@@ -23,7 +23,7 @@ class SpriteMixin:
 
 @dataclass
 class PredictionMixin:
-	linepath: LinePath = LinePath()
+	path: PointPath = PointPath()
 
 	def _get_prediction(self):
 		return super().prediction
@@ -31,6 +31,6 @@ class PredictionMixin:
 	def _set_prediction(self, prediction):
 		super()._set_prediction(prediction)
 		if type(prediction) is not property:
-			self.linepath.vertices = prediction
+			self.path.vertices = prediction
 
 	prediction = property(_get_prediction, _set_prediction)
