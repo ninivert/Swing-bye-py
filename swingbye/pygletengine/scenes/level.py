@@ -3,7 +3,6 @@ import glooey
 import numpy as np
 import json
 import logging
-from random import randrange
 from .scene import Scene
 from .layers.parallax import ParallaxGroup
 from .layers.camera import Camera
@@ -35,7 +34,7 @@ class Level(Scene):
 		self.mouse_press_y = 0
 
 		self.simulation_speed = 1
-		self.paused = False
+		self.game_state = GameState.RUNNING
 
 		self.mouse_x = 0
 		self.mouse_y = 0
@@ -45,10 +44,11 @@ class Level(Scene):
 		self.mouse_y = y
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		if self.hud.captured:
-			self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
-		else:
-			self.camera.move(-dx, -dy)
+		if self.game_state == GameState.RUNNING:
+			if self.hud.captured:
+				self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+			else:
+				self.camera.move(-dx, -dy)
 		self.mouse_x = x
 		self.mouse_y = y
 
@@ -57,18 +57,19 @@ class Level(Scene):
 		self.mouse_press_y = y
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
-		clicked = self.mouse_press_x == x and self.mouse_press_y == y
-
-		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
-			if clicked:
-				self.world.point_ship(self.camera.screen_to_world(x, y))
+		if self.game_state == GameState.RUNNING:
+			clicked = self.mouse_press_x == x and self.mouse_press_y == y
+			if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
+				if clicked:
+					self.world.point_ship(self.camera.screen_to_world(x, y))
 
 		self.hud.on_mouse_release(x, y, buttons, modifiers)
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-		if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
-			if scroll_y != 0:
-				self.camera.zoom_at(x, y, scroll_y)
+		if self.game_state == GameState.RUNNING:
+			if not point_in_rect(x, y, *self.hud_rect.bottom_left, *self.hud_rect.size):
+				if scroll_y != 0:
+					self.camera.zoom_at(x, y, scroll_y)
 
 	def on_resize(self, width, height):
 		self.hud_rect = self.hud.rect
@@ -82,13 +83,15 @@ class Level(Scene):
 	def on_time_change(self, value):
 		self.world.time = value
 
-	def on_pause_toggle(self, state: GameState):
-		if state == GameState.PAUSED:
-			self.paused = True
-			self.hud.graph.pause_sampling()
-		elif state == GameState.RUNNING:
-			self.paused = False
-			self.hud.graph.resume_sampling()
+	def on_pause(self):
+		self.game_state = GameState.PAUSED
+		self.hud.pause_menu.open(self.gui)
+		self.hud.graph.pause_sampling()
+	
+	def on_resume(self):	
+		self.game_state = GameState.RUNNING
+		self.hud.pause_menu.close()
+		self.hud.graph.resume_sampling()
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -149,10 +152,13 @@ class Level(Scene):
 		self.hud = HudObject(self.gui)
 
 		self.hud.reset_button.set_handler('on_press', self.reset)
-		self.hud.pause_button.set_handler('on_toggle', self.on_pause_toggle)
+		self.hud.pause_button.set_handler('on_press', self.on_pause)
 		self.hud.speed_slider.set_handler('on_change', self.on_speed_change)
 		self.hud.time_slider.set_handler('on_change', self.on_time_change)
 		self.hud.launch_button.set_handler('on_press', self.launch_ship)
+
+		self.hud.pause_menu.resume_button.set_handler('on_press', self.on_resume)
+		self.hud.pause_menu.quit_button.set_handler('on_press', pyglet.app.exit)
 
 		self.hud.graph.query = lambda: np.linalg.norm(self.world.ship.vel)
 		self.hud.hide_graph()
@@ -193,7 +199,7 @@ class Level(Scene):
 
 		self.camera = Camera(self.window)
 
-		if DEBUG:
+		if DEBUG_CAMERA:
 			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.foreground_group)
 			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.world_batch, group=self.foreground_group)
 			self.mouse_world_to_screen_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 255, 20), batch=self.batch, group=self.foreground_group)
@@ -218,12 +224,12 @@ class Level(Scene):
 		# self.camera.update()
 		self.background.update()
 
-		if not self.paused:
+		if self.game_state == GameState.RUNNING:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
 					self.world.step(PHYSICS_DT)
 
-		if DEBUG:
+		if DEBUG_CAMERA:
 			# WARNING: lines are always late by 1 frame
 			# do not trust them too much on fast moving entities
 			self.offset_line.x2, self.offset_line.y2 = self.camera.world_to_screen(*self.world.planets[0].pos)

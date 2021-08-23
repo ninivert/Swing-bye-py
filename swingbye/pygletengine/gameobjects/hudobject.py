@@ -2,9 +2,30 @@ import pyglet
 import glooey
 from ..components.slider import Slider
 from ..components.graph import Graph
+from ..components.labels import Title
 from ..components.buttons import Button, CycleButton
-from ..components.containers import VBox, HBox, Board, Frame
+from ..components.containers import VBox, HBox, Board, Frame, Dialog
 from ..globals import GameState
+
+
+class PauseMenu(Dialog):
+	Background = glooey.images.Background
+
+	def __init__(self):
+		super().__init__()
+
+		self.container = VBox()
+
+		self.title = Title('Pause Menu')
+		self.resume_button = Button('Resume')
+		self.quit_button = Button('Quit')
+
+		self.container.add(self.title)
+		self.container.add(self.resume_button)
+		self.container.add(self.quit_button)
+
+		self.add(self.container)
+
 
 class HudObject:
 
@@ -24,7 +45,7 @@ class HudObject:
 
 		# Bottom control buttons
 		self.reset_button = Button('Reset')
-		self.pause_button = CycleButton({GameState.RUNNING: 'Pause', GameState.PAUSED: 'Resume'})
+		self.pause_button = Button('Pause')
 		self.speed_slider = Slider(
 			min_value=1, max_value=16,
 			step=1,
@@ -37,6 +58,8 @@ class HudObject:
 		)
 		self.launch_button = Button('LAUNCH')
 
+		self.pause_menu = PauseMenu()
+		
 		# Attach everything to their containers
 		self.graph_container.add(self.graph)
 		self.overlay.add(self.graph_container, left=10, bottom=10)
@@ -49,6 +72,7 @@ class HudObject:
 
 		self.container.add(self.overlay)
 		self.container.pack(self.hud_container)
+
 
 		gui.add(self.container)
 

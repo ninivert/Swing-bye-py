@@ -1,5 +1,6 @@
 # Flags
-DEBUG = True
+DEBUG_CAMERA = False
+DEBUG_PERF = True
 
 # Window settings
 WINDOW_WIDTH = 1280

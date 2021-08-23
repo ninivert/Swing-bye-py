@@ -18,7 +18,7 @@ class ViewController(pyglet.window.Window):
 		self.gui_batch = pyglet.graphics.Batch()
 		self.frame_rate = 1/60.0
 
-		if g.DEBUG:
+		if g.DEBUG_PERF:
 			self.fps_display = pyglet.window.FPSDisplay(self)
 			self.fps_display.label.x, self.fps_display.label.y = 0, g.WINDOW_HEIGHT-50
 
@@ -62,7 +62,7 @@ class ViewController(pyglet.window.Window):
 	def on_draw(self):
 		self.clear()
 		self.scenes[self.current_scene].draw()
-		if g.DEBUG:
+		if g.DEBUG_PERF:
 			self.fps_display.draw()
 
 	def on_resize(self, width, height):

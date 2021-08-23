@@ -30,3 +30,7 @@ class Frame(glooey.Frame):
 
 class Bin(glooey.Bin):
 	custom_alignment = 'fill'
+
+
+class Dialog(glooey.dialogs.Dialog):
+	custom_alignment = 'center'
