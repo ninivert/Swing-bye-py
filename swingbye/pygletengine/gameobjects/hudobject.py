@@ -4,7 +4,7 @@ from ..components.slider import Slider
 from ..components.graph import Graph
 from ..components.buttons import Button, CycleButton
 from ..components.containers import VBox, HBox, Board, Frame
-
+from ..globals import GameState
 
 class HudObject:
 
@@ -24,7 +24,7 @@ class HudObject:
 
 		# Bottom control buttons
 		self.reset_button = Button('Reset')
-		self.pause_button = CycleButton({'NOT PAUSED': 'Pause', 'PAUSED': 'Resume'})
+		self.pause_button = CycleButton({GameState.RUNNING: 'Pause', GameState.PAUSED: 'Resume'})
 		self.speed_slider = Slider(
 			min_value=1, max_value=16,
 			step=1,

@@ -16,11 +16,10 @@ from ..gameobjects.shipobject import ShipObject
 from ..gameobjects.starobject import StarObject
 from ..gameobjects.backgroundobject import BackgroundObject
 from ..gameobjects.hudobject import HudObject
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG
+from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG, GameState
 from ...globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
-
 
 class Level(Scene):
 
@@ -81,11 +80,11 @@ class Level(Scene):
 	def on_time_change(self, value):
 		self.world.time = value
 
-	def on_pause_toggle(self, state):
-		if state == 'PAUSED':
+	def on_pause_toggle(self, state: GameState):
+		if state == GameState.PAUSED:
 			self.paused = True
 			self.hud.graph.pause_sampling()
-		elif state == 'NOT PAUSED':
+		elif state == GameState.RUNNING:
 			self.paused = False
 			self.hud.graph.resume_sampling()
 
@@ -109,7 +108,7 @@ class Level(Scene):
 			if child_dict['type'] == 'planet':
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
-					# TODO: colors! 
+					# TODO: colors!
 					path=create_pointpath(batch=batch, point_count=PLANET_PREDICTION_N),
 					# name=child_dict['name'],
 					parent=parent,

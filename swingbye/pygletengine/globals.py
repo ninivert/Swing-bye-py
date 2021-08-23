@@ -11,3 +11,9 @@ SHOW_PREDICTION = True
 # UI settings
 TITLE_SIZE_PROPORTION = 5/10
 # TODO
+
+from enum import Enum, auto
+
+class GameState(Enum):
+	RUNNING = auto()
+	PAUSED = auto()
