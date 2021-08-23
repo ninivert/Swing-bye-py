@@ -90,20 +90,21 @@ class World():
 		pointing /= pointing_norm
 
 		self.ship.pointing = pointing
+		self.update_ship_prediction()
 
 	def update_ship_prediction(self):
-		# TODO
-		return
-
 		if not self.ship.docked:
 			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+			return
 
-		temp_ship = dataclasses.replace(self.ship)
+		temp_ship = Ship(parent=self.ship.parent, time=self.ship.time, pointing=self.ship.pointing)  # create a copy
 		temp_ship.launch()
 
 		for i, t in enumerate(np.linspace(self.time, self.time + self.ship.prediction.shape[0]*SHIP_PREDICTION_DT, self.ship.prediction.shape[0])):
 			self.integrator.integrate(temp_ship, self.get_forces_on, t, SHIP_PREDICTION_DT)
 			self.ship.prediction[i, :] = temp_ship.pos
+
+		self.ship.prediction = self.ship.prediction
 
 	def update_planets_prediction(self):
 		for planet in self.planets:

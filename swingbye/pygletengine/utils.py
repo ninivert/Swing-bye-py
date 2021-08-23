@@ -18,12 +18,6 @@ def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.spr
 
 	return pyglet.sprite.Sprite(image, **kwargs)
 
-def create_linepath(*args, **kwargs):
-	return LinePath(*args, **kwargs)
-
-def create_pointpath(*args, **kwargs):
-	return PointPath(*args, **kwargs)
-
 def clamp(value: float, mini: float, maxi: float) -> float:
 	return min(max(value, mini), maxi)
 

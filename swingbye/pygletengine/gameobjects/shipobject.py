@@ -1,10 +1,10 @@
 from ...physics.ship import Ship
-from .utils import SpriteMixin
+from .utils import SpriteMixin, PredictionMixin
 from dataclasses import dataclass
 import math
 
 @dataclass
-class ShipObject(SpriteMixin, Ship):
+class ShipObject(SpriteMixin, PredictionMixin, Ship):
 	def __post_init__(self):
 		scale = 0.05  # self.r / (self.sprite.width//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)

@@ -23,6 +23,7 @@ class SpriteMixin:
 
 @dataclass
 class PredictionMixin:
+	# TODO : union LinePath
 	path: PointPath = PointPath()
 
 	def _get_prediction(self):
