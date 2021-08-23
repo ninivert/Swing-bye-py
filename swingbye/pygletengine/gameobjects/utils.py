@@ -1,7 +1,8 @@
-from ..utils import create_sprite
-from .pointpath import PointPath
-from dataclasses import dataclass
 import pyglet
+from swingbye.pygletengine.utils import create_sprite
+from swingbye.pygletengine.gameobjects.pointpath import PointPath
+from dataclasses import dataclass
+
 
 @dataclass
 class SpriteMixin:

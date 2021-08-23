@@ -1,6 +1,5 @@
 import pyglet
-from .gameobjects.linepath import LinePath
-from .gameobjects.pointpath import PointPath
+
 
 def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.sprite.Sprite:
 	image = pyglet.resource.image(path)

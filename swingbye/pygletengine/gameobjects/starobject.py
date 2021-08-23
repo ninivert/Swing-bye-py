@@ -1,6 +1,6 @@
 from random import random
-from ...physics.entity import ImplicitEntity
-from .utils import SpriteMixin
+from swingbye.physics.entity import ImplicitEntity
+from swingbye.pygletengine.gameobjects.utils import SpriteMixin
 from dataclasses import dataclass
 
 

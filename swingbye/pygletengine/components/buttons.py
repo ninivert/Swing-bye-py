@@ -1,6 +1,6 @@
 import pyglet
 import glooey
-from .labels import ButtonLabel
+from swingbye.pygletengine.components.labels import ButtonLabel
 
 
 class Button(glooey.Button):

@@ -1,6 +1,7 @@
-from ...physics.planet import Planet
-from .utils import SpriteMixin, PredictionMixin
+from swingbye.physics.planet import Planet
+from swingbye.pygletengine.gameobjects.utils import SpriteMixin, PredictionMixin
 from dataclasses import dataclass
+
 
 @dataclass
 class PlanetObject(SpriteMixin, PredictionMixin, Planet):

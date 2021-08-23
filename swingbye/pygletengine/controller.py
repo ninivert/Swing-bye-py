@@ -1,12 +1,12 @@
 import pyglet
 from pyglet.window import key
 import glooey
-from .scenes.mainmenu import MainMenu
-from .scenes.level import Level
-from .scenes.levelselectmenu import LevelSelectMenu
-from .scenes.optionsmenu import OptionsMenu
-from .scenes.dvd import DVD
-from .scenes.testing import Test
+from swingbye.pygletengine.scenes.mainmenu import MainMenu
+from swingbye.pygletengine.scenes.level import Level
+from swingbye.pygletengine.scenes.levelselectmenu import LevelSelectMenu
+from swingbye.pygletengine.scenes.optionsmenu import OptionsMenu
+from swingbye.pygletengine.scenes.dvd import DVD
+from swingbye.pygletengine.scenes.testing import Test
 import swingbye.pygletengine.globals as g
 
 

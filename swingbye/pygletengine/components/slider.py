@@ -1,6 +1,6 @@
 import pyglet
 import glooey
-from ..utils import clamp
+from swingbye.pygletengine.utils import clamp
 
 
 class Slider(glooey.Widget):

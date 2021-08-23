@@ -1,9 +1,9 @@
 import glooey
-from .scene import Scene
-from ..components.buttons import Button
-from ..components.labels import Title
-from ..components.containers import VBox, Grid
-from ..globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from swingbye.pygletengine.scenes.scene import Scene
+from swingbye.pygletengine.components.buttons import Button
+from swingbye.pygletengine.components.labels import Title
+from swingbye.pygletengine.components.containers import VBox, Grid
+from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
 
 class LevelSelectMenu(Scene):

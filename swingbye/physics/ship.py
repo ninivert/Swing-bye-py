@@ -2,8 +2,8 @@ import numpy as np
 import logging
 from dataclasses import dataclass, field
 from typing import Union
-from .entity import ImplicitEntity
-from ..globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N
+from swingbye.physics.entity import ImplicitEntity
+from swingbye.globals import SHIP_LAUNCH_SPEED, SHIP_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
 

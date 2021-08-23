@@ -1,7 +1,7 @@
 import pyglet
 import glooey
+from swingbye.pygletengine.gameobjects.linepath import LinePath
 from numpy import interp, inf
-from ..gameobjects.linepath import LinePath
 
 
 class Graph(glooey.Widget):

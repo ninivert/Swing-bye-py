@@ -1,6 +1,7 @@
 import pyglet
 from typing import Union
 
+
 class PointPath:
 	def __init__(self, point_count=1, points=[], color=(255, 255, 255), batch=None, group=None):
 		if len(points) > point_count:

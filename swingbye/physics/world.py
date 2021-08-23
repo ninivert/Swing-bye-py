@@ -1,17 +1,17 @@
 import numpy as np
 import logging
-import dataclasses
 from dataclasses import dataclass, field
 from typing import List, Union
-from .entity import ImplicitEntity
-from .ship import Ship
-from .planet import Planet
-from .globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
-from ..globals import SHIP_PREDICTION_N, PLANET_PREDICTION_N, PLANET_PREDICTION_DT, PHYSICS_DT
-from .integrator import Integrator, EulerIntegrator
+from swingbye.physics.entity import ImplicitEntity
+from swingbye.physics.ship import Ship
+from swingbye.physics.planet import Planet
+from swingbye.physics.integrator import Integrator, EulerIntegrator
+from swingbye.physics.globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
+from swingbye.globals import SHIP_PREDICTION_N, PLANET_PREDICTION_N, PLANET_PREDICTION_DT, PHYSICS_DT
 from enum import Enum, auto
 
 _logger = logging.getLogger(__name__)
+
 
 class WorldStates(Enum):
 	PRE_LAUNCH = auto()

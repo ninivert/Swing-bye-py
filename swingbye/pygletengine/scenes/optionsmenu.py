@@ -1,10 +1,10 @@
 import glooey
 import pyglet
-from .scene import Scene
-from ..components.buttons import Button, CycleButton
-from ..components.labels import Title
-from ..components.containers import VBox
-from ..globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from swingbye.pygletengine.scenes.scene import Scene
+from swingbye.pygletengine.components.buttons import Button, CycleButton
+from swingbye.pygletengine.components.labels import Title
+from swingbye.pygletengine.components.containers import VBox
+from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
 
 class OptionsMenu(Scene):

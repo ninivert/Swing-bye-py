@@ -1,10 +1,10 @@
 import glooey
 import pyglet
 import math
-from .scene import Scene
-from ..components.graph import Graph
-from ..components.containers import VBox
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from swingbye.pygletengine.scenes.scene import Scene
+from swingbye.pygletengine.components.graph import Graph
+from swingbye.pygletengine.components.containers import VBox
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
 # Testing environment for testing new custom widgets and stuff

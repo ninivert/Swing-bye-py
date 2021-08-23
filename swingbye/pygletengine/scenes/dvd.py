@@ -1,7 +1,7 @@
 import pyglet
-from .scene import Scene
-from ..gameobjects.dvdobject import DVDobject
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT
+from swingbye.pygletengine.scenes.scene import Scene
+from swingbye.pygletengine.gameobjects.dvdobject import DVDobject
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
 class DVD(Scene):

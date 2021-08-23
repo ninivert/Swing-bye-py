@@ -1,7 +1,8 @@
 import numpy as np
 from abc import abstractclassmethod, ABCMeta
 from typing import Callable
-from .entity import ImplicitEntity
+from swingbye.physics.entity import ImplicitEntity
+
 
 class Integrator(metaclass=ABCMeta):
 	@abstractclassmethod

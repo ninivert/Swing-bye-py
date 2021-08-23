@@ -3,11 +3,12 @@ import logging
 import math
 from dataclasses import dataclass, field
 from typing import Union
-from .entity import ExplicitEntity
-from .globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
-from ..globals import PLANET_PREDICTION_N
+from swingbye.physics.entity import ExplicitEntity
+from swingbye.physics.globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
+from swingbye.globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Planet(ExplicitEntity):

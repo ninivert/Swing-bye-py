@@ -3,22 +3,22 @@ import glooey
 import numpy as np
 import json
 import logging
-from .scene import Scene
-from .layers.parallax import ParallaxGroup
-from .layers.camera import Camera
-from ..utils import create_sprite, clamp, point_in_rect
-from ..gameobjects.pointpath import PointPath
-from ..gameobjects.linepath import LinePath
-from ...physics.ship import Ship
-from ...physics.world import World, WorldStates
-from ...physics.integrator import EulerIntegrator, RK4Integrator
-from ..gameobjects.planetobject import PlanetObject
-from ..gameobjects.shipobject import ShipObject
-from ..gameobjects.starobject import StarObject
-from ..gameobjects.backgroundobject import BackgroundObject
-from ..gameobjects.hudobject import HudObject
-from ..globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState
-from ...globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
+from swingbye.pygletengine.scenes.scene import Scene
+from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
+from swingbye.pygletengine.scenes.layers.camera import Camera
+from swingbye.pygletengine.utils import create_sprite, clamp, point_in_rect
+from swingbye.pygletengine.gameobjects.pointpath import PointPath
+from swingbye.pygletengine.gameobjects.linepath import LinePath
+from swingbye.physics.ship import Ship
+from swingbye.physics.world import World, WorldStates
+from swingbye.physics.integrator import EulerIntegrator, RK4Integrator
+from swingbye.pygletengine.gameobjects.planetobject import PlanetObject
+from swingbye.pygletengine.gameobjects.shipobject import ShipObject
+from swingbye.pygletengine.gameobjects.starobject import StarObject
+from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
+from swingbye.pygletengine.gameobjects.hudobject import HudObject
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState
+from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
 

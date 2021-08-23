@@ -1,8 +1,8 @@
 import pyglet
 import numpy as np
-from .starobject import StarObject
-from ..utils import create_sprite
-from ..scenes.layers.parallax import ParallaxGroup
+from swingbye.pygletengine.gameobjects.starobject import StarObject
+from swingbye.pygletengine.utils import create_sprite
+from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
 import swingbye.pygletengine.globals as g
 
 

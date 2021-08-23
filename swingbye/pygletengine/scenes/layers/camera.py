@@ -1,6 +1,6 @@
 import pyglet
 import numpy as np
-from ...utils import clamp, lerp
+from swingbye.pygletengine.utils import clamp, lerp
 
 
 class Camera:

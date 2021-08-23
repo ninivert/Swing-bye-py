@@ -1,7 +1,8 @@
-from ...physics.ship import Ship
-from .utils import SpriteMixin, PredictionMixin
+from swingbye.physics.ship import Ship
+from swingbye.pygletengine.gameobjects.utils import SpriteMixin, PredictionMixin
 from dataclasses import dataclass
 import math
+
 
 @dataclass
 class ShipObject(SpriteMixin, PredictionMixin, Ship):

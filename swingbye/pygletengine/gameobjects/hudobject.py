@@ -1,11 +1,11 @@
 import pyglet
 import glooey
-from ..components.slider import Slider
-from ..components.graph import Graph
-from ..components.labels import Title
-from ..components.buttons import Button, CycleButton
-from ..components.containers import VBox, HBox, Board, Frame, Dialog
-from ..globals import GameState
+from swingbye.pygletengine.components.slider import Slider
+from swingbye.pygletengine.components.graph import Graph
+from swingbye.pygletengine.components.labels import Title
+from swingbye.pygletengine.components.buttons import Button, CycleButton
+from swingbye.pygletengine.components.containers import VBox, HBox, Board, Frame, Dialog
+from swingbye.pygletengine.globals import GameState
 
 
 class PauseMenu(Dialog):
