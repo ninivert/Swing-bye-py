@@ -1,13 +1,14 @@
 import pyglet
 
 
-class Scene:
+class Scene(pyglet.event.EventDispatcher):
 
 	def __init__(self, window, gui, callback, *args, **kwargs):
 		super().__init__()
 		self.window = window
 		self.gui = gui
-		self.callback = callback
+		# TODO: verify that this is safe to delete
+		# self.callback = callback
 
 	def begin(self):
 		raise NotImplementedError('abstract')

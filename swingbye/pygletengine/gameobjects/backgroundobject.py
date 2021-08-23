@@ -25,6 +25,9 @@ class BackgroundObject:
 		)
 		self.sprite.opacity = 180
 
+		self.old_width = g.WINDOW_WIDTH
+		self.old_height = g.WINDOW_HEIGHT
+
 		self.n_stars = n_stars
 		self.n_layers = n_layers
 
@@ -45,7 +48,7 @@ class BackgroundObject:
 		for i in range(self.n_stars):
 			self.stars.append(
 				StarObject(
-					pos=np.random.rand(2)*np.array((g.WINDOW_WIDTH, g.WINDOW_HEIGHT)),
+					pos=np.random.rand(2)*np.array((self.sprite.width, self.sprite.height)),
 					sprite=create_sprite(
 						np.random.choice(stars_img),
 						size=(5, 5),
@@ -66,6 +69,12 @@ class BackgroundObject:
 			layer.offset = self.camera.offset + self.camera.anchor
 
 	def on_resize(self, width, height):
-		scale_x, scale_y = width / g.WINDOW_WIDTH, height / g.WINDOW_HEIGHT
+		# FIXME: do not hardcode
+		scale_x, scale_y = width / 1280, height / 720
 		self.sprite.update(scale_x=scale_x, scale_y=scale_y)
-		print(scale_x, scale_y)
+
+		for star in self.stars:
+			star.sprite.x *= width / self.old_width
+			star.sprite.y *= height / self.old_height
+
+		self.old_width, self.old_height = width, height

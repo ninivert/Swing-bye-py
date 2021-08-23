@@ -70,6 +70,7 @@ class Camera:
 		self.anchor = np.array((x, y))
 
 		# Do the zooming
+		# could use np.exp for constant zoom levels (but "breaks" with lerp)
 		if direction == 1:
 			self.target_zoom *= 1.3
 		elif direction == -1:

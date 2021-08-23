@@ -215,6 +215,7 @@ class Level(Scene):
 		if not self.paused:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
+					# TODO: make physics framerate independent
 					self.world.step(dt*200)
 
 		if DEBUG:

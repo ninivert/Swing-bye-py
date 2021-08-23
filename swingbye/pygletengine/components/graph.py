@@ -71,6 +71,7 @@ class Graph(glooey.Widget):
 
 	def _calulate_point_positions(self):
 		self.x, self.y = self.rect.bottom_left
+		# TODO: use np
 		vertices = []
 		for i in range(len(self.samples)):
 			x = self.x + (self.graph_width * (i / len(self.samples)))
