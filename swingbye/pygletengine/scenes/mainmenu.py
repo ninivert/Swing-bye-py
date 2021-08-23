@@ -4,7 +4,7 @@ from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.components.buttons import Button
 from swingbye.pygletengine.components.labels import Title
 from swingbye.pygletengine.components.containers import VBox
-from ..globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
+from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
 
 class MainMenu(Scene):
