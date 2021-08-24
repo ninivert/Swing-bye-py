@@ -27,7 +27,7 @@ Physics
 - [X] Ship prediction
 - [X] Orbit lines
 - [ ] KE and PE
-
+- [ ] use Cython for the integrator
 
 Game
 

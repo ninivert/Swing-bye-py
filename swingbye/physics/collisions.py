@@ -22,13 +22,13 @@ class HitZoneRect(HitZone):
 
 
 def collides(obj1: HitZone, obj2: HitZone, firstcall=True) -> bool:
-	if type(obj1) is HitZoneDisk and type(obj2) is HitZoneDisk:
+	if isinstance(obj1, HitZoneDisk) and isinstance(obj2, HitZoneDisk):
 		return np.linalg.norm(obj1.pos - obj2.pos) <= obj1.radius + obj2.radius
 
-	if type(obj1) is HitZoneRect and type(obj2) is HitZonePoint:
+	if isinstance(obj1, HitZoneRect) and isinstance(obj2, HitZonePoint):
 		return (obj1.pos[0] <= obj2.pos[0] <= obj1.pos[0] + obj1.dims[0]) and (obj1.pos[1] <= obj2.pos[1] <= obj1.pos[1] + obj1.dims[1])
 
-	if type(obj1) is HitZoneDisk and type(obj2) is HitZonePoint:
+	if isinstance(obj1, HitZoneDisk) and isinstance(obj2, HitZonePoint):
 		return np.linalg.norm(obj1.pos - obj2.pos) <= obj1.radius
 
 	# Collision is commutative, so we need to check both "directions"

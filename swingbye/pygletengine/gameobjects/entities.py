@@ -3,6 +3,7 @@ from random import random
 from swingbye.physics.ship import Ship
 from swingbye.physics.planet import Planet
 from swingbye.physics.entity import ImplicitEntity
+from swingbye.physics.collisions import HitZoneDisk
 from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PredictionMixin
 from dataclasses import dataclass
 
@@ -15,9 +16,10 @@ class StarObject(SpriteMixin, ImplicitEntity):
 
 
 @dataclass
-class ShipObject(SpriteMixin, PredictionMixin, Ship):
+class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
 	def __post_init__(self):
-		scale = 0.05  # self.r / (self.sprite.width//2)
+		self.radius = 10  # set ship hitbox
+		scale = self.radius / (self.sprite.width//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
 
 	def _get_vel(self):
@@ -43,7 +45,7 @@ class ShipObject(SpriteMixin, PredictionMixin, Ship):
 
 
 @dataclass
-class PlanetObject(SpriteMixin, PredictionMixin, Planet):
+class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
 	def __post_init__(self):
 		scale = self.radius / (self.sprite.width//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
