@@ -1,6 +1,5 @@
 from swingbye.physics.globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
 import logging
-import cython
 import math
 
 _logger = logging.getLogger(__name__)
