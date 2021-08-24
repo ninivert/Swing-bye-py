@@ -2,7 +2,7 @@ import pyglet
 import glooey
 from swingbye.pygletengine.components.slider import Slider
 from swingbye.pygletengine.components.graph import Graph
-from swingbye.pygletengine.components.labels import Title
+from swingbye.pygletengine.components.labels import Title, Subtitle
 from swingbye.pygletengine.components.buttons import Button, CycleButton
 from swingbye.pygletengine.components.containers import VBox, HBox, Board, Frame, Dialog
 from swingbye.pygletengine.globals import GameState
@@ -27,21 +27,64 @@ class PauseMenu(Dialog):
 		self.add(self.container)
 
 
+class WinOverlay(Dialog):
+	Background = glooey.images.Background
+
+	def __init__(self):
+		super().__init__()
+
+		self.decoration.color = (255, 20, 25)
+
+		self.container = VBox()
+
+		self.title = Title('You win!')
+		self.subtitle = Subtitle('click to continue')
+		
+		self.container.add(self.title)
+		self.container.add(self.subtitle)
+		
+		self.add(self.container)
+
+
+class LoseOverlay(Dialog):
+	Background = glooey.images.Background
+
+	def __init__(self):
+		super().__init__()
+
+		self.decoration.color = (255, 20, 25)
+
+		self.container = VBox()
+
+		self.title = Title('You lose...')
+		self.subtitle = Subtitle('click to continue')
+		
+		self.container.add(self.title)
+		self.container.add(self.subtitle)
+		
+		self.add(self.container)
+
+
 class HudObject:
 
 	def __init__(self, gui):
+
+		self.gui = gui
 
 		self.container = glooey.VBox()
 		self.hud_container = glooey.HBox()
 		self.graph_container = Frame()
 		self.overlay = Board()
 
-		# Graph overlay
+		# Overlays
 		self.graph = Graph(
 			100, 100,
 			y_scale_mode='fixed_min',
 			min_y=0
 		)
+		self.pause_menu = PauseMenu()
+		self.win_overlay = WinOverlay()
+		self.lose_overlay = LoseOverlay()
 
 		# Bottom control buttons
 		self.reset_button = Button('Reset')
@@ -58,8 +101,6 @@ class HudObject:
 		)
 		self.launch_button = Button('LAUNCH')
 
-		self.pause_menu = PauseMenu()
-		
 		# Attach everything to their containers
 		self.graph_container.add(self.graph)
 		self.overlay.add(self.graph_container, left=10, bottom=10)
@@ -73,8 +114,7 @@ class HudObject:
 		self.container.add(self.overlay)
 		self.container.pack(self.hud_container)
 
-
-		gui.add(self.container)
+		self.gui.add(self.container)
 
 	@property
 	def rect(self):
@@ -96,7 +136,8 @@ class HudObject:
 		self.time_slider.reset()
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
-		pass
+		self.win_overlay.close()
+		self.lose_overlay.close()
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		self.time_slider.on_mouse_release(x, y, buttons, modifiers)
@@ -107,3 +148,10 @@ class HudObject:
 			self.time_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 		if self.speed_slider.captured:
 			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+
+	def on_win(self):
+		self.win_overlay.open(self.gui)
+
+	def on_lose(self):
+		self.lose_overlay.open(self.gui)
+

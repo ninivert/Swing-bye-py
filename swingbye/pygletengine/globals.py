@@ -1,5 +1,6 @@
 # Flags
 DEBUG_CAMERA = False
+DEBUG_COLLISION = False
 DEBUG_PERF = True
 
 # Window settings
@@ -16,6 +17,7 @@ TITLE_SIZE_PROPORTION = 5/10
 from enum import Enum, auto
 
 class GameState(Enum):
+	ENDING = auto()
 	RUNNING = auto()
 	PAUSED = auto()
 

@@ -125,7 +125,7 @@ class PointPath(Path):
 		self.vertex_list = pyglet.graphics.vertex_list(
 			self._vertex_length,
 			('v2f/stream', self._vertices),
-			('c3B/dynamic', self._color)
+			('c4B/dynamic', self._color)
 		)
 
 		if group is None:
@@ -148,7 +148,7 @@ class PointPath(Path):
 				pyglet.gl.GL_POINTS,
 				self.group,
 				('v2f/stream', self._vertices),
-				('c3B/dynamic', self._color)
+				('c4B/dynamic', self._color)
 			)
 
 	def _complete_vertices_with_empty(self, points):
@@ -172,7 +172,7 @@ class PointPath(Path):
 	def _generate_vertex_color_list(self, color):
 		self._color = []
 		for i in range(self._vertex_length):
-			self._color.extend(color)
+			self._color.extend((*color, int(255 * (1 - i/(self._vertex_length)))))
 
 	def delete(self):
 		self.vertex_list.delete()

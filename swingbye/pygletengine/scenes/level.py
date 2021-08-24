@@ -13,7 +13,7 @@ from swingbye.physics.integrator import RK4Integrator
 from swingbye.pygletengine.gameobjects.entities import ShipObject, PlanetObject, StarObject
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
-from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState, GameEntity
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, GameState, GameEntity
 from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
@@ -22,6 +22,11 @@ class Level(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+
+		self.register_event_type('on_win')
+		self.register_event_type('on_lose')
+		self.register_event_type('on_reset')
+
 		self.levels = ['swingbye/levels/level1.json']
 		self.level_index = 0
 
@@ -51,6 +56,7 @@ class Level(Scene):
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		self.mouse_press_x = x
 		self.mouse_press_y = y
+		self.hud.on_mouse_press(x, y, buttons, modifiers)
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		if self.game_state == GameState.RUNNING:
@@ -81,13 +87,26 @@ class Level(Scene):
 
 	def on_pause(self):
 		self.game_state = GameState.PAUSED
-		self.hud.pause_menu.open(self.gui)
 		self.hud.graph.pause_sampling()
+		self.hud.pause_menu.open(self.gui)
 
 	def on_resume(self):
 		self.game_state = GameState.RUNNING
 		self.hud.pause_menu.close()
 		self.hud.graph.resume_sampling()
+
+	def on_win(self):
+		self.game_state = GameState.ENDING
+		self.hud.hide_graph()
+		self.hud.on_win()
+
+	def on_lose(self):
+		self.game_state = GameState.ENDING
+		self.hud.hide_graph()
+		self.hud.on_lose()
+
+	def on_reset(self):
+		self.reset()
 
 	@staticmethod
 	def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphics.OrderedGroup) -> World:
@@ -127,7 +146,7 @@ class Level(Scene):
 					continue
 
 				ship = ShipObject(
-					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
+					sprite=create_sprite(child_dict['sprite'], anchor='center', subpixel=True, batch=batch, group=group),
 					path=LinePath(batch=batch, point_count=SHIP_PREDICTION_N),
 					parent=parent,
 					**child_dict['arguments']
@@ -159,6 +178,8 @@ class Level(Scene):
 
 		self.hud.graph.query = lambda: np.linalg.norm(self.world.ship.vel)
 		self.hud.hide_graph()
+
+		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=self.world_group)
 
 		self.hud_rect = self.hud.rect
 
@@ -214,6 +235,10 @@ class Level(Scene):
 		self.batch.draw()
 		with self.camera:
 			self.world_batch.draw()
+			if DEBUG_COLLISION:
+				for planet in self.world.planets:
+					pyglet.shapes.Circle(*planet.pos, planet.radius).draw()
+				pyglet.shapes.Circle(*self.world.ship.pos, self.world.ship.radius).draw()
 		self.gui.batch.draw()
 
 	def run(self, dt):
@@ -225,6 +250,16 @@ class Level(Scene):
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
 					self.world.step(PHYSICS_DT)
+
+					# Check collisions
+					for planet in self.world.planets:
+						if self.world.ship.collides_with(planet):
+							if planet.game_entity == GameEntity.PLANET:
+								self.dispatch_event('on_lose')
+							elif planet.game_entity == GameEntity.WORMHOLE:
+								self.dispatch_event('on_win')
+
+
 
 		if DEBUG_CAMERA:
 			# WARNING: lines are always late by 1 frame

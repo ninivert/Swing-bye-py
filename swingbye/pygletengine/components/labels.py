@@ -10,3 +10,8 @@ class ButtonLabel(glooey.Label):
 class Title(glooey.Label):
 	custom_alignment = 'center'
 	custom_font_size = 60
+
+
+class Subtitle(glooey.Label):
+	custom_alignment = 'center'
+	custom_font_size = 26

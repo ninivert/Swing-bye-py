@@ -104,6 +104,6 @@ class Ship(ImplicitEntity):
 
 	def update_docked_pos(self):
 		if self.docked:
-			self.pos = self.parent.pos_at(self.time) + self.pointing*self.parent.radius
+			self.pos = self.parent.pos_at(self.time) + self.pointing*(self.parent.radius + 10)
 		else:
 			_logger.warning('trying to update docked position, but the ship is launched, ignoring')

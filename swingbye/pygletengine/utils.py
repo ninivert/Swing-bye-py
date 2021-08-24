@@ -10,6 +10,9 @@ def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.spr
 	elif anchor == 'bottom_left':
 		image.anchor_x = 0
 		image.anchor_y = 0
+	elif anchor == 'bottom_center':
+		image.anchor_x = image.width // 2
+		image.anchor_y = 0
 
 	if size is not None:
 		image.width = size[0]

@@ -2,6 +2,7 @@ import pyglet
 import glooey
 from swingbye.pygletengine.components.paths import LinePath
 from numpy import interp, inf
+import inspect
 
 
 class Graph(glooey.Widget):
@@ -105,11 +106,6 @@ class Graph(glooey.Widget):
 	@query.setter
 	def query(self, query):
 		self._query = query
-		if self._query is None:
-			pyglet.clock.unschedule(self.update_data)
-		else:
-			pyglet.clock.unschedule(self.update_data)
-			pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
 
 	def load(self):
 		x, y = self.get_rect().bottom_left
@@ -134,8 +130,8 @@ class Graph(glooey.Widget):
 			batch=self.batch,
 			group=self.group
 		)
-		self.resume_sampling()
 		self.loaded = True
+		self.resume_sampling()
 
 	def update_labels(self):
 		self.max_label.text = f'{self.max_y:.1f}'
@@ -143,27 +139,30 @@ class Graph(glooey.Widget):
 
 	def update_data(self, dt):
 		if self.loaded:
-			if len(self.samples) >= self._sample_size:
-				self.samples.pop(0)
+			if self._query is not None:
+				if len(self.samples) >= self._sample_size:
+					self.samples.pop(0)
 
-			self.samples.append(self._query())
+				self.samples.append(self._query())
 
-			self.y_scale_modes[self.y_scale_mode]()
+				self.y_scale_modes[self.y_scale_mode]()
 
-			self.update_labels()
+				self.update_labels()
 
-			self.graph.vertices = self._calulate_point_positions()
+				self.graph.vertices = self._calulate_point_positions()
 
 	def reset(self):
 		self.samples.clear()
 
 	def pause_sampling(self):
-		if self._query is not None:
-			pyglet.clock.unschedule(self.update_data)
+		print('paused by:', inspect.stack()[1][3])
+		pyglet.clock.unschedule(self.update_data)
+		self.paused = True
 
 	def resume_sampling(self):
-		if self._query is not None:
-			pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
+		print('resumed by:', inspect.stack()[1][3])
+		pyglet.clock.unschedule(self.update_data)
+		pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
 
 	def do_claim(self):
 		return self.graph_width + sum(self.horz_padding), self.graph_height + sum(self.vert_padding)

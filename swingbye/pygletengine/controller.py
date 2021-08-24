@@ -36,10 +36,11 @@ class ViewController(pyglet.window.Window):
 
 		self.push_handlers()
 
+		self.current_scene = 'MainMenu'
 		self.transition_to_scene('MainMenu')
 
 	def transition_to_scene(self, scene: str):
-		self.pop_handlers()
+		self.remove_handlers(self.scenes[self.current_scene])
 		self.current_scene = scene
 		self.scenes[self.current_scene].begin()
 		self.push_handlers(self.scenes[self.current_scene])

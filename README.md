@@ -13,7 +13,6 @@ Rendering
 - [X] FIX THE GODDAMN CAMERA (Y A T T A)
 - [ ] KE and PE graphs
 
-
 UI
 
 - [ ] Make it not ugly
@@ -35,3 +34,4 @@ Game
 - [ ] Animations on level entry (e.g. zoom in, time autoscroll, cutscene????)
 - [ ] Add the goal (black hole?) to the levels
 - [ ] Integrate easter eggs
+- [ ] Make ship hitbox smaller than sprite

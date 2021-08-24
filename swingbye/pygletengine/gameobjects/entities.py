@@ -50,5 +50,5 @@ class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
 	game_entity: GameEntity = GameEntity.PLANET
 
 	def __post_init__(self):
-		scale = self.radius / (self.sprite.width//2)
+		scale = self.radius / (self.sprite.height//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)

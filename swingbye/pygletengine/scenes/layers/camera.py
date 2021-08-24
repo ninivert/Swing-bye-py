@@ -86,8 +86,9 @@ class Camera:
 			# Copy to avoid destroying the object's position
 			self.parent_offset = self.parent.pos.copy()
 		if self.smooth:
-			self.zoom = lerp(self.zoom, self.target_zoom, 0.2)
-			self.offset = lerp(self.offset, self.target_offset + self.parent_offset, 0.2)
+			smooth = lambda a, b, t: a + (b-a)*(1 - pow(1 - t, 3))
+			self.zoom = smooth(self.zoom, self.target_zoom, 0.05)
+			self.offset = smooth(self.offset, self.target_offset + self.parent_offset, 0.05)
 		else:
 			self.zoom = self.target_zoom
 			self.offset = self.target_offset + self.parent_offset
@@ -96,12 +97,18 @@ class Camera:
 		self.update()
 		x, y = -self.anchor / self.zoom + self.offset
 
+		pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+
+		pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+
 		pyglet.gl.glTranslatef(-x * self.zoom, -y * self.zoom, 0)
 
 		pyglet.gl.glScalef(self.zoom, self.zoom, 1)
 
 	def end(self):
 		x, y = -self.anchor / self.zoom + self.offset
+
+		pyglet.gl.glDisable(pyglet.gl.GL_BLEND)
 
 		pyglet.gl.glScalef(1 / self.zoom, 1 / self.zoom, 1)
 
