@@ -1,14 +1,12 @@
 import numpy as np
 import logging
-import math
 from dataclasses import dataclass, field
 from typing import Union
 from swingbye.physics.entity import ExplicitEntity
-from swingbye.physics.globals import EPSILON_EULER, MAX_ITER_EULER, GRAVITY_CST
+from swingbye.physics.orbitsolver import solve_orbit
 from swingbye.globals import PLANET_PREDICTION_N
 
 _logger = logging.getLogger(__name__)
-
 
 @dataclass
 class Planet(ExplicitEntity):
@@ -52,62 +50,7 @@ class Planet(ExplicitEntity):
 		if self.parent is None:
 			return pos
 
-		mu = GRAVITY_CST*(self.mass + self.parent.mass)
-
-		if 0 <= self.ecc and self.ecc < 1:
-			T = math.sqrt(4 * math.pi**2 * self.maxis**3 / mu)
-			tau = math.fmod(time - self.time0, T)
-			n = 2*math.pi/T
-			M = n*tau
-			E = M
-			dE = EPSILON_EULER + 1
-			i = 0
-
-			# Solve M = E - e*sin(E)
-			while abs(dE) > EPSILON_EULER and i < MAX_ITER_EULER:
-				dE = (M - E + self.ecc*math.sin(E))/(1 - self.ecc * math.cos(E))
-				E += dE
-				i += 1
-			if i >= MAX_ITER_EULER:
-				_logger.warning(f'Euler equation solving did not escape after {MAX_ITER_EULER} iterations.')
-
-			costheta = (math.cos(E) - self.ecc) / (1 - self.ecc*math.cos(E))
-			sintheta = (math.sqrt(1 - self.ecc**2) * math.sin(E)) / (1 - self.ecc*math.cos(E))
-			r = self.maxis * (1 - self.ecc*math.cos(E))
-
-		elif 1 < self.ecc:
-			tau = time - self.time0
-			n = math.sqrt(-mu/self.maxis**3)
-			M = n*tau
-			H = M
-			dH = EPSILON_EULER + 1
-			i = 0
-
-			# Solve M = e*sinh(H) - H
-			while abs(dH) > EPSILON_EULER and i < MAX_ITER_EULER:
-				dH = (M - self.ecc*math.sinh(H) + H) / (self.ecc*math.cosh(H) - 1)
-				H += dH
-				i += 1
-			if i >= MAX_ITER_EULER:
-				_logger.warning(f'Euler equation solving did not escape after {MAX_ITER_EULER} iterations.')
-
-			r = self.maxis * (1 - self.ecc*math.cosh(H))
-			costheta = (self.ecc - math.cosh(H)) / (self.ecc*math.cosh(H) - 1)
-			sintheta = math.copysign(1, H)*math.sin(math.acos(costheta))
-
-		pos[0] = r*costheta
-		pos[1] = r*sintheta
-
-		# Argument of periaxis
-		posx = pos[0]
-		posy = pos[1]
-		pos[0] = posx*math.cos(self.parg) - posy*math.sin(self.parg)
-		pos[1] = posx*math.sin(self.parg) + posy*math.cos(self.parg)
-
-		# Inclination
-		pos[0] *= np.cos(self.incl)
-
-		return pos
+		return np.array(solve_orbit(time, self.mass, self.parent.mass, self.ecc, self.maxis, self.time0, self.parg, self.incl))
 
 	# Velocity hack
 
