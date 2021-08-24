@@ -5,6 +5,7 @@ from swingbye.physics.planet import Planet
 from swingbye.physics.entity import ImplicitEntity
 from swingbye.physics.collisions import HitZoneDisk
 from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PredictionMixin
+from swingbye.pygletengine.globals import GameEntity
 from dataclasses import dataclass
 
 
@@ -46,6 +47,8 @@ class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
 
 @dataclass
 class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
+	game_entity: GameEntity = GameEntity.PLANET
+
 	def __post_init__(self):
 		scale = self.radius / (self.sprite.width//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)

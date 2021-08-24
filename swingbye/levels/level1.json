@@ -81,6 +81,17 @@
 					"children": []
 				}
 			]
+		},
+		{
+			"type": "wormhole",
+			"sprite": "assets/sprites/star3.png",
+			"name": "go here uwu",
+			"arguments": {
+				"anchor": [-800, -400],
+				"mass": 10,
+				"radius": 40
+			},
+			"children": []
 		}
 	]
 }

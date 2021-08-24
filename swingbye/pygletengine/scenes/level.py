@@ -13,7 +13,7 @@ from swingbye.physics.integrator import RK4Integrator
 from swingbye.pygletengine.gameobjects.entities import ShipObject, PlanetObject, StarObject
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
-from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, GameState, GameEntity
 from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
@@ -83,8 +83,8 @@ class Level(Scene):
 		self.game_state = GameState.PAUSED
 		self.hud.pause_menu.open(self.gui)
 		self.hud.graph.pause_sampling()
-	
-	def on_resume(self):	
+
+	def on_resume(self):
 		self.game_state = GameState.RUNNING
 		self.hud.pause_menu.close()
 		self.hud.graph.resume_sampling()
@@ -106,7 +106,7 @@ class Level(Scene):
 
 			_logger.debug(f'parsing {child_dict}')
 
-			if child_dict['type'] == 'planet':
+			if child_dict['type'] in ['planet', 'wormhole']:
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
 					# TODO: colors
@@ -114,6 +114,7 @@ class Level(Scene):
 					# TODO : named planets
 					# name=child_dict['name'],
 					parent=parent,
+					game_entity=GameEntity.PLANET if child_dict['type'] == 'planet' else GameEntity.WORMHOLE,
 					**child_dict['arguments']
 				)
 				queue += [(_child_dict, planetobject) for _child_dict in child_dict['children']]
