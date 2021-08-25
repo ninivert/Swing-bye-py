@@ -8,7 +8,7 @@ from swingbye.pygletengine.components.containers import VBox, HBox, Board, Frame
 from swingbye.pygletengine.globals import GameState
 
 
-class PauseMenu(Dialog):
+class PauseMenu(Frame):
 	Background = glooey.images.Background
 
 	def __init__(self):
@@ -27,8 +27,9 @@ class PauseMenu(Dialog):
 		self.add(self.container)
 
 
-class WinOverlay(Dialog):
+class WinOverlay(Frame):
 	Background = glooey.images.Background
+	custom_alignment = 'center'
 
 	def __init__(self):
 		super().__init__()
@@ -46,8 +47,9 @@ class WinOverlay(Dialog):
 		self.add(self.container)
 
 
-class LoseOverlay(Dialog):
+class LoseOverlay(Frame):
 	Background = glooey.images.Background
+	custom_alignment = 'center'
 
 	def __init__(self):
 		super().__init__()
@@ -71,10 +73,9 @@ class HudObject:
 
 		self.gui = gui
 
-		self.container = glooey.VBox()
+		self.container = Board()
 		self.hud_container = glooey.HBox()
 		self.graph_container = Frame()
-		self.overlay = Board()
 
 		# Overlays
 		self.graph = Graph(
@@ -103,7 +104,6 @@ class HudObject:
 
 		# Attach everything to their containers
 		self.graph_container.add(self.graph)
-		self.overlay.add(self.graph_container, left=10, bottom=10)
 
 		self.hud_container.pack(self.reset_button)
 		self.hud_container.pack(self.pause_button)
@@ -111,8 +111,8 @@ class HudObject:
 		self.hud_container.add(self.time_slider)
 		self.hud_container.pack(self.launch_button)
 
-		self.container.add(self.overlay)
-		self.container.pack(self.hud_container)
+		self.container.add(self.hud_container, left=0, bottom=0, width_percent=1)
+		self.container.add(self.graph_container, left=10, bottom=50)
 
 		self.gui.add(self.container)
 
@@ -136,8 +136,7 @@ class HudObject:
 		self.time_slider.reset()
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
-		self.win_overlay.close()
-		self.lose_overlay.close()
+		pass
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		self.time_slider.on_mouse_release(x, y, buttons, modifiers)
@@ -150,8 +149,8 @@ class HudObject:
 			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 
 	def on_win(self):
-		self.win_overlay.open(self.gui)
+		self.container.add(self.win_overlay, center_percent=(0.5, 0.5))
 
 	def on_lose(self):
-		self.lose_overlay.open(self.gui)
+		self.container.add(self.lose_overlay, center_percent=(0.5, 0.5))
 

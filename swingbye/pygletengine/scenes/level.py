@@ -93,12 +93,12 @@ class Level(Scene):
 
 	def on_win(self):
 		self.game_state = GameState.ENDING
-		self.hud.hide_graph()
+		self.hud.pause_sampling()
 		self.hud.on_win()
 
 	def on_lose(self):
 		self.game_state = GameState.ENDING
-		self.hud.hide_graph()
+		self.hud.graph.pause_sampling()
 		self.hud.on_lose()
 
 	def on_reset(self):
