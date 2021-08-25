@@ -15,24 +15,24 @@ class BackgroundObject:
 
 		np.random.seed(random_seed)
 
-		self.sprite = create_sprite(
-			background_image,
-			anchor='bottom_left',
-			size=(g.WINDOW_WIDTH, g.WINDOW_HEIGHT),
-			batch=batch,
-			group=group
-		)
-		self.sprite.opacity = 180
-
 		self.old_width = g.WINDOW_WIDTH
 		self.old_height = g.WINDOW_HEIGHT
 
 		self.n_stars = n_stars
 		self.n_layers = n_layers
 
+		self.sprite = create_sprite(
+			background_image,
+			anchor='bottom_left',
+			size=(g.WINDOW_WIDTH, g.WINDOW_HEIGHT),
+			batch=batch,
+			group=pyglet.graphics.OrderedGroup(self.n_layers, parent=self.group)
+		)
+		self.sprite.opacity = 180
+
 		self.layers = layers
-		# for i in range(n_layers):
-		# 	self.layers.append(ParallaxGroup(i, rate=1/(i+6)**2))
+		for i in range(n_layers):
+			self.layers.append(ParallaxGroup(i, rate=1/(i+6)**2, parent=self.group))
 
 		self.populate_stars()
 

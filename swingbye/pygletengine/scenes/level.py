@@ -127,7 +127,7 @@ class Level(Scene):
 
 			if child_dict['type'] in ['planet', 'wormhole']:
 				planetobject = PlanetObject(
-					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=group),
+					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=pyglet.graphics.OrderedGroup(0, parent=group)),
 					# TODO: colors
 					path=PointPath(batch=batch, point_count=PLANET_PREDICTION_N),
 					# TODO : named planets
@@ -146,7 +146,7 @@ class Level(Scene):
 					continue
 
 				ship = ShipObject(
-					sprite=create_sprite(child_dict['sprite'], anchor='center', subpixel=True, batch=batch, group=group),
+					sprite=create_sprite(child_dict['sprite'], anchor='center', subpixel=True, batch=batch, group=pyglet.graphics.OrderedGroup(0, parent=group)),
 					path=LinePath(batch=batch, point_count=SHIP_PREDICTION_N),
 					parent=parent,
 					**child_dict['arguments']
@@ -179,7 +179,7 @@ class Level(Scene):
 		self.hud.graph.query = lambda: np.linalg.norm(self.world.ship.vel)
 		self.hud.hide_graph()
 
-		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=self.world_group)
+		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=pyglet.graphics.OrderedGroup(1, parent=self.world_group))
 
 		self.hud_rect = self.hud.rect
 
@@ -191,8 +191,7 @@ class Level(Scene):
 			level['background_sprite'],
 			self.camera,
 			self.batch,
-			self.background_group,
-			layers=self.tmp_parallax_layers
+			self.background_group
 		)
 
 		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
@@ -203,17 +202,9 @@ class Level(Scene):
 		self.batch = pyglet.graphics.Batch()
 		self.world_batch = pyglet.graphics.Batch()
 
-		self.background_group = pyglet.graphics.OrderedGroup(3)
-		self.world_group = pyglet.graphics.OrderedGroup(4)
-		self.foreground_group = pyglet.graphics.OrderedGroup(5)
-
-		# TODO: find a way to put this in the background object
-		# such that it doesn't break when reset
-		# I believe the issues comes from recreating a group with the same order
-		# whilst the old one is still in memory somewhere
-		self.tmp_parallax_layers = [
-			ParallaxGroup(i, rate=1/(i+6)**2) for i in range(3)
-		]
+		self.background_group = pyglet.graphics.OrderedGroup(0)
+		self.world_group = pyglet.graphics.OrderedGroup(1)
+		self.foreground_group = pyglet.graphics.OrderedGroup(2)
 
 		self.camera = Camera(self.window)
 
@@ -281,6 +272,6 @@ class Level(Scene):
 
 		# This is very bad, old objects are not getting cleaned up (sprites need to be removed from batches etc)
 		# When reset is spammed, memory usage increases greatly
-		# TODO : cleanup this because it reconstructs the HUD, very overkill such excess
-		self.load()
+		# TODO -= 1  # yay
+		self.load_level()
 		self.camera.set_parent(self.world.ship)
