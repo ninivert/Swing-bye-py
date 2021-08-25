@@ -864,18 +864,26 @@ static const char *__pyx_f[] = {
 /*--- Type declarations ---*/
 struct __pyx_obj_7pyvec2d_PyVec2d;
 
-/* "pyvec2d.pyx":5
- * from vec2 cimport vec2d
+/* "pyvec2d.pyx":8
+ * # https://stackoverflow.com/questions/33764094/cython-how-do-i-wrap-a-c-class-where-public-member-variables-are-custom-objec
  * 
  * cdef class PyVec2d:             # <<<<<<<<<<<<<<
- * 	cdef vec2d* c_vec2d_ptr
- * 
+ * 	cdef vec2d* cptr_vec2d
+ * 	cdef object owner  # None if this is our own
  */
 struct __pyx_obj_7pyvec2d_PyVec2d {
   PyObject_HEAD
-  vec2d *c_vec2d_ptr;
+  struct __pyx_vtabstruct_7pyvec2d_PyVec2d *__pyx_vtab;
+  vec2d *cptr_vec2d;
+  PyObject *owner;
 };
 
+
+
+struct __pyx_vtabstruct_7pyvec2d_PyVec2d {
+  PyObject *(*set_ptr)(struct __pyx_obj_7pyvec2d_PyVec2d *, vec2d *, PyObject *);
+};
+static struct __pyx_vtabstruct_7pyvec2d_PyVec2d *__pyx_vtabptr_7pyvec2d_PyVec2d;
 
 /* --- Runtime support code (head) --- */
 /* Refnanny.proto */
@@ -1023,6 +1031,9 @@ static PyObject* __Pyx_PyObject_GenericGetAttr(PyObject* obj, PyObject* attr_nam
 #define __Pyx_PyObject_GenericGetAttr PyObject_GenericGetAttr
 #endif
 
+/* SetVTable.proto */
+static int __Pyx_SetVtable(PyObject *dict, void *vtable);
+
 /* PyErrExceptionMatches.proto */
 #if CYTHON_FAST_THREAD_STATE
 #define __Pyx_PyErr_ExceptionMatches(err) __Pyx_PyErr_ExceptionMatchesInState(__pyx_tstate, err)
@@ -1122,6 +1133,7 @@ static int __Pyx_check_binary_version(void);
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
+static PyObject *__pyx_f_7pyvec2d_7PyVec2d_set_ptr(struct __pyx_obj_7pyvec2d_PyVec2d *__pyx_v_self, vec2d *__pyx_v_ptr, PyObject *__pyx_v_owner); /* proto*/
 
 /* Module declarations from 'vec2' */
 
@@ -1144,6 +1156,7 @@ static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
+static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
@@ -1155,6 +1168,7 @@ static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
+static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
@@ -1176,11 +1190,11 @@ static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 /* Late includes */
 
-/* "pyvec2d.pyx":8
- * 	cdef vec2d* c_vec2d_ptr
+/* "pyvec2d.pyx":12
+ * 	cdef object owner  # None if this is our own
  * 
  * 	def __cinit__(self, double x=0, double y=0):             # <<<<<<<<<<<<<<
- * 		self.c_vec2d_ptr = new vec2d(x, y)
+ * 		self.cptr_vec2d = new vec2d(x, y)
  * 
  */
 
@@ -1224,7 +1238,7 @@ static int __pyx_pw_7pyvec2d_7PyVec2d_1__cinit__(PyObject *__pyx_v_self, PyObjec
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 8, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 12, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1237,19 +1251,19 @@ static int __pyx_pw_7pyvec2d_7PyVec2d_1__cinit__(PyObject *__pyx_v_self, PyObjec
       }
     }
     if (values[0]) {
-      __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 8, __pyx_L3_error)
+      __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L3_error)
     } else {
       __pyx_v_x = ((double)0.0);
     }
     if (values[1]) {
-      __pyx_v_y = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 8, __pyx_L3_error)
+      __pyx_v_y = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L3_error)
     } else {
       __pyx_v_y = ((double)0.0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 8, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 12, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyvec2d.PyVec2d.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1267,20 +1281,20 @@ static int __pyx_pf_7pyvec2d_7PyVec2d___cinit__(struct __pyx_obj_7pyvec2d_PyVec2
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "pyvec2d.pyx":9
+  /* "pyvec2d.pyx":13
  * 
  * 	def __cinit__(self, double x=0, double y=0):
- * 		self.c_vec2d_ptr = new vec2d(x, y)             # <<<<<<<<<<<<<<
+ * 		self.cptr_vec2d = new vec2d(x, y)             # <<<<<<<<<<<<<<
  * 
- * 	def __dealloc__(self):
+ * 	cdef set_ptr(self, vec2d* ptr, owner):
  */
-  __pyx_v_self->c_vec2d_ptr = new vec2d(__pyx_v_x, __pyx_v_y);
+  __pyx_v_self->cptr_vec2d = new vec2d(__pyx_v_x, __pyx_v_y);
 
-  /* "pyvec2d.pyx":8
- * 	cdef vec2d* c_vec2d_ptr
+  /* "pyvec2d.pyx":12
+ * 	cdef object owner  # None if this is our own
  * 
  * 	def __cinit__(self, double x=0, double y=0):             # <<<<<<<<<<<<<<
- * 		self.c_vec2d_ptr = new vec2d(x, y)
+ * 		self.cptr_vec2d = new vec2d(x, y)
  * 
  */
 
@@ -1290,12 +1304,93 @@ static int __pyx_pf_7pyvec2d_7PyVec2d___cinit__(struct __pyx_obj_7pyvec2d_PyVec2
   return __pyx_r;
 }
 
-/* "pyvec2d.pyx":11
- * 		self.c_vec2d_ptr = new vec2d(x, y)
+/* "pyvec2d.pyx":15
+ * 		self.cptr_vec2d = new vec2d(x, y)
+ * 
+ * 	cdef set_ptr(self, vec2d* ptr, owner):             # <<<<<<<<<<<<<<
+ * 		if self.owner is None:
+ * 			del self.cptr_vec2d
+ */
+
+static PyObject *__pyx_f_7pyvec2d_7PyVec2d_set_ptr(struct __pyx_obj_7pyvec2d_PyVec2d *__pyx_v_self, vec2d *__pyx_v_ptr, PyObject *__pyx_v_owner) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  __Pyx_RefNannySetupContext("set_ptr", 0);
+
+  /* "pyvec2d.pyx":16
+ * 
+ * 	cdef set_ptr(self, vec2d* ptr, owner):
+ * 		if self.owner is None:             # <<<<<<<<<<<<<<
+ * 			del self.cptr_vec2d
+ * 		self.cptr_vec2d = ptr
+ */
+  __pyx_t_1 = (__pyx_v_self->owner == Py_None);
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "pyvec2d.pyx":17
+ * 	cdef set_ptr(self, vec2d* ptr, owner):
+ * 		if self.owner is None:
+ * 			del self.cptr_vec2d             # <<<<<<<<<<<<<<
+ * 		self.cptr_vec2d = ptr
+ * 		self.owner = owner
+ */
+    delete __pyx_v_self->cptr_vec2d;
+
+    /* "pyvec2d.pyx":16
+ * 
+ * 	cdef set_ptr(self, vec2d* ptr, owner):
+ * 		if self.owner is None:             # <<<<<<<<<<<<<<
+ * 			del self.cptr_vec2d
+ * 		self.cptr_vec2d = ptr
+ */
+  }
+
+  /* "pyvec2d.pyx":18
+ * 		if self.owner is None:
+ * 			del self.cptr_vec2d
+ * 		self.cptr_vec2d = ptr             # <<<<<<<<<<<<<<
+ * 		self.owner = owner
+ * 
+ */
+  __pyx_v_self->cptr_vec2d = __pyx_v_ptr;
+
+  /* "pyvec2d.pyx":19
+ * 			del self.cptr_vec2d
+ * 		self.cptr_vec2d = ptr
+ * 		self.owner = owner             # <<<<<<<<<<<<<<
+ * 
+ * 	def __dealloc__(self):
+ */
+  __Pyx_INCREF(__pyx_v_owner);
+  __Pyx_GIVEREF(__pyx_v_owner);
+  __Pyx_GOTREF(__pyx_v_self->owner);
+  __Pyx_DECREF(__pyx_v_self->owner);
+  __pyx_v_self->owner = __pyx_v_owner;
+
+  /* "pyvec2d.pyx":15
+ * 		self.cptr_vec2d = new vec2d(x, y)
+ * 
+ * 	cdef set_ptr(self, vec2d* ptr, owner):             # <<<<<<<<<<<<<<
+ * 		if self.owner is None:
+ * 			del self.cptr_vec2d
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyvec2d.pyx":21
+ * 		self.owner = owner
  * 
  * 	def __dealloc__(self):             # <<<<<<<<<<<<<<
- * 		del self.c_vec2d_ptr
- * 
+ * 		# only free if we own it
+ * 		if self.owner is None:
  */
 
 /* Python wrapper */
@@ -1311,34 +1406,56 @@ static void __pyx_pw_7pyvec2d_7PyVec2d_3__dealloc__(PyObject *__pyx_v_self) {
 
 static void __pyx_pf_7pyvec2d_7PyVec2d_2__dealloc__(struct __pyx_obj_7pyvec2d_PyVec2d *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "pyvec2d.pyx":12
- * 
+  /* "pyvec2d.pyx":23
  * 	def __dealloc__(self):
- * 		del self.c_vec2d_ptr             # <<<<<<<<<<<<<<
+ * 		# only free if we own it
+ * 		if self.owner is None:             # <<<<<<<<<<<<<<
+ * 			del self.cptr_vec2d
+ * 
+ */
+  __pyx_t_1 = (__pyx_v_self->owner == Py_None);
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "pyvec2d.pyx":24
+ * 		# only free if we own it
+ * 		if self.owner is None:
+ * 			del self.cptr_vec2d             # <<<<<<<<<<<<<<
  * 
  * 	property x:
  */
-  delete __pyx_v_self->c_vec2d_ptr;
+    delete __pyx_v_self->cptr_vec2d;
 
-  /* "pyvec2d.pyx":11
- * 		self.c_vec2d_ptr = new vec2d(x, y)
+    /* "pyvec2d.pyx":23
+ * 	def __dealloc__(self):
+ * 		# only free if we own it
+ * 		if self.owner is None:             # <<<<<<<<<<<<<<
+ * 			del self.cptr_vec2d
+ * 
+ */
+  }
+
+  /* "pyvec2d.pyx":21
+ * 		self.owner = owner
  * 
  * 	def __dealloc__(self):             # <<<<<<<<<<<<<<
- * 		del self.c_vec2d_ptr
- * 
+ * 		# only free if we own it
+ * 		if self.owner is None:
  */
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pyvec2d.pyx":15
+/* "pyvec2d.pyx":27
  * 
  * 	property x:
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.c_vec2d_ptr[0].x
+ * 			return self.cptr_vec2d[0].x
  * 		def __set__(self, double x):
  */
 
@@ -1364,25 +1481,25 @@ static PyObject *__pyx_pf_7pyvec2d_7PyVec2d_1x___get__(struct __pyx_obj_7pyvec2d
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pyvec2d.pyx":16
+  /* "pyvec2d.pyx":28
  * 	property x:
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].x             # <<<<<<<<<<<<<<
+ * 			return self.cptr_vec2d[0].x             # <<<<<<<<<<<<<<
  * 		def __set__(self, double x):
- * 			self.c_vec2d_ptr[0].x = x
+ * 			self.cptr_vec2d[0].x = x
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_self->c_vec2d_ptr[0]).x); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 16, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_self->cptr_vec2d[0]).x); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pyvec2d.pyx":15
+  /* "pyvec2d.pyx":27
  * 
  * 	property x:
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.c_vec2d_ptr[0].x
+ * 			return self.cptr_vec2d[0].x
  * 		def __set__(self, double x):
  */
 
@@ -1397,11 +1514,11 @@ static PyObject *__pyx_pf_7pyvec2d_7PyVec2d_1x___get__(struct __pyx_obj_7pyvec2d
   return __pyx_r;
 }
 
-/* "pyvec2d.pyx":17
+/* "pyvec2d.pyx":29
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].x
+ * 			return self.cptr_vec2d[0].x
  * 		def __set__(self, double x):             # <<<<<<<<<<<<<<
- * 			self.c_vec2d_ptr[0].x = x
+ * 			self.cptr_vec2d[0].x = x
  * 
  */
 
@@ -1416,7 +1533,7 @@ static int __pyx_pw_7pyvec2d_7PyVec2d_1x_3__set__(PyObject *__pyx_v_self, PyObje
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_x); {
-    __pyx_v_x = __pyx_PyFloat_AsDouble(__pyx_arg_x); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 17, __pyx_L3_error)
+    __pyx_v_x = __pyx_PyFloat_AsDouble(__pyx_arg_x); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 29, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -1436,20 +1553,20 @@ static int __pyx_pf_7pyvec2d_7PyVec2d_1x_2__set__(struct __pyx_obj_7pyvec2d_PyVe
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pyvec2d.pyx":18
- * 			return self.c_vec2d_ptr[0].x
+  /* "pyvec2d.pyx":30
+ * 			return self.cptr_vec2d[0].x
  * 		def __set__(self, double x):
- * 			self.c_vec2d_ptr[0].x = x             # <<<<<<<<<<<<<<
+ * 			self.cptr_vec2d[0].x = x             # <<<<<<<<<<<<<<
  * 
  * 	property y:
  */
-  (__pyx_v_self->c_vec2d_ptr[0]).x = __pyx_v_x;
+  (__pyx_v_self->cptr_vec2d[0]).x = __pyx_v_x;
 
-  /* "pyvec2d.pyx":17
+  /* "pyvec2d.pyx":29
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].x
+ * 			return self.cptr_vec2d[0].x
  * 		def __set__(self, double x):             # <<<<<<<<<<<<<<
- * 			self.c_vec2d_ptr[0].x = x
+ * 			self.cptr_vec2d[0].x = x
  * 
  */
 
@@ -1459,11 +1576,11 @@ static int __pyx_pf_7pyvec2d_7PyVec2d_1x_2__set__(struct __pyx_obj_7pyvec2d_PyVe
   return __pyx_r;
 }
 
-/* "pyvec2d.pyx":21
+/* "pyvec2d.pyx":33
  * 
  * 	property y:
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.c_vec2d_ptr[0].y
+ * 			return self.cptr_vec2d[0].y
  * 		def __set__(self, double y):
  */
 
@@ -1489,25 +1606,25 @@ static PyObject *__pyx_pf_7pyvec2d_7PyVec2d_1y___get__(struct __pyx_obj_7pyvec2d
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "pyvec2d.pyx":22
+  /* "pyvec2d.pyx":34
  * 	property y:
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].y             # <<<<<<<<<<<<<<
+ * 			return self.cptr_vec2d[0].y             # <<<<<<<<<<<<<<
  * 		def __set__(self, double y):
- * 			self.c_vec2d_ptr[0].y = y
+ * 			self.cptr_vec2d[0].y = y
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_self->c_vec2d_ptr[0]).y); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 22, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_self->cptr_vec2d[0]).y); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pyvec2d.pyx":21
+  /* "pyvec2d.pyx":33
  * 
  * 	property y:
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.c_vec2d_ptr[0].y
+ * 			return self.cptr_vec2d[0].y
  * 		def __set__(self, double y):
  */
 
@@ -1522,11 +1639,11 @@ static PyObject *__pyx_pf_7pyvec2d_7PyVec2d_1y___get__(struct __pyx_obj_7pyvec2d
   return __pyx_r;
 }
 
-/* "pyvec2d.pyx":23
+/* "pyvec2d.pyx":35
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].y
+ * 			return self.cptr_vec2d[0].y
  * 		def __set__(self, double y):             # <<<<<<<<<<<<<<
- * 			self.c_vec2d_ptr[0].y = y
+ * 			self.cptr_vec2d[0].y = y
  * 
  */
 
@@ -1541,7 +1658,7 @@ static int __pyx_pw_7pyvec2d_7PyVec2d_1y_3__set__(PyObject *__pyx_v_self, PyObje
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
   assert(__pyx_arg_y); {
-    __pyx_v_y = __pyx_PyFloat_AsDouble(__pyx_arg_y); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 23, __pyx_L3_error)
+    __pyx_v_y = __pyx_PyFloat_AsDouble(__pyx_arg_y); if (unlikely((__pyx_v_y == (double)-1) && PyErr_Occurred())) __PYX_ERR(1, 35, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -1561,20 +1678,20 @@ static int __pyx_pf_7pyvec2d_7PyVec2d_1y_2__set__(struct __pyx_obj_7pyvec2d_PyVe
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "pyvec2d.pyx":24
- * 			return self.c_vec2d_ptr[0].y
+  /* "pyvec2d.pyx":36
+ * 			return self.cptr_vec2d[0].y
  * 		def __set__(self, double y):
- * 			self.c_vec2d_ptr[0].y = y             # <<<<<<<<<<<<<<
+ * 			self.cptr_vec2d[0].y = y             # <<<<<<<<<<<<<<
  * 
- * 	# @staticmethod
+ * 	# TODO : wrap the rest of c++ functions of vec2.h ?
  */
-  (__pyx_v_self->c_vec2d_ptr[0]).y = __pyx_v_y;
+  (__pyx_v_self->cptr_vec2d[0]).y = __pyx_v_y;
 
-  /* "pyvec2d.pyx":23
+  /* "pyvec2d.pyx":35
  * 		def __get__(self):
- * 			return self.c_vec2d_ptr[0].y
+ * 			return self.cptr_vec2d[0].y
  * 		def __set__(self, double y):             # <<<<<<<<<<<<<<
- * 			self.c_vec2d_ptr[0].y = y
+ * 			self.cptr_vec2d[0].y = y
  * 
  */
 
@@ -1696,8 +1813,10 @@ static PyObject *__pyx_pf_7pyvec2d_7PyVec2d_6__setstate_cython__(CYTHON_UNUSED s
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
+static struct __pyx_vtabstruct_7pyvec2d_PyVec2d __pyx_vtable_7pyvec2d_PyVec2d;
 
 static PyObject *__pyx_tp_new_7pyvec2d_PyVec2d(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_7pyvec2d_PyVec2d *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -1705,6 +1824,9 @@ static PyObject *__pyx_tp_new_7pyvec2d_PyVec2d(PyTypeObject *t, PyObject *a, PyO
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
+  p = ((struct __pyx_obj_7pyvec2d_PyVec2d *)o);
+  p->__pyx_vtab = __pyx_vtabptr_7pyvec2d_PyVec2d;
+  p->owner = Py_None; Py_INCREF(Py_None);
   if (unlikely(__pyx_pw_7pyvec2d_7PyVec2d_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
@@ -1713,11 +1835,13 @@ static PyObject *__pyx_tp_new_7pyvec2d_PyVec2d(PyTypeObject *t, PyObject *a, PyO
 }
 
 static void __pyx_tp_dealloc_7pyvec2d_PyVec2d(PyObject *o) {
+  struct __pyx_obj_7pyvec2d_PyVec2d *p = (struct __pyx_obj_7pyvec2d_PyVec2d *)o;
   #if CYTHON_USE_TP_FINALIZE
-  if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
+  if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
   }
   #endif
+  PyObject_GC_UnTrack(o);
   {
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
@@ -1726,7 +1850,26 @@ static void __pyx_tp_dealloc_7pyvec2d_PyVec2d(PyObject *o) {
     __Pyx_SET_REFCNT(o, Py_REFCNT(o) - 1);
     PyErr_Restore(etype, eval, etb);
   }
+  Py_CLEAR(p->owner);
   (*Py_TYPE(o)->tp_free)(o);
+}
+
+static int __pyx_tp_traverse_7pyvec2d_PyVec2d(PyObject *o, visitproc v, void *a) {
+  int e;
+  struct __pyx_obj_7pyvec2d_PyVec2d *p = (struct __pyx_obj_7pyvec2d_PyVec2d *)o;
+  if (p->owner) {
+    e = (*v)(p->owner, a); if (e) return e;
+  }
+  return 0;
+}
+
+static int __pyx_tp_clear_7pyvec2d_PyVec2d(PyObject *o) {
+  PyObject* tmp;
+  struct __pyx_obj_7pyvec2d_PyVec2d *p = (struct __pyx_obj_7pyvec2d_PyVec2d *)o;
+  tmp = ((PyObject*)p->owner);
+  p->owner = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  return 0;
 }
 
 static PyObject *__pyx_getprop_7pyvec2d_7PyVec2d_x(PyObject *o, CYTHON_UNUSED void *x) {
@@ -1799,10 +1942,10 @@ static PyTypeObject __pyx_type_7pyvec2d_PyVec2d = {
   0, /*tp_getattro*/
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
+  __pyx_tp_traverse_7pyvec2d_PyVec2d, /*tp_traverse*/
+  __pyx_tp_clear_7pyvec2d_PyVec2d, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
@@ -1891,6 +2034,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
+  {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
@@ -1983,15 +2127,18 @@ static int __Pyx_modinit_type_init_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 5, __pyx_L1_error)
+  __pyx_vtabptr_7pyvec2d_PyVec2d = &__pyx_vtable_7pyvec2d_PyVec2d;
+  __pyx_vtable_7pyvec2d_PyVec2d.set_ptr = (PyObject *(*)(struct __pyx_obj_7pyvec2d_PyVec2d *, vec2d *, PyObject *))__pyx_f_7pyvec2d_7PyVec2d_set_ptr;
+  if (PyType_Ready(&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_7pyvec2d_PyVec2d.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7pyvec2d_PyVec2d.tp_dictoffset && __pyx_type_7pyvec2d_PyVec2d.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_7pyvec2d_PyVec2d.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PyVec2d, (PyObject *)&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 5, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 5, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_7pyvec2d_PyVec2d.tp_dict, __pyx_vtabptr_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PyVec2d, (PyObject *)&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7pyvec2d_PyVec2d) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
   __pyx_ptype_7pyvec2d_PyVec2d = &__pyx_type_7pyvec2d_PyVec2d;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -2698,6 +2845,24 @@ static PyObject* __Pyx_PyObject_GenericGetAttr(PyObject* obj, PyObject* attr_nam
     return __Pyx_PyObject_GenericGetAttrNoDict(obj, attr_name);
 }
 #endif
+
+/* SetVTable */
+static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
+#if PY_VERSION_HEX >= 0x02070000
+    PyObject *ob = PyCapsule_New(vtable, 0, 0);
+#else
+    PyObject *ob = PyCObject_FromVoidPtr(vtable, 0);
+#endif
+    if (!ob)
+        goto bad;
+    if (PyDict_SetItem(dict, __pyx_n_s_pyx_vtable, ob) < 0)
+        goto bad;
+    Py_DECREF(ob);
+    return 0;
+bad:
+    Py_XDECREF(ob);
+    return -1;
+}
 
 /* PyErrExceptionMatches */
 #if CYTHON_FAST_THREAD_STATE
