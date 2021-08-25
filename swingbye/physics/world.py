@@ -9,6 +9,7 @@ from swingbye.physics.integrator import Integrator, EulerIntegrator
 from swingbye.physics.globals import GRAVITY_CST, GRAVITY_SINGULARITY_OFFSET
 from swingbye.globals import SHIP_PREDICTION_N, PLANET_PREDICTION_N, PLANET_PREDICTION_DT, PHYSICS_DT
 from enum import Enum, auto
+from swingbye.utils import time_func
 
 _logger = logging.getLogger(__name__)
 
@@ -93,6 +94,7 @@ class World():
 		self.ship.pointing = pointing
 		self.update_ship_prediction()
 
+	@time_func
 	def update_ship_prediction(self):
 		if not self.ship.docked:
 			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')

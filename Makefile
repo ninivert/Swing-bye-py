@@ -2,6 +2,8 @@
 
 build-cython: build-cython-orbitsolver build-cython-physicssolver
 
+build-cython-experimental:
+	cd swingbye/experimental; python setup.py build_ext --inplace;
 
 build-cython-orbitsolver:
 	mkdir -p tmp/physics
