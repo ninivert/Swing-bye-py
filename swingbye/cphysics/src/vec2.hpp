@@ -39,12 +39,8 @@ struct vec2 {
 		return *this;
 	}
 
-	vec2 operator+(vec2 const& v) {
-		return vec2(x + v.x, y + v.y);
-	}
-	vec2 operator-(vec2 const& v) {
-		return vec2(x - v.x, y - v.y);
-	}
+	vec2 operator+(vec2 const& v) const { return vec2(x + v.x, y + v.y); }
+	vec2 operator-(vec2 const& v) const { return vec2(x - v.x, y - v.y); }
 
 	vec2& operator+=(vec2 const& v) {
 		x += v.x;
@@ -57,19 +53,14 @@ struct vec2 {
 		return *this;
 	}
 
-	vec2 operator+(double s) {
-		return vec2(x + s, y + s);
-	}
-	vec2 operator-(double s) {
-		return vec2(x - s, y - s);
-	}
-	vec2 operator*(double s) {
-		return vec2(x * s, y * s);
-	}
-	vec2 operator/(double s) {
-		return vec2(x / s, y / s);
-	}
-
+	vec2 operator+(double s) const { return vec2(x + s, y + s); }
+	vec2 operator-(double s) const { return vec2(x - s, y - s); }
+	vec2 operator*(double s) const { return vec2(x * s, y * s); }
+	vec2 operator/(double s) const { return vec2(x / s, y / s); }
+	friend vec2 operator+(double s, vec2 const& v) { return vec2(s + v.x, s + v.y); }
+	friend vec2 operator-(double s, vec2 const& v) { return vec2(s - v.x, s - v.y); }
+	friend vec2 operator*(double s, vec2 const& v) { return vec2(s * v.x, s * v.y); }
+	friend vec2 operator/(double s, vec2 const& v) { return vec2(s / v.x, s / v.y); }
 
 	vec2& operator+=(double s) {
 		x += s;

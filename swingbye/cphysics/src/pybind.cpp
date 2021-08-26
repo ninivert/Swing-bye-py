@@ -4,6 +4,7 @@
 #include "world.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/operators.h>
 #include <string>
 
 namespace py = pybind11;
@@ -12,13 +13,34 @@ PYBIND11_MODULE(cphysics, m) {
 	py::class_<vec2>(m, "vec2")
 		.def_readwrite("x", &vec2::x)
 		.def_readwrite("y", &vec2::y)
-		.def(py::init<double, double>())
+		.def(py::init<double, double>(), py::arg("x") = 0.0, py::arg("y") = 0.0)
 		.def(py::init<>())
+		.def(py::self + py::self)
+		.def(py::self - py::self)
+		.def(py::self += py::self)
+		.def(py::self -= py::self)
+		.def(py::self + double())
+		.def(py::self - double())
+		.def(py::self * double())
+		.def(py::self / double())
+		.def(double() + py::self)
+		.def(double() - py::self)
+		.def(double() * py::self)
+		.def(double() / py::self)
+		.def(py::self += double())
+		.def(py::self -= double())
+		.def(py::self *= double())
+		.def(py::self /= double())
 		.def("length", &vec2::length)
-		.def(
-			"__repr__",
-			[](vec2 const& v) { return v.str(); }
-		);
+		.def("set", &vec2::set)
+		.def("rotate", &vec2::rotate)
+		.def("normalize", &vec2::normalize)
+		.def("ortho", &vec2::ortho)
+		.def_static("dist", &vec2::dist)
+		.def_static("dot", &vec2::dot)
+		.def_static("cross", &vec2::cross)
+		.def("to_tuple", [](vec2 const& v) { return py::make_tuple(v.x, v.y); })
+		.def("__repr__", &vec2::str);
 		// TODO : bind other methods
 
 	py::class_<Entity>(m, "Entity")
@@ -34,7 +56,8 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("pos") = vec2(),
 			py::arg("vel") = vec2(),
 			py::arg("mass") = 1.0
-		);
+		)
+		.def("__repr__", &Entity::str);
 
 	// py::class_<ExplicitEntity, Entity>(m, "ExplicitEntity")
 	// 	.def_property_readonly("pos", &ExplicitEntity::get_pos)
@@ -76,7 +99,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("parg") = 0.0,
 			py::arg("anchor") = vec2(0, 0)
 		)
-		.def("__repr__", [](Planet const& p) { return p.str(); });
+		.def("__repr__", &Planet::str);
 
 	py::class_<World>(m, "World")
 		.def_property_readonly(
@@ -138,5 +161,5 @@ PYBIND11_MODULE(cphysics, m) {
 		)
 		.def("rm_entity", &World::rm_entity)
 		.def(py::init<>())
-		.def("__repr__", [](World const& w) { return w.str(); });
+		.def("__repr__", &World::str);
 }
