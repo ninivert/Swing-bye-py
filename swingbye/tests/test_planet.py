@@ -19,3 +19,12 @@ if __name__ == '__main__':
 	print(p1.pos_at(1))
 	print(p2.pos_at(1))
 	print(p3.pos_at(1))
+
+	print('>>> timing 1000 position computation at random times')
+	from time import time
+	from random import uniform
+	start = time()
+	for _ in range(1000):
+		p3.pos_at(uniform(0, 100))
+	end = time()
+	print(f'{end-start:.6f}s')

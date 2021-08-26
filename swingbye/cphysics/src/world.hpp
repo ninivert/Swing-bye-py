@@ -53,7 +53,19 @@ public:
 	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) { entities.push_back(Entity(pos_, vel_, mass_)); }
 	void rm_entity(unsigned int index) { entities.erase(entities.begin() + index); }
 
-	// TODO : predictions
+	std::vector<vec2> get_predictions(Entity const& entity, double t_from, double t_to, unsigned int n) const {
+		double dt = (t_to-t_from) / n;
+		Entity dummy(entity);
+		std::vector<vec2> predictions(n);
+
+		for (unsigned int i=0; i < n; ++i) {
+			double t = i*dt + t_from;
+			Integrator::RK4(dummy, *this, &World::forces_on, t, dt);
+			predictions[i] = dummy.pos;
+		}
+
+		return predictions;
+	}
 
 	static vec2 forces_on(Entity const& entity, World const& world, double time) {
 		vec2 f = vec2(0, 0);

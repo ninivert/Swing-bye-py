@@ -1,5 +1,5 @@
 if __name__ == '__main__':
-	from swingbye.cphysics import World, Planet, Entity, vec2
+	from swingbye.cphysics import World, vec2
 
 	print('>>> initializing empty world')
 	world = World()
@@ -10,8 +10,11 @@ if __name__ == '__main__':
 	world.add_planet(maxis=5.0)
 	world.add_planet(maxis=2.0)
 	world.add_planet(anchor=vec2(-69.0, -420.0))
-	world.get_planet(1).set_parent(world.get_planet(0))
-	world.get_planet(2).set_parent(world.get_planet(1))
+	# world.get_planet(1).set_parent(world.get_planet(0))
+	# world.get_planet(2).set_parent(world.get_planet(1))
+	# or
+	world.planets[1].set_parent(world.planets[0])
+	world.planets[2].set_parent(world.planets[1])
 	print(world)
 
 	print('>>> testing memory adresses of stored and getted')
