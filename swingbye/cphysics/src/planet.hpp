@@ -5,6 +5,7 @@
 #include "entity.hpp"
 #include "globals.h"
 #include <cmath>
+#include <iostream>
 
 class Planet : public Entity {
 private:
