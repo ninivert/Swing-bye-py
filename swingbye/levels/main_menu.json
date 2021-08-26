@@ -12,76 +12,7 @@
 				"mass": 20,
 				"radius": 200
 			},
-			"children": [
-				{
-					"type": "planet",
-					"sprite": "assets/sprites/planet1.png",
-					"name": "Planet 1",
-					"arguments": {
-						"mass": 10,
-						"maxis": 400,
-						"radius": 50,
-						"time0": 7520
-					},
-					"children": [
-						{
-							"type": "planet",
-							"sprite": "assets/sprites/planet5.png",
-							"name": "Planet 2",
-							"arguments": {
-								"mass": 5,
-								"maxis": 34,
-								"radius": 5
-							},
-							"children": []
-						}
-					]
-				},
-				{
-					"type": "planet",
-					"sprite": "assets/sprites/planet3.png",
-					"name": "Planet 4",
-					"arguments": {
-						"mass": 10,
-						"maxis": 600,
-						"radius": 69
-					},
-					"children": [
-						{
-							"type": "ship",
-							"sprite": "assets/sprites/ship_on.png",
-							"arguments": {},
-							"children": []
-						}
-					]
-				},
-				{
-					"type": "planet",
-					"sprite": "assets/sprites/planet4.png",
-					"name": "Planet 5",
-					"arguments": {
-						"mass": 10,
-						"maxis": 800,
-						"radius": 32,
-						"parg": 1.57079,
-						"ecc": 0.5
-					},
-					"children": []
-				},
-				{
-					"type": "planet",
-					"sprite": "assets/sprites/comete_roche.png",
-					"name": "WEEEEEEEEE",
-					"arguments": {
-						"mass": 10,
-						"maxis": -400,
-						"radius": 32,
-						"ecc": 1.3,
-						"time0": 8000
-					},
-					"children": []
-				}
-			]
+			"children": []
 		}
 	]
 }

@@ -12,6 +12,7 @@ Rendering
 - [X] Texture comets
 - [X] FIX THE GODDAMN CAMERA (Y A T T A)
 - [ ] KE and PE graphs
+- [ ] Correctly dispose of useless sprites / paths
 
 UI
 

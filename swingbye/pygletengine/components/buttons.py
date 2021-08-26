@@ -1,6 +1,6 @@
 import pyglet
 import glooey
-from swingbye.pygletengine.components.labels import ButtonLabel
+from swingbye.pygletengine.components.labels import ButtonLabel, Description
 
 
 class Button(glooey.Button):
@@ -33,18 +33,18 @@ class CycleButton(glooey.Button):
 	def __init__(self, states, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.states = states
-		self.state_keys = list(self.states.keys())
+		self.state_names = list(self.states.keys())
 		self.state_index = 0
-		self.foreground.text = self.states[self.state_keys[self.state_index]]
+		self.foreground.text = self.state_names[self.state_index]
 
 	def on_click(self, widget):
 		self.state_index = (self.state_index + 1) % len(self.states)
-		self.foreground.text = self.states[self.state_keys[self.state_index]]
-		self.dispatch_event('on_toggle', self.state_keys[self.state_index])
+		self.foreground.text = self.state_names[self.state_index]
+		self.dispatch_event('on_change', self, self.states[self.state_names[self.state_index]])
 
 	def do_claim(self):
 		max_x, max_y = 0, 0
-		for text in self.states.values():
+		for text in self.state_names:
 			test_label = self.Foreground(text)
 			text_width, text_height = test_label.do_claim()
 			max_x, max_y = max(max_x, text_width), max(max_y, text_height)
@@ -60,4 +60,8 @@ class CycleButton(glooey.Button):
 		custom_color = '#ff5d5daa'
 
 
-CycleButton.register_event_type('on_toggle')
+CycleButton.register_event_type('on_change')
+
+
+class SmallCycleButton(CycleButton):
+	Foreground = Description

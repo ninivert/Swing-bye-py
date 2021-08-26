@@ -9,7 +9,7 @@ from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
-from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, GameState, GameEntity
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, TEST_COLLISIONS, GameState, GameEntity
 from swingbye.globals import PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
@@ -52,7 +52,8 @@ class Level(Scene):
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		self.mouse_press_x = x
 		self.mouse_press_y = y
-		self.hud.on_mouse_press(x, y, buttons, modifiers)
+		if self.hud.is_over(x, y):
+			self.hud.on_mouse_press(x, y, buttons, modifiers)
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		if self.game_state == GameState.RUNNING:
@@ -70,7 +71,6 @@ class Level(Scene):
 					self.camera.zoom_at(x, y, scroll_y)
 
 	def on_resize(self, width, height):
-		self.hud_rect = self.hud.rect
 		self.background.on_resize(width, height)
 		self.camera.on_resize(width, height)
 
@@ -83,22 +83,18 @@ class Level(Scene):
 
 	def on_pause(self):
 		self.game_state = GameState.PAUSED
-		self.hud.graph.pause_sampling()
-		self.hud.pause_menu.open(self.gui)
+		self.hud.on_pause()
 
 	def on_resume(self):
 		self.game_state = GameState.RUNNING
-		self.hud.pause_menu.close()
-		self.hud.graph.resume_sampling()
+		self.hud.on_resume()
 
 	def on_win(self):
 		self.game_state = GameState.ENDING
-		self.hud.pause_sampling()
 		self.hud.on_win()
 
 	def on_lose(self):
 		self.game_state = GameState.ENDING
-		self.hud.graph.pause_sampling()
 		self.hud.on_lose()
 
 	def on_reset(self):
@@ -113,15 +109,13 @@ class Level(Scene):
 		self.hud.time_slider.set_handler('on_change', self.on_time_change)
 		self.hud.launch_button.set_handler('on_press', self.launch_ship)
 
-		self.hud.pause_menu.resume_button.set_handler('on_press', self.on_resume)
-		self.hud.pause_menu.quit_button.set_handler('on_press', pyglet.app.exit)
+		self.hud.overlays['pause'].resume_button.set_handler('on_press', self.on_resume)
+		self.hud.overlays['pause'].quit_button.set_handler('on_press', pyglet.app.exit)
 
-		self.hud.graph.query = lambda: np.linalg.norm(self.world.ship.vel)
+		self.hud.overlays['graph'].graph.query = lambda: np.linalg.norm(self.world.ship.vel)
 		self.hud.hide_graph()
 
 		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=pyglet.graphics.OrderedGroup(1, parent=self.world_group))
-
-		self.hud_rect = self.hud.rect
 
 	def load_level(self):
 		with open(self.levels[self.level_index]) as file:
@@ -175,22 +169,16 @@ class Level(Scene):
 	def run(self, dt):
 		# TODO: find a way to update the camera here instead of before drawing (make it independent of fps)
 		# self.camera.update()
-		self.background.update()
+		# TODO: fix stars jumping around when changing zoom anchor
+		# self.background.update()
 
 		if self.game_state == GameState.RUNNING:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
 					self.world.step(PHYSICS_DT)
 
-					# Check collisions
-					for planet in self.world.planets:
-						if self.world.ship.collides_with(planet):
-							if planet.game_entity == GameEntity.PLANET:
-								self.dispatch_event('on_lose')
-							elif planet.game_entity == GameEntity.WORMHOLE:
-								self.dispatch_event('on_win')
-
-
+					if TEST_COLLISIONS:
+						self.check_collision()
 
 		if DEBUG_CAMERA:
 			# WARNING: lines are always late by 1 frame
@@ -204,6 +192,14 @@ class Level(Scene):
 	def launch_ship(self):
 		self.world.launch_ship()
 		self.hud.show_graph()
+
+	def check_collision(self):
+		for planet in self.world.planets:
+			if self.world.ship.collides_with(planet):
+				if planet.game_entity == GameEntity.PLANET:
+					self.dispatch_event('on_lose')
+				elif planet.game_entity == GameEntity.WORMHOLE:
+					self.dispatch_event('on_win')
 
 	def reset(self):
 		self.hud.reset()

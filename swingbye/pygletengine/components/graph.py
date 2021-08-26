@@ -2,7 +2,6 @@ import pyglet
 import glooey
 from swingbye.pygletengine.components.paths import LinePath
 from numpy import interp, inf
-import inspect
 
 
 class Graph(glooey.Widget):
@@ -114,21 +113,21 @@ class Graph(glooey.Widget):
 			points=self._calulate_point_positions(),
 			color=self.color,
 			batch=self.batch,
-			group=self.group
+			group=pyglet.graphics.OrderedGroup(1, parent=self.group)
 		)
 		self.max_label = pyglet.text.Label(
 			font_size=self.label_font_size,
 			x=x, y=y+self.graph_height,
 			anchor_x='left', anchor_y='top',
 			batch=self.batch,
-			group=self.group
+			group=pyglet.graphics.OrderedGroup(1, parent=self.group)
 		)
 		self.min_label = pyglet.text.Label(
 			font_size=self.label_font_size,
 			x=x, y=y,
 			anchor_x='left', anchor_y='bottom',
 			batch=self.batch,
-			group=self.group
+			group=pyglet.graphics.OrderedGroup(1, parent=self.group)
 		)
 		self.loaded = True
 		self.resume_sampling()
@@ -155,12 +154,10 @@ class Graph(glooey.Widget):
 		self.samples.clear()
 
 	def pause_sampling(self):
-		print('paused by:', inspect.stack()[1][3])
 		pyglet.clock.unschedule(self.update_data)
 		self.paused = True
 
 	def resume_sampling(self):
-		print('resumed by:', inspect.stack()[1][3])
 		pyglet.clock.unschedule(self.update_data)
 		pyglet.clock.schedule_interval(self.update_data, self._sample_rate)
 

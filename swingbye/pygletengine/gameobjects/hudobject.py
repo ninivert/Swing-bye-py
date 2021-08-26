@@ -2,14 +2,14 @@ import pyglet
 import glooey
 from swingbye.pygletengine.utils import point_in_rect
 from swingbye.pygletengine.components.slider import Slider
-from swingbye.pygletengine.components.graph import Graph
+from swingbye.pygletengine.components.overlays import GraphOverlay
 from swingbye.pygletengine.components.labels import Title, Subtitle
 from swingbye.pygletengine.components.buttons import Button, CycleButton
 from swingbye.pygletengine.components.containers import VBox, HBox, Board, Frame, Dialog
 from swingbye.pygletengine.globals import GameState
 
 
-class PauseMenu(Frame):
+class PauseOverlay(Frame):
 	Background = glooey.images.Background
 
 	def __init__(self):
@@ -77,17 +77,21 @@ class HudObject:
 
 		self.container = Board()
 		self.hud_container = glooey.HBox()
-		self.graph_container = Frame()
 
 		# Overlays
-		self.graph = Graph(
+		self.overlays = {}
+		graph = GraphOverlay(
 			100, 100,
 			y_scale_mode='fixed_min',
 			min_y=0
 		)
-		self.pause_menu = PauseMenu()
-		self.win_overlay = WinOverlay()
-		self.lose_overlay = LoseOverlay()
+		pause = PauseOverlay()
+		win = WinOverlay()
+		lose = LoseOverlay()
+		self.add_overlay('graph', graph)
+		self.add_overlay('pause', pause)
+		self.add_overlay('win', win)
+		self.add_overlay('lose', lose)
 
 		# Bottom control buttons
 		self.reset_button = Button('Reset')
@@ -107,8 +111,6 @@ class HudObject:
 		self.launch_button = Button('LAUNCH')
 
 		# Attach everything to their containers
-		self.graph_container.add(self.graph)
-
 		self.hud_container.pack(self.reset_button)
 		self.hud_container.pack(self.pause_button)
 		self.hud_container.pack(self.speed_slider)
@@ -116,14 +118,9 @@ class HudObject:
 		self.hud_container.pack(self.launch_button)
 
 		self.container.add(self.hud_container, left=0, bottom=0, width_percent=1)
-		self.container.add(self.graph_container, left=10, bottom=50)
+		self.open_overlay('graph', left=10, bottom=50)
 
 		self.gui.add(self.container)
-
-	@property
-	def rect(self):
-		"""Return the bounding rect of the control buttons"""
-		return self.hud_container.rect
 
 	def is_over(self, x, y):
 		over = False
@@ -131,14 +128,23 @@ class HudObject:
 			over = over or point_in_rect(x, y, *child.rect.bottom_left, child.width, child.height)
 		return over
 
+	def add_overlay(self, name, overlay):
+		self.overlays[name] = overlay
+
+	def open_overlay(self, name, *args, **kwargs):
+		self.container.add(self.overlays[name], *args, **kwargs)
+
+	def close_overlay(self, name):
+		self.container.remove(self.overlays[name])
+
 	def hide_graph(self):
-		self.graph_container.hide()
+		self.overlays['graph'].hide()
 
 	def show_graph(self):
-		self.graph_container.unhide()
+		self.overlays['graph'].unhide()
 
 	def reset(self):
-		self.graph.reset()
+		self.overlays['graph'].graph.reset()
 		self.time_slider.reset()
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
@@ -156,8 +162,18 @@ class HudObject:
 			self.speed_slider.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 
 	def on_win(self):
-		self.container.add(self.win_overlay, center_percent=(0.5, 0.5))
+		self.overlays['graph'].graph.pause_sampling()
+		self.open_overlay('win', center_percent=(0.5, 0.5))
 
 	def on_lose(self):
-		self.container.add(self.lose_overlay, center_percent=(0.5, 0.5))
+		self.overlays['graph'].graph.pause_sampling()
+		self.open_overlay('lose', center_percent=(0.5, 0.5))
+
+	def on_pause(self):
+		self.overlays['graph'].graph.pause_sampling()
+		self.open_overlay('pause', center_percent=(0.5, 0.5))
+
+	def on_resume(self):
+		self.close_overlay('pause')
+		self.overlays['graph'].graph.pause_sampling()
 
