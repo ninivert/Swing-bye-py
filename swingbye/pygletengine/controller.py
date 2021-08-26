@@ -7,6 +7,7 @@ from swingbye.pygletengine.scenes.levelselectmenu import LevelSelectMenu
 from swingbye.pygletengine.scenes.optionsmenu import OptionsMenu
 from swingbye.pygletengine.scenes.dvd import DVD
 from swingbye.pygletengine.scenes.testing import Test
+from swingbye.pygletengine.scenes.editor import Editor
 import swingbye.pygletengine.globals as g
 
 
@@ -31,7 +32,8 @@ class ViewController(pyglet.window.Window):
 			'LevelSelectMenu': LevelSelectMenu(self, self.gui, self.transition_to_scene),
 			'OptionsMenu': OptionsMenu(self, self.gui, self.transition_to_scene),
 			'DVD': DVD(self, self.gui, self.transition_to_scene),
-			'Test': Test(self, self.gui, self.transition_to_scene)
+			'Test': Test(self, self.gui, self.transition_to_scene),
+			'Editor': Editor(self, self.gui, self.transition_to_scene)
 		}
 
 		self.push_handlers()

@@ -5,10 +5,11 @@ from swingbye.pygletengine.utils import clamp
 
 class Slider(glooey.Widget):
 	custom_alignment = 'fill'
+	custom_grab_mouse_on_click = True
 	custom_base = pyglet.shapes.Rectangle
 	custom_knob = pyglet.shapes.Circle
 
-	def __init__(self, min_width=100, min_height=0, value=0, min_value=0, max_value=100, step=1, edge=0):
+	def __init__(self, min_width=10, min_height=0, value=0, min_value=0, max_value=100, step=1, edge=0):
 		super().__init__()
 		
 		self.min_width = min_width
@@ -16,6 +17,8 @@ class Slider(glooey.Widget):
 
 		self.base = None
 		self.knob = None
+		self.base_height = 10
+		self.knob_size = 10
 
 		self.captured = False
 
@@ -30,9 +33,10 @@ class Slider(glooey.Widget):
 		return self.max_value - self.min_value
 
 	def get_closest_value(self, x, y):
-		self.x, self.y = self.get_rect().bottom_left
-		progress = (x - self.x - self.edge) / self.slider_width
-		exact_value = self.get_value_range() * progress - (self.step//2)
+		# At what level of the slider has the mouse been pressed
+		progress = (x - (self.x + self.edge)) / self.slider_width
+		# Exact value that the mouse is pointing at, offset by half a step
+		exact_value = self.get_value_range() * progress - (self.step//2) + self.min_value
 		remainder = abs(exact_value) % self.step;
 		if remainder == 0:
 			return exact_value
@@ -45,8 +49,6 @@ class Slider(glooey.Widget):
 		return self.base.x + self.edge + ((self.slider_width - 2*self.edge)*((self.value - self.min_value) / self.get_value_range()))
 
 	def load(self):
-		self.base_height = 10
-		self.knob_size = 10
 		self.x, self.y = self.get_rect().bottom_left
 		self.slider_width = self.width - 2*self.horz_padding[0] - 2*self.knob_size
 		if self.custom_base is not None:
@@ -59,7 +61,7 @@ class Slider(glooey.Widget):
 	def update_value(self, new_value):
 		self.value = clamp(new_value, self.min_value, self.max_value)
 		if self.value != self.old_value:
-			self.dispatch_event('on_change', self.value)
+			self.dispatch_event('on_change', self, self.value)
 			self.old_value = self.value
 			self._draw()
 
@@ -70,8 +72,6 @@ class Slider(glooey.Widget):
 		return self.min_width, self.min_height
 
 	def do_resize(self):
-		self.base_height = 10
-		self.knob_size = 10
 		self.x, self.y = self.get_rect().bottom_left
 		self.slider_width = self.width - 2*self.horz_padding[0] - 2*self.knob_size
 		if self.base is not None:

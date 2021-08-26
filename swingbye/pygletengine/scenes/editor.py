@@ -4,17 +4,21 @@ import json
 import logging
 from swingbye.levels.parser import parse_level
 from swingbye.physics.world import WorldStates
-from swingbye.pygletengine.utils import point_in_rect
+from swingbye.pygletengine.components.overlays import Options
+from swingbye.pygletengine.utils import point_in_rect, create_sprite
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
 from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, GameState, GameEntity
-from swingbye.globals import PHYSICS_DT
+from swingbye.pygletengine.components.paths import PointPath, LinePath
+from swingbye.pygletengine.gameobjects.entities import ShipObject, PlanetObject
+from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
 
 _logger = logging.getLogger(__name__)
 
-class Level(Scene):
+
+class Editor(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -23,18 +27,29 @@ class Level(Scene):
 		self.register_event_type('on_lose')
 		self.register_event_type('on_reset')
 
-		self.levels = ['swingbye/levels/level1.json']
-		self.level_index = 0
+		self.level = 'swingbye/levels/main_menu.json'
+
+		self.planet_sprites = [
+			'assets/sprites/planet1.png',
+			'assets/sprites/planet2.png',
+			'assets/sprites/planet3.png',
+			'assets/sprites/planet4.png',
+			'assets/sprites/planet5.png'
+		]
+
+		self.game_state = GameState.RUNNING
+		self.simulation_speed = 1
 
 		# TODO : cleanup this
 		self.mouse_press_x = 0
 		self.mouse_press_y = 0
 
-		self.simulation_speed = 1
-		self.game_state = GameState.RUNNING
-
 		self.mouse_x = 0
 		self.mouse_y = 0
+
+	# WHY DOESNT THIS WORK??????
+	def on_file_drop(self, x, y, file):
+		print(file)
 
 	def on_mouse_motion(self, x, y, dx, dy):
 		self.mouse_x = x
@@ -52,14 +67,16 @@ class Level(Scene):
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		self.mouse_press_x = x
 		self.mouse_press_y = y
-		self.hud.on_mouse_press(x, y, buttons, modifiers)
+		if self.hud.is_over(x, y):
+			self.hud.on_mouse_press(x, y, buttons, modifiers)
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		if self.game_state == GameState.RUNNING:
 			clicked = self.mouse_press_x == x and self.mouse_press_y == y
 			if not self.hud.is_over(x, y):
 				if clicked:
-					self.world.point_ship(self.camera.screen_to_world(x, y))
+					self.add_planet()
+					# self.world.point_ship(self.camera.screen_to_world(x, y))
 
 		self.hud.on_mouse_release(x, y, buttons, modifiers)
 
@@ -73,6 +90,25 @@ class Level(Scene):
 		self.hud_rect = self.hud.rect
 		self.background.on_resize(width, height)
 		self.camera.on_resize(width, height)
+
+	def on_option_change(self, name, value):
+		pass
+
+	def on_confirm(self, options):
+		print(options)
+		self.hud.container.remove(self.planet_options)
+		planetobject = PlanetObject(
+			sprite=create_sprite(self.planet_sprites[0], subpixel=True, batch=self.world_batch, group=pyglet.graphics.OrderedGroup(0, parent=self.world_group)),
+			# TODO: colors
+			path=PointPath(batch=self.world_batch, fade=True, point_count=PLANET_PREDICTION_N),
+			parent=self.world.planets[0],
+			# TODO : named planets
+			# name=child_dict['name'],
+			game_entity=GameEntity.PLANET,
+			**options
+		)
+		self.world.planets.append(planetobject)
+		self.world.time = 0
 
 	def on_speed_change(self, widget, value):
 		self.simulation_speed = int(value)
@@ -124,7 +160,7 @@ class Level(Scene):
 		self.hud_rect = self.hud.rect
 
 	def load_level(self):
-		with open(self.levels[self.level_index]) as file:
+		with open(self.level) as file:
 			level = json.load(file)
 
 		self.background = BackgroundObject(
@@ -133,8 +169,6 @@ class Level(Scene):
 			self.batch,
 			self.background_group
 		)
-
-		_logger.debug(f'parsing level from file `{self.levels[self.level_index]}`')
 
 		self.world = parse_level(level, self.world_batch, self.world_group)
 
@@ -148,15 +182,8 @@ class Level(Scene):
 
 		self.camera = Camera(self.window)
 
-		if DEBUG_CAMERA:
-			self.offset_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 20, 20), batch=self.batch, group=self.foreground_group)
-			self.mouse_line = pyglet.shapes.Line(0, 0, 0, 0, color=(20, 255, 20), batch=self.world_batch, group=self.foreground_group)
-			self.mouse_world_to_screen_line = pyglet.shapes.Line(0, 0, 0, 0, color=(255, 255, 20), batch=self.batch, group=self.foreground_group)
-
 		self.load_level()
 		self.load_hud()
-
-		self.camera.set_parent(self.world.ship)
 
 	def begin(self):
 		self.gui.clear()
@@ -166,16 +193,12 @@ class Level(Scene):
 		self.batch.draw()
 		with self.camera:
 			self.world_batch.draw()
-			if DEBUG_COLLISION:
-				for planet in self.world.planets:
-					pyglet.shapes.Circle(*planet.pos, planet.radius).draw()
-				pyglet.shapes.Circle(*self.world.ship.pos, self.world.ship.radius).draw()
 		self.gui.batch.draw()
 
 	def run(self, dt):
 		# TODO: find a way to update the camera here instead of before drawing (make it independent of fps)
 		# self.camera.update()
-		self.background.update()
+		# self.background.update()
 
 		if self.game_state == GameState.RUNNING:
 			if self.world.state == WorldStates.POST_LAUNCH:
@@ -190,16 +213,27 @@ class Level(Scene):
 							elif planet.game_entity == GameEntity.WORMHOLE:
 								self.dispatch_event('on_win')
 
-
-
-		if DEBUG_CAMERA:
-			# WARNING: lines are always late by 1 frame
-			# do not trust them too much on fast moving entities
-			self.offset_line.x2, self.offset_line.y2 = self.camera.world_to_screen(*self.world.planets[0].pos)
-			self.mouse_line.x2, self.mouse_line.y2 = self.camera.screen_to_world(self.mouse_x, self.mouse_y)
-			self.mouse_world_to_screen_line.x2, self.mouse_world_to_screen_line.y2 = self.camera.world_to_screen(*self.camera.screen_to_world(self.mouse_x, self.mouse_y))
-
-	# Game logic
+	def add_planet(self):
+		options_dict = {
+			# Semi-major axis
+			'maxis': {'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': 1.0},
+			# Eccentricity
+			'ecc': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			# Initial time offset
+			'time0': {'type': 'slider', 'min_value': 0, 'max_value': 50000, 'step': 5, 'default': 0.0},
+			# Inclination
+			'incl': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			# Argument of periaxis
+			'parg': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			# Planet radius
+			'radius': {'type': 'slider', 'min_value': 0, 'max_value': 100, 'step': 1, 'default': 10},
+			# Mass
+			'mass': {'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': 1}
+		}
+		self.planet_options = Options(options_dict)
+		self.planet_options.set_handler('on_option_change', self.on_option_change)
+		self.planet_options.set_handler('on_confirm', self.on_confirm)
+		self.hud.container.add(self.planet_options, left=10, bottom=50)
 
 	def launch_ship(self):
 		self.world.launch_ship()
@@ -208,10 +242,8 @@ class Level(Scene):
 	def reset(self):
 		self.hud.reset()
 		self.hud.hide_graph()
-		self.camera.set_parent(None)
 
 		# This is very bad, old objects are not getting cleaned up (sprites need to be removed from batches etc)
 		# When reset is spammed, memory usage increases greatly
 		# TODO -= 1  # yay
 		self.load_level()
-		self.camera.set_parent(self.world.ship)

@@ -7,11 +7,12 @@ class Path(metaclass=abc.ABCMeta):
 	pass
 
 class LinePath(Path):
-	def __init__(self, point_count=1, points=[], color=(255, 255, 255), batch=None, group=None):
+	def __init__(self, point_count=2, points=[], color=(255, 255, 255, 255), fade=False, batch=None, group=None):
 		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
 		self._vertex_length = point_count + 2
+		self._fade = fade
 
 		# Extend points to match point_count
 		points = self._complete_vertices_with_empty(points)
@@ -23,7 +24,7 @@ class LinePath(Path):
 		self.vertex_list = pyglet.graphics.vertex_list(
 			self._vertex_length,
 			('v2f/stream', self._vertices),
-			('c3B/dynamic', self._color)
+			('c4B/dynamic', self._color)
 		)
 
 		if group is None:
@@ -47,7 +48,7 @@ class LinePath(Path):
 				pyglet.gl.GL_LINE_STRIP,
 				self.group,
 				('v2f/stream', self._vertices),
-				('c3B/dynamic', self._color)
+				('c4B/dynamic', self._color)
 			)
 
 	def _complete_vertices_with_empty(self, points):
@@ -72,10 +73,23 @@ class LinePath(Path):
 	def _generate_vertex_color_list(self, color):
 		self._color = []
 		for i in range(self._vertex_length):
-			self._color.extend(color)
+			if self._fade:
+				alpha = int(255 * (1 - i/(self._vertex_length)))
+			else:
+				alpha = color[3]
+			self._color.extend((*color[:3], alpha))
 
 	def delete(self):
 		self.vertex_list.delete()
+
+	@property
+	def fade(self):
+		return self._fade
+
+	@fade.setter
+	def fade(self, fade):
+		self._generate_vertex_color_list(self._color)
+		self._fade = fade
 
 	@property
 	def vertices(self):
@@ -109,7 +123,7 @@ class LinePath(Path):
 
 
 class PointPath(Path):
-	def __init__(self, point_count=1, points=[], color=(255, 255, 255), batch=None, group=None):
+	def __init__(self, point_count=1, points=[], color=(255, 255, 255, 255), fade=False, batch=None, group=None):
 		if len(points) > point_count:
 			raise ValueError(f'Provided {point_count=} is less than length of vertices={len(points)}')
 
@@ -117,6 +131,7 @@ class PointPath(Path):
 
 		# Extend points to match point_count
 		points = self._complete_vertices_with_empty(points)
+		self._fade = fade
 
 		self._load_vertices_from_tuples(points)
 		self._generate_vertex_color_list(color)
@@ -172,10 +187,23 @@ class PointPath(Path):
 	def _generate_vertex_color_list(self, color):
 		self._color = []
 		for i in range(self._vertex_length):
-			self._color.extend((*color, int(255 * (1 - i/(self._vertex_length)))))
+			if self._fade:
+				alpha = int(255 * (1 - i/(self._vertex_length)))
+			else:
+				alpha = color[3]
+			self._color.extend((*color[:3], alpha))
 
 	def delete(self):
 		self.vertex_list.delete()
+
+	@property
+	def fade(self):
+		return self._fade
+
+	@fade.setter
+	def fade(self, fade):
+		self._generate_vertex_color_list(self._color)
+		self._fade = fade
 
 	@property
 	def vertices(self):

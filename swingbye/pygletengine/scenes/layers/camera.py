@@ -49,8 +49,8 @@ class Camera:
 			self.parent_offset = self.parent.pos.copy()
 
 	def set_position(self, x, y):
-		self.offset = np.array((x, y))
-		self.target_offset = np.array((x, y))
+		self.offset = np.array((-x, -y))
+		self.target_offset = np.array((-x, -y))
 
 	def set_zoom(self, zoom):
 		self.zoom = zoom

@@ -1,5 +1,6 @@
 import pyglet
 import glooey
+from swingbye.pygletengine.utils import point_in_rect
 from swingbye.pygletengine.components.slider import Slider
 from swingbye.pygletengine.components.graph import Graph
 from swingbye.pygletengine.components.labels import Title, Subtitle
@@ -72,6 +73,7 @@ class HudObject:
 	def __init__(self, gui):
 
 		self.gui = gui
+		self.captured = False
 
 		self.container = Board()
 		self.hud_container = glooey.HBox()
@@ -93,12 +95,14 @@ class HudObject:
 		self.speed_slider = Slider(
 			min_value=1, max_value=16,
 			step=1,
-			edge=10
+			edge=10,
+			min_width=100
 		)
 		self.time_slider = Slider(
 			min_value=0, max_value=50000,
 			step=25,
-			edge=10
+			edge=10,
+			min_width=100
 		)
 		self.launch_button = Button('LAUNCH')
 
@@ -121,9 +125,11 @@ class HudObject:
 		"""Return the bounding rect of the control buttons"""
 		return self.hud_container.rect
 
-	@property
-	def captured(self):
-		return self.speed_slider.captured or self.time_slider.captured
+	def is_over(self, x, y):
+		over = False
+		for child, _ in self.container._pins.items():
+			over = over or point_in_rect(x, y, *child.rect.bottom_left, child.width, child.height)
+		return over
 
 	def hide_graph(self):
 		self.graph_container.hide()
@@ -136,11 +142,12 @@ class HudObject:
 		self.time_slider.reset()
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
-		pass
+		self.captured = True
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		self.time_slider.on_mouse_release(x, y, buttons, modifiers)
 		self.speed_slider.on_mouse_release(x, y, buttons, modifiers)
+		self.captured = False
 
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 		if self.time_slider.captured:

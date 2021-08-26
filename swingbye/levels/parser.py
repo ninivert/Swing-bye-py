@@ -34,7 +34,7 @@ def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphic
 				planetobject = PlanetObject(
 					sprite=create_sprite(child_dict['sprite'], subpixel=True, batch=batch, group=pyglet.graphics.OrderedGroup(0, parent=group)),
 					# TODO: colors
-					path=PointPath(batch=batch, point_count=PLANET_PREDICTION_N),
+					path=PointPath(batch=batch, fade=True, point_count=PLANET_PREDICTION_N),
 					# TODO : named planets
 					# name=child_dict['name'],
 					parent=parent,
@@ -52,7 +52,7 @@ def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphic
 
 				ship = ShipObject(
 					sprite=create_sprite(child_dict['sprite'], anchor='center', subpixel=True, batch=batch, group=pyglet.graphics.OrderedGroup(0, parent=group)),
-					path=LinePath(batch=batch, point_count=SHIP_PREDICTION_N),
+					path=LinePath(batch=batch, fade=True, point_count=SHIP_PREDICTION_N),
 					parent=parent,
 					**child_dict['arguments']
 				)

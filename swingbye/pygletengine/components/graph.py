@@ -8,7 +8,7 @@ import inspect
 class Graph(glooey.Widget):
 	custom_alignment = 'fill'
 
-	def __init__(self, width, height, color=(255, 255, 255), y_scale_mode='auto', min_y=0, max_y=1, query=None, sample_size=100, sample_rate=1/10):
+	def __init__(self, width, height, color=(255, 255, 255, 255), y_scale_mode='auto', min_y=0, max_y=1, query=None, sample_size=100, sample_rate=1/10):
 		super().__init__()
 
 		# Graph options
