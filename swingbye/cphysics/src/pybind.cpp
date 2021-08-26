@@ -131,6 +131,8 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_property("time", &World::get_time, &World::set_time)
 		.def("forces_on", &World::forces_on)
 		.def("step", &World::step)
+		.def("kinetic_energy", &World::kinetic_energy)
+		.def("potential_energy", &World::potential_energy)
 		.def("get_predictions", &World::get_predictions)
 		.def(
 			"get_planet",

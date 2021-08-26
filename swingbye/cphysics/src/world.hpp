@@ -67,6 +67,25 @@ public:
 		return predictions;
 	}
 
+	double kinetic_energy() const {
+		double k = 0;
+		for (Entity const& entity : entities) {
+			double v = entity.vel.length();
+			k += 0.5 * v*v * entity.mass;
+		}
+		return k;
+	}
+
+	double potential_energy() const {
+		double u = 0;
+		for (Entity const& entity : entities) {
+			for (Planet const& planet : planets) {
+				u += -GRAVITY_CST * planet.mass * entity.mass / (planet.pos - entity.pos).length();
+			}
+		}
+		return u;
+	}
+
 	static vec2 forces_on(Entity const& entity, World const& world, double time) {
 		vec2 f = vec2(0, 0);
 
@@ -80,6 +99,7 @@ public:
 
 		return f;
 	}
+
 
 	std::string str() const {
 		std::string ret;
