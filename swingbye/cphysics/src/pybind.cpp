@@ -97,7 +97,7 @@ PYBIND11_MODULE(cphysics, m) {
 			[](World const& world) {
 				return py::list(
 					py::make_iterator(
-						world.planets.begin(), world.planets.end(),
+						world.entities.begin(), world.entities.end(),
 						py::return_value_policy::reference
 					)
 				);
@@ -108,6 +108,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_property("time", &World::get_time, &World::set_time)
 		.def("forces_on", &World::forces_on)
 		.def("step", &World::step)
+		.def("get_predictions", &World::get_predictions)
 		.def(
 			"get_planet",
 			&World::get_planet,
