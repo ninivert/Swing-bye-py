@@ -23,7 +23,7 @@ class SpriteMixin:
 
 
 @dataclass
-class PredictionMixin:
+class PathMixin:
 	# TODO : union LinePath and PointPath
 	path: Path = LinePath()
 
