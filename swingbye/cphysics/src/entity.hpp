@@ -14,6 +14,7 @@ public:
 	Entity(vec2 const& pos_, vec2 const& vel_, double mass_)
 		: pos(pos_), vel(vel_), mass(mass_) {}
 	Entity(double mass_) : mass(mass_) {}
+	Entity(Entity const& e) : pos(e.pos), vel(e.vel), mass(e.mass) {}
 
 	vec2 const& get_pos() const { return pos; }
 	vec2 const& get_vel() const { return vel; }

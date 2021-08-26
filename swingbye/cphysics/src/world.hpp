@@ -13,6 +13,9 @@ class World {
 	double time = 0.0;
 
 public:
+	// TODO : make these private somehow
+	// but I'd need to provide a way to pybind these
+	// and implementing a std::vector<Planet> const& get_planets doesn't work
 	// TODO : use polymorphism instead of raw-coding the planets
 	// I'd need to make the Planet class polymorphic (see planet.hpp)
 	// and also figure out a way of being able to expose the planet list
@@ -42,7 +45,23 @@ public:
 	}
 	double get_time() const { return time; }
 
-	// TODO : add_planet and add_entity methods
+	Planet& get_planet(unsigned int index) { return planets[index]; }
+	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) {
+		planets.push_back(Planet(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_));
+	}
+	void rm_planet(unsigned int index) {
+		// TODO
+	}
+
+	Entity& get_entity(unsigned int index) { return entities[index]; }
+	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) {
+		entities.push_back(Entity(pos_, vel_, mass_));
+	}
+	void rm_entity(unsigned int index) {
+		// TODO
+	}
+
+	// TODO : predictions
 
 	static vec2 forces_on(Entity const& entity, World const& world, double time) {
 		vec2 f = vec2(0, 0);

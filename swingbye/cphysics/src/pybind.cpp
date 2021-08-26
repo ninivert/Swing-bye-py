@@ -4,26 +4,11 @@
 #include "world.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
 #include <string>
 
 namespace py = pybind11;
 
-// Make these opaque so we can do something like
-// >>> from cphysics import World, Planet
-// >>> world = World()
-// >>> world.planets.append(Planet())
-// >>> world
-// Planets:
-// 	Planet(mass=1.000000, maxis=1.000000, ecc=0.000000, time0=0.000000, incl=0.000000, parg=0.000000, anchor=(0.000000, 0.000000))
-// https://pybind11.readthedocs.io/en/stable/advanced/cast/stl.html#binding-stl-containers
-PYBIND11_MAKE_OPAQUE(std::vector<Planet>);
-PYBIND11_MAKE_OPAQUE(std::vector<Entity>);
-
 PYBIND11_MODULE(cphysics, m) {
-	py::bind_vector<std::vector<Planet>>(m, "ListPlanet");
-	py::bind_vector<std::vector<Entity>>(m, "ListEntity");
-
 	py::class_<vec2>(m, "vec2")
 		.def_readwrite("x", &vec2::x)
 		.def_readwrite("y", &vec2::y)
@@ -66,7 +51,7 @@ PYBIND11_MODULE(cphysics, m) {
 	py::class_<Planet>(m, "Planet")
 		.def_property_readonly("pos", &Planet::get_pos)
 		.def_property_readonly("vel", &Planet::get_vel)
-		.def_property_readonly("mass", &Planet::get_mass)
+		.def_readwrite("mass", &Planet::mass)
 		.def_readwrite("maxis", &Planet::maxis)
 		.def_readwrite("ecc", &Planet::ecc)
 		.def_readwrite("time0", &Planet::time0)
@@ -91,20 +76,64 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("parg") = 0.0,
 			py::arg("anchor") = vec2(0, 0)
 		)
-		.def(
-			"__repr__",
-			[](Planet const& p) { return p.str(); }
-		);
+		.def("__repr__", [](Planet const& p) { return p.str(); });
 
 	py::class_<World>(m, "World")
-		.def_readwrite("planets", &World::planets)
-		.def_readwrite("entities", &World::entities)
+		.def_property_readonly(
+			"planets",
+			[](World const& world) {
+				return py::list(
+					py::make_iterator(
+						world.planets.begin(), world.planets.end(),
+						py::return_value_policy::reference
+					)
+				);
+			},
+			py::return_value_policy::reference,
+			py::doc("A list of planets references, identical in memory to get_planet(index)")
+		)
+		.def_property_readonly(
+			"entities",
+			[](World const& world) {
+				return py::list(
+					py::make_iterator(
+						world.planets.begin(), world.planets.end(),
+						py::return_value_policy::reference
+					)
+				);
+			},
+			py::return_value_policy::reference,
+			py::doc("A list of entities references, identical in memory to get_entity(index)")
+		)
 		.def_property("time", &World::get_time, &World::set_time)
 		.def("forces_on", &World::forces_on)
 		.def("step", &World::step)
-		.def(py::init<>())
 		.def(
-			"__repr__",
-			[](World const& w) { return w.str(); }
-		);
+			"get_planet",
+			&World::get_planet,
+			py::return_value_policy::reference
+		)
+		.def(
+			"add_planet", &World::add_planet,
+			py::arg("mass") = 1.0,
+			py::arg("maxis") = 1.0,
+			py::arg("ecc") = 0.0,
+			py::arg("time0") = 0.0,
+			py::arg("incl") = 0.0,
+			py::arg("parg") = 0.0,
+			py::arg("anchor") = vec2(0, 0)
+		)
+		.def(
+			"get_entity",
+			&World::get_entity,
+			py::return_value_policy::reference
+		)
+		.def(
+			"add_entity", &World::add_entity,
+			py::arg("pos") = vec2(),
+			py::arg("vel") = vec2(),
+			py::arg("mass") = 1.0
+		)
+		.def(py::init<>())
+		.def("__repr__", [](World const& w) { return w.str(); });
 }
