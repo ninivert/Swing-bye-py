@@ -13,7 +13,14 @@ class World {
 	double time = 0.0;
 
 public:
-	// TODO : could be more general type ExplicitEntity
+	// TODO : use polymorphism instead of raw-coding the planets
+	// I'd need to make the Planet class polymorphic (see planet.hpp)
+	// and also figure out a way of being able to expose the planet list
+	// to python, and be able to `world.planets.append(...)` to it or use the stored planets.
+	// That would need a way of copying polymorphically
+	// This sounds like a huge pain and it's not needed (for now, or never),
+	// so if someone reads this in the future "oh, this could use some polymorphism",
+	// well then you're welcome to implement it yourself :P
 	std::vector<Planet> planets;
 	std::vector<Entity> entities;
 
@@ -34,6 +41,8 @@ public:
 		}
 	}
 	double get_time() const { return time; }
+
+	// TODO : add_planet and add_entity methods
 
 	static vec2 forces_on(Entity const& entity, World const& world, double time) {
 		vec2 f = vec2(0, 0);
