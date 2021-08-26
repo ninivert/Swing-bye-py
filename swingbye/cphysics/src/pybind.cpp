@@ -123,6 +123,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("parg") = 0.0,
 			py::arg("anchor") = vec2(0, 0)
 		)
+		.def("rm_planet", &World::rm_planet)
 		.def(
 			"get_entity",
 			&World::get_entity,
@@ -134,6 +135,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("vel") = vec2(),
 			py::arg("mass") = 1.0
 		)
+		.def("rm_entity", &World::rm_entity)
 		.def(py::init<>())
 		.def("__repr__", [](World const& w) { return w.str(); });
 }

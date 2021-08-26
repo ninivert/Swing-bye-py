@@ -46,20 +46,12 @@ public:
 	double get_time() const { return time; }
 
 	Planet& get_planet(unsigned int index) { return planets[index]; }
-	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) {
-		planets.push_back(Planet(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_));
-	}
-	void rm_planet(unsigned int index) {
-		// TODO
-	}
+	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) { planets.push_back(Planet(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_)); }
+	void rm_planet(unsigned int index) { planets.erase(planets.begin() + index); }
 
 	Entity& get_entity(unsigned int index) { return entities[index]; }
-	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) {
-		entities.push_back(Entity(pos_, vel_, mass_));
-	}
-	void rm_entity(unsigned int index) {
-		// TODO
-	}
+	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) { entities.push_back(Entity(pos_, vel_, mass_)); }
+	void rm_entity(unsigned int index) { entities.erase(entities.begin() + index); }
 
 	// TODO : predictions
 

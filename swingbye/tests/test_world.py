@@ -9,6 +9,7 @@ if __name__ == '__main__':
 	world.add_planet(anchor=vec2(2.0, 3.0))
 	world.add_planet(maxis=5.0)
 	world.add_planet(maxis=2.0)
+	world.add_planet(anchor=vec2(-69.0, -420.0))
 	world.get_planet(1).set_parent(world.get_planet(0))
 	world.get_planet(2).set_parent(world.get_planet(1))
 	print(world)
@@ -29,6 +30,10 @@ if __name__ == '__main__':
 	print('setting mass of planet reference fromget')
 	p1_fromget.mass = 5.0
 	print(p1_fromlist, p1_fromget, sep='\n')
+
+	print('>>> removing last planet')
+	world.rm_planet(len(world.planets)-1)
+	print(world)
 
 	print('>>> listing planets')
 	print(world.planets)
@@ -58,3 +63,8 @@ if __name__ == '__main__':
 	world.time = 0
 
 	print(world)
+
+	print('>>> stored positions of planets')
+	print(world.planets[0].pos)
+	print(world.planets[1].pos)
+	print(world.planets[2].pos)
