@@ -5,7 +5,6 @@
 #include "entity.hpp"
 #include "globals.h"
 #include <cmath>
-#include <iostream>
 
 class Planet : public Entity {
 private:
@@ -131,7 +130,8 @@ protected:
 public:
 	double get_time() const { return time; }
 	void set_time(double time_) {
-		time = time;
+		time = time_;
+		// TODO : caching with a dirty boolean
 		pos = pos_at(time);
 		vel = vel_at(time);
 	}
