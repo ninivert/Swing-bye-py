@@ -103,13 +103,13 @@ public:
 		ret.y = r*sintheta;
 
 		// Argument of periaxis
-		// double x = ret.x;
-		// double y = ret.y;
-		// ret.x = x*std::cos(parg) - y*std::sin(parg);
-		// ret.y = x*std::sin(parg) + y*std::cos(parg);
+		double x = ret.x;
+		double y = ret.y;
+		ret.x = x*std::cos(parg) - y*std::sin(parg);
+		ret.y = x*std::sin(parg) + y*std::cos(parg);
 
 		// Inclination
-		// ret.x *= std::cos(incl);
+		ret.x *= std::cos(incl);
 
 		return ret;
 	}
