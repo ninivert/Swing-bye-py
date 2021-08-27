@@ -76,7 +76,7 @@ class Level(Scene):
 
 	def on_speed_change(self, widget, value):
 		self.simulation_speed = int(value)
-		self.hud.graph.sample_rate = 1/10 / int(value)
+		self.hud.overlays['graph'].graph.sample_rate = 1/10 / int(value)
 
 	def on_time_change(self, widget, value):
 		self.world.time = value
@@ -112,7 +112,9 @@ class Level(Scene):
 		self.hud.overlays['pause'].resume_button.set_handler('on_press', self.on_resume)
 		self.hud.overlays['pause'].quit_button.set_handler('on_press', pyglet.app.exit)
 
-		self.hud.overlays['graph'].graph.query = lambda: np.linalg.norm(self.world.ship.vel)
+		self.hud.overlays['graph'].graph.set_query('KE', self.world.kinetic_energy)
+		self.hud.overlays['graph'].graph.set_query('PE', self.world.potential_energy)
+		self.hud.overlays['graph'].graph.set_query('TOTAL', lambda: self.world.potential_energy() + self.world.kinetic_energy())
 		self.hud.hide_graph()
 
 		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=pyglet.graphics.OrderedGroup(1, parent=self.world_group))

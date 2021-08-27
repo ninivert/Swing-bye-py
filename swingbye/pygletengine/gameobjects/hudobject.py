@@ -2,6 +2,7 @@ import pyglet
 import glooey
 from swingbye.pygletengine.utils import point_in_rect
 from swingbye.pygletengine.components.slider import Slider
+from swingbye.pygletengine.components.graph import LineGraph
 from swingbye.pygletengine.components.overlays import GraphOverlay
 from swingbye.pygletengine.components.labels import Title, Subtitle
 from swingbye.pygletengine.components.buttons import Button, CycleButton
@@ -81,9 +82,36 @@ class HudObject:
 		# Overlays
 		self.overlays = {}
 		graph = GraphOverlay(
-			100, 100,
-			y_scale_mode='fixed_min',
-			min_y=0
+			LineGraph(
+				100, 100,
+				lines=[
+					{
+						'name': 'KE',
+						'path': None,
+						'query': None,
+						'color': (255, 128, 69, 255),
+						'samples': [],
+						'size': 100,
+					},
+					{
+						'name': 'PE',
+						'path': None,
+						'query': None,
+						'color': (69, 83, 255, 255),
+						'samples': [],
+						'size': 100,
+					},
+					{
+						'name': 'TOTAL',
+						'path': None,
+						'query': None,
+						'color': (0, 0, 0, 255),
+						'samples': [],
+						'size': 100,
+					}
+				],
+				y_scale_mode='auto'
+			)
 		)
 		pause = PauseOverlay()
 		win = WinOverlay()
@@ -149,6 +177,11 @@ class HudObject:
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		self.captured = True
+		# TODO: close overlays correctly
+		# if point_in_rect(x, y, *self.overlays['win'].rect.bottom_left, self.overlays['win'].width, self.overlays['win'].height):
+		# 	self.close_overlay('win')
+		# if point_in_rect(x, y, *self.overlays['lose'].rect.bottom_left, self.overlays['lose'].width, self.overlays['lose'].height):
+		# 	self.close_overlay('lose')
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
 		self.time_slider.on_mouse_release(x, y, buttons, modifiers)

@@ -11,8 +11,12 @@ Rendering
 - [ ] Planet / comet labels
 - [X] Texture comets
 - [X] FIX THE GODDAMN CAMERA (Y A T T A)
-- [ ] KE and PE graphs
+- [X] KE and PE graphs
+
+Code structure and stuff
+
 - [ ] Correctly dispose of useless sprites / paths
+- [ ] Combine WorldState and GameState
 
 UI
 
@@ -26,7 +30,7 @@ Physics
 
 - [X] Ship prediction
 - [X] Orbit lines
-- [ ] KE and PE
+- [X] KE and PE
 - [ ] use Cython for the integrator
 
 Game

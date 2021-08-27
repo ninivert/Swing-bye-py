@@ -1,7 +1,6 @@
 import pyglet
 import glooey
 from swingbye.pygletengine.components.slider import Slider
-from swingbye.pygletengine.components.graph import Graph
 from swingbye.pygletengine.components.buttons import Button, SmallCycleButton
 from swingbye.pygletengine.components.labels import Description, Subtitle
 from swingbye.pygletengine.components.containers import Frame, HBox, VBox
@@ -13,10 +12,10 @@ class Overlay(Frame):
 
 class GraphOverlay(Overlay):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, graph):
 		super().__init__()
 
-		self.graph = Graph(*args, **kwargs)
+		self.graph = graph
 		self.add(self.graph)
 
 
