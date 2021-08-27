@@ -15,14 +15,14 @@ class World {
 
 public:
 	std::vector<std::shared_ptr<ExplicitEntity>> planets_ptr;
-	std::vector<Entity> entities;
+	std::vector<std::shared_ptr<Entity>> entities_ptr;
 
 	World() = default;
 
 	void step(double dt) {
-		for (Entity& entity : entities) {
+		for (std::shared_ptr<Entity>& entity_ptr : entities_ptr) {
 			// TODO : un-hardcode the integrator
-			Integrator::RK4(entity, *this, &World::forces_on, time, dt);
+			Integrator::RK4(*entity_ptr, *this, &World::forces_on, time, dt);
 		}
 		set_time(time + dt);
 	}
@@ -48,9 +48,15 @@ public:
 		planets_ptr.erase(planets_ptr.begin() + index);
 	}
 
-	Entity& get_entity(unsigned int index) { return entities[index]; }
-	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) { entities.push_back(Entity(pos_, vel_, mass_)); }
-	void rm_entity(unsigned int index) { entities.erase(entities.begin() + index); }
+	std::shared_ptr<Entity> get_entity(unsigned int index) {
+		return entities_ptr[index];
+	}
+	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) {
+		entities_ptr.push_back(std::make_shared<Entity>(pos_, vel_, mass_));
+	}
+	void rm_entity(unsigned int index) {
+		entities_ptr.erase(entities_ptr.begin() + index);
+	}
 
 	std::vector<vec2> get_predictions(Entity const& entity, double t_from, double t_to, unsigned int n) const {
 		double dt = (t_to-t_from) / n;
@@ -68,18 +74,18 @@ public:
 
 	double kinetic_energy() const {
 		double k = 0;
-		for (Entity const& entity : entities) {
-			double v = entity.vel.length();
-			k += 0.5 * v*v * entity.mass;
+		for (std::shared_ptr<Entity> const& entity_ptr : entities_ptr) {
+			double v = entity_ptr->vel.length();
+			k += 0.5 * v*v * entity_ptr->mass;
 		}
 		return k;
 	}
 
 	double potential_energy() const {
 		double u = 0;
-		for (Entity const& entity : entities) {
+		for (std::shared_ptr<Entity> const& entity_ptr : entities_ptr) {
 			for (std::shared_ptr<ExplicitEntity> const& planet_ptr : planets_ptr) {
-				u += -GRAVITY_CST * planet_ptr->mass * entity.mass / (planet_ptr->pos - entity.pos).length();
+				u += -GRAVITY_CST * planet_ptr->mass * entity_ptr->mass / (planet_ptr->pos - entity_ptr->pos).length();
 			}
 		}
 		return u;
@@ -101,13 +107,13 @@ public:
 
 	std::string str() const {
 		std::string ret;
-		ret += "Planets:\n";
+		ret += "ExplicitEntities:\n";
 		for (std::shared_ptr<ExplicitEntity> const& planet_ptr : planets_ptr) {
 			ret += "\t" + planet_ptr->str() + "\n";
 		}
 		ret += "Entities:\n";
-		for (Entity const& entity : entities) {
-			ret += "\t" + entity.str() + "\n";
+		for (std::shared_ptr<Entity> const& entity_ptr : entities_ptr) {
+			ret += "\t" + entity_ptr->str() + "\n";
 		}
 		return ret;
 	}

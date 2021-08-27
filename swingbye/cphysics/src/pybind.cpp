@@ -122,7 +122,7 @@ PYBIND11_MODULE(cphysics, m) {
 			[](World const& world) {
 				return py::list(
 					py::make_iterator(
-						world.entities.begin(), world.entities.end(),
+						world.entities_ptr.begin(), world.entities_ptr.end(),
 						py::return_value_policy::reference
 					)
 				);

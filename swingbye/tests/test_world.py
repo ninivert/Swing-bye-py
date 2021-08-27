@@ -10,9 +10,7 @@ if __name__ == '__main__':
 	world.add_planet(maxis=5.0)
 	world.add_planet(maxis=2.0)
 	world.add_planet(anchor=vec2(-69.0, -420.0))
-
-	p0 = world.get_planet(0)
-	print(f"python address {hex(id(p0))}")
+	print(world)
 
 	print('>>> setting parents')
 	# world.get_planet(1).set_parent(world.get_planet(0))
@@ -38,6 +36,8 @@ if __name__ == '__main__':
 
 	world.add_planet_existing(PyPlanet(maxis=69))
 	print(world)
+
+	print('>>> trying to call instance methods of python subclasses stored in c++')
 	# world.get_planet(len(world.planets)-1).say_hello()
 	# world.planets[-1].say_hello()
 
