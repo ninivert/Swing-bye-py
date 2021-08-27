@@ -42,7 +42,6 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_static("cross", &vec2::cross)
 		.def("to_tuple", [](vec2 const& v) { return py::make_tuple(v.x, v.y); })
 		.def("__repr__", &vec2::str);
-		// TODO : bind other methods
 
 	py::class_<Entity, std::shared_ptr<Entity>>(m, "Entity")
 		// std::shared_ptr<Entity> in order to correctly manage python and c++ instance counters
