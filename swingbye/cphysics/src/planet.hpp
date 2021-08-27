@@ -8,7 +8,7 @@
 #include <iostream>
 #include <memory>
 
-class Planet : public Entity {
+class Planet : public ExplicitEntity {
 private:
 	std::shared_ptr<Planet> parent = nullptr;
 
@@ -22,13 +22,13 @@ public:
 
 	Planet() = default;
 	Planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 anchor_)
-		: Entity(mass_), maxis(maxis_), ecc(ecc_), time0(time0_), incl(incl_), parg(parg_), anchor(anchor_) {}
-	virtual ~Planet() {};
+		: ExplicitEntity(mass_), maxis(maxis_), ecc(ecc_), time0(time0_), incl(incl_), parg(parg_), anchor(anchor_) {}
+	virtual ~Planet() {}
 
 	void set_parent(Planet& planet) { parent = std::make_shared<Planet>(planet); }
 	void rm_parent() { parent.reset(); }
 
-	vec2 pos_at(double time) const {
+	virtual vec2 pos_at(double time) const override {
 		vec2 ret = vec2(0, 0);
 		const Planet* daddy = this;
 
@@ -115,36 +115,14 @@ public:
 		return ret;
 	}
 
-	vec2 vel_at(double time) const {
+	virtual vec2 vel_at(double time) const override {
 		double dt = 0.16666;
 		return (pos_at(time+dt/2.0) - pos_at(time-dt/2.0)) / dt;
 	}
 
-	std::string str() const {
+	virtual std::string str() const override {
 		return "Planet(mass=" + std::to_string(mass) + ", maxis=" + std::to_string(maxis) + ", ecc=" + std::to_string(ecc) + ", time0=" + std::to_string(time0) + ", incl=" + std::to_string(incl) + ", parg=" + std::to_string(parg) + ", anchor=" + anchor.str() + ")";
 	}
-
-	// TODO : make Planet polymorphic and inherit from ExplicitEntity
-	// BEGIN all that should go in a virtual parent class
-protected:
-	double time = 0.0;
-
-public:
-	double get_time() const { return time; }
-	void set_time(double time_) {
-		time = time_;
-		// TODO : caching with a dirty boolean
-		pos = pos_at(time);
-		vel = vel_at(time);
-	}
-
-	void set_pos(vec2 const& pos_) = delete;
-	void set_vel(vec2 const& vel_) = delete;
-	void set_mass(double const& mass_) = delete;
-
-	// virtual vec2 pos_at(double time) const = 0;
-	// virtual vec2 vel_at(double time) const = 0;
-	// END
 };
 
 #endif

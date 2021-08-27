@@ -2,6 +2,7 @@
 #include "entity.hpp"
 #include "planet.hpp"
 #include "world.hpp"
+#include "trampoline.cpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
@@ -43,7 +44,8 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("__repr__", &vec2::str);
 		// TODO : bind other methods
 
-	py::class_<Entity>(m, "Entity")
+	py::class_<Entity, std::shared_ptr<Entity>>(m, "Entity")
+		// std::shared_ptr<Entity> in order to correctly manage python and c++ instance counters
 		.def_property("pos", &Entity::get_pos, &Entity::set_pos)
 		.def_property("vel", &Entity::get_vel, &Entity::set_vel)
 		.def_property("mass", &Entity::get_mass, &Entity::set_mass)
@@ -59,19 +61,19 @@ PYBIND11_MODULE(cphysics, m) {
 		)
 		.def("__repr__", &Entity::str);
 
-	// py::class_<ExplicitEntity, Entity>(m, "ExplicitEntity")
-	// 	.def_property_readonly("pos", &ExplicitEntity::get_pos)
-	// 	.def_property_readonly("vel", &ExplicitEntity::get_vel)
-	// 	.def_property_readonly("mass", &ExplicitEntity::get_mass)
-	// 	.def_property("time", &ExplicitEntity::get_time, &ExplicitEntity::set_time)
-	// 	.def("_set_time", &ExplicitEntity::set_time)
-	// 	.def("pos_at", &ExplicitEntity::pos_at)
-	// 	.def("vel_at", &ExplicitEntity::vel_at)
-	// 	.def(py::init<>())
-	// 	.def(py::init<double>());
-		// TODO : mark as virtual
+	py::class_<ExplicitEntity, PyExplicitEntity, std::shared_ptr<ExplicitEntity>, Entity>(m, "ExplicitEntity")
+		// std::shared_ptr<ExplicitEntity> in order to correctly manage python and c++ instance counters
+		.def(py::init<>())
+		.def(py::init<double>())
+		.def_property_readonly("pos", &ExplicitEntity::get_pos)
+		.def_property_readonly("vel", &ExplicitEntity::get_vel)
+		.def_property_readonly("mass", &ExplicitEntity::get_mass)
+		.def_property("time", &ExplicitEntity::get_time, &ExplicitEntity::set_time)
+		.def("_set_time", &ExplicitEntity::set_time)
+		.def("pos_at", &ExplicitEntity::pos_at)
+		.def("vel_at", &ExplicitEntity::vel_at);
 
-	py::class_<Planet, std::shared_ptr<Planet>>(m, "Planet")
+	py::class_<Planet, std::shared_ptr<Planet>, ExplicitEntity, Entity>(m, "Planet")
 		// std::shared_ptr<Planet> in order to correctly manage python and c++ instance counters
 		.def_property_readonly("pos", &Planet::get_pos)
 		.def_property_readonly("vel", &Planet::get_vel)
