@@ -5,13 +5,13 @@ import logging
 from swingbye.levels.parser import parse_level
 from swingbye.physics.world import WorldStates
 from swingbye.physics.collisions import HitZonePoint
-from swingbye.pygletengine.components.overlays import Options
+from swingbye.pygletengine.components.overlays import OptionsOverlay
 from swingbye.pygletengine.utils import point_in_rect, create_sprite
 from swingbye.pygletengine.scenes.level import Level
 from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.gameobjects.hudobject import HudObject
-from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, GameState, GameEntity
+from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT, DEBUG_CAMERA, DEBUG_COLLISION, GameState, GameEntity, EditorState
 from swingbye.pygletengine.components.paths import PointPath, LinePath
 from swingbye.pygletengine.gameobjects.entities import ShipObject, PlanetObject
 from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N, PHYSICS_DT
@@ -38,7 +38,9 @@ class Editor(Level):
 			'Planet 5': 'assets/sprites/planet5.png'
 		}
 		self.selected_planet = None
-		self.adding_planet = False
+		self.selected_planet_index = 0
+		
+		self.editor_state = EditorState.NOTHING
 
 	# WHY DOESNT THIS WORK??????
 	def on_file_drop(self, x, y, file):
@@ -50,12 +52,6 @@ class Editor(Level):
 			if not self.hud.is_over(x, y):
 				if self.is_over_planet(x, y):
 					self.select_planet(x, y)
-				else:
-					if clicked:
-						if not self.adding_planet:
-							self.add_planet()
-							self.adding_planet = True
-						# self.world.point_ship(self.camera.screen_to_world(x, y))
 
 		self.hud.on_mouse_release(x, y, buttons, modifiers)
 
@@ -64,25 +60,27 @@ class Editor(Level):
 			image = pyglet.resource.image(value)
 			image.anchor_x = image.width // 2
 			image.anchor_y = image.height // 2
-			self.world.planets[-1].sprite.image = image
+			self.world.planets[self.selected_planet_index].sprite.image = image
 		if name == 'maxis':
-			self.world.planets[-1].maxis = value
+			self.world.planets[self.selected_planet_index].maxis = value
 		if name == 'ecc':
-			self.world.planets[-1].ecc = value
+			self.world.planets[self.selected_planet_index].ecc = value
 		if name == 'time0':
-			self.world.planets[-1].time0 = value
+			self.world.planets[self.selected_planet_index].time0 = value
 		if name == 'incl':
-			self.world.planets[-1].incl = value
+			self.world.planets[self.selected_planet_index].incl = value
 		if name == 'parg':
-			self.world.planets[-1].parg = value
+			self.world.planets[self.selected_planet_index].parg = value
 		if name == 'radius':
-			self.world.planets[-1].radius = value
+			self.world.planets[self.selected_planet_index].radius = value
 		if name == 'mass':
-			self.world.planets[-1].mass = value
-		self.world.time = 1
+			self.world.planets[self.selected_planet_index].mass = value
+		# HACK: need a world.update function
+		self.world.time = self.world.time
 
-	def on_confirm(self, options):
-		self.hud.container.remove(self.planet_options)
+	def on_confirm(self):
+		options = self.hud.overlays['add_planet'].option_values
+		self.hud.close_overlay('add_planet')
 		sprite = options.pop('sprite')
 
 		planetobject = PlanetObject(
@@ -96,14 +94,19 @@ class Editor(Level):
 			**options
 		)
 		self.world.planets[-1] = planetobject
-		self.world.time = 0
-		self.adding_planet = False
+		self.world.time = self.world.time
+		self.editor_state = EditorState.NOTHING
+		self.deselect_planet()
 
 	def on_cancel(self):
-		self.hud.container.remove(self.planet_options)
-		self.world.planets.pop(len(self.world.planets)-1)
-		self.world.time = 0
-		self.adding_planet = False
+		if self.editor_state == EditorState.EDITING:
+			self.hud.close_overlay('edit_planet')
+		if self.editor_state == EditorState.ADDING:
+			self.hud.close_overlay('add_planet')
+			self.world.planets.pop(len(self.world.planets)-1)
+		self.world.time = self.world.time
+		self.editor_state = EditorState.NOTHING
+		self.deselect_planet()
 
 	def draw(self):
 		self.batch.draw()
@@ -115,7 +118,39 @@ class Editor(Level):
 				glow.draw()
 		self.gui.batch.draw()
 
+	def edit_planet(self):
+		options_dict = {
+			# Sprite
+			'sprite': {'description': 'Sprite', 'type': 'cycle', 'states': self.planet_sprites, 'default': self.planet_sprites['Planet 1']},
+			# Semi-major axis
+			'maxis': {'description': 'Distance', 'type': 'slider', 'min_value': 1, 'max_value': 5000, 'step': 1, 'default': self.selected_planet.maxis},
+			# Eccentricity
+			'ecc': {'description': 'Eccentricity', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': self.selected_planet.ecc},
+			# Initial time offset
+			'time0': {'description': 'Time offset', 'type': 'slider', 'min_value': 0, 'max_value': 50000, 'step': 5, 'default': self.selected_planet.time0},
+			# Inclination
+			'incl': {'description': 'Inclination', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': self.selected_planet.incl},
+			# Argument of periaxis
+			'parg': {'description': 'Something parg', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': self.selected_planet.parg},
+			# Planet radius
+			'radius': {'description': 'Radius', 'type': 'slider', 'min_value': 0, 'max_value': 500, 'step': 1, 'default': self.selected_planet.radius},
+			# Mass{'description': 'Sprite', 
+			'mass': {'description': 'Mass', 'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': self.selected_planet.mass},
+			# Add child
+			'add_child': {'description': '', 'type': 'button', 'label': 'Add child', 'callback': self.add_planet},
+			# Delete
+			'delete': {'description': '', 'type': 'button', 'label': 'Delete planet', 'callback': self.delete_planet},
+			# Cancel
+			'cancel': {'description': '', 'type': 'button', 'label': 'Cancel', 'callback': self.on_cancel}
+		}
+		self.editor = OptionsOverlay('Edit planet', options_dict)
+		self.hud.add_overlay('edit_planet', self.editor)
+		self.hud.open_overlay('edit_planet', left=10, bottom=50)
+		self.editor_state = EditorState.EDITING
+
 	def add_planet(self):
+		self.hud.close_overlay('edit_planet')
+
 		planetobject = PlanetObject(
 			sprite=create_sprite(self.planet_sprites['Planet 1'], subpixel=True, batch=self.world_batch, group=pyglet.graphics.OrderedGroup(0, parent=self.world_group)),
 			# TODO: colors
@@ -129,31 +164,44 @@ class Editor(Level):
 
 		options_dict = {
 			# Sprite
-			'sprite': {'type': 'cycle', 'states': self.planet_sprites, 'default': self.planet_sprites['Planet 1']},
+			'sprite': {'description': 'Sprite', 'type': 'cycle', 'states': self.planet_sprites, 'default': self.planet_sprites['Planet 1']},
 			# Semi-major axis
-			'maxis': {'type': 'slider', 'min_value': 1, 'max_value': 5000, 'step': 1, 'default': self.camera.screen_to_world(self.mouse_x, self.mouse_y)[0]},
+			'maxis': {'description': 'Distance', 'type': 'slider', 'min_value': 1, 'max_value': 5000, 'step': 1, 'default': 100},
 			# Eccentricity
-			'ecc': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			'ecc': {'description': 'Eccentricity', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
 			# Initial time offset
-			'time0': {'type': 'slider', 'min_value': 0, 'max_value': 50000, 'step': 5, 'default': 0.0},
+			'time0': {'description': 'Time offset', 'type': 'slider', 'min_value': 0, 'max_value': 50000, 'step': 5, 'default': 0.0},
 			# Inclination
-			'incl': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			'incl': {'description': 'Inclination', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
 			# Argument of periaxis
-			'parg': {'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
+			'parg': {'description': 'Something parg', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': 0.0},
 			# Planet radius
-			'radius': {'type': 'slider', 'min_value': 0, 'max_value': 100, 'step': 1, 'default': 10},
-			# Mass
-			'mass': {'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': 1}
+			'radius': {'description': 'Radius', 'type': 'slider', 'min_value': 0, 'max_value': 500, 'step': 1, 'default': 10},
+			# Mass{'description': 'Sprite', 
+			'mass': {'description': 'Mass', 'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': 1},
+			# Confirm adding button
+			'confirm': {'description': '', 'type': 'button', 'label': 'Confirm', 'callback': self.on_confirm},
+			# Cancel button
+			'cancel': {'description': '', 'type': 'button', 'label': 'Cancel', 'callback': self.on_cancel}
 		}
-		self.planet_options = Options('Create a planet', options_dict)
-		self.planet_options.set_handler('on_option_change', self.on_option_change)
-		self.planet_options.set_handler('on_confirm', self.on_confirm)
-		self.planet_options.set_handler('on_cancel', self.on_cancel)
-		self.hud.add_overlay('planet_options', self.planet_options)
-		self.hud.open_overlay('planet_options', left=10, bottom=50)
+		self.editor = OptionsOverlay('Create a planet', options_dict)
+
+		self.hud.add_overlay('add_planet', self.editor)
+		self.hud.open_overlay('add_planet', left=10, bottom=50)
+		self.editor_state = EditorState.ADDING
+
+	def delete_planet(self):
+		self.world.planets.pop(self.selected_planet_index)
+		self.hud.close_overlay('edit_planet')
+		self.deselect_planet()
 
 	def select_planet(self, x, y):
-		self.selected_planet = self.get_planet_at(x, y)
+		self.selected_planet, self.selected_planet_index = self.get_planet_at(x, y)
+		self.edit_planet()
+
+	def deselect_planet(self):
+		self.selected_planet = None
+		self.selected_planet_index = 0
 
 	def begin(self):
 		self.gui.clear()
@@ -169,10 +217,10 @@ class Editor(Level):
 
 	def get_planet_at(self, x, y):
 		pos = HitZonePoint(self.camera.screen_to_world(x, y))
-		for planet in self.world.planets:
+		for index, planet in enumerate(self.world.planets):
 			if planet.collides_with(pos):
-				return planet
-		return None
+				return planet, index
+		return None, 0
 
 	def launch_ship(self):
 		# Hacky, but works

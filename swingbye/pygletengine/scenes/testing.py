@@ -2,7 +2,7 @@ import pyglet
 import glooey
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.components.containers import Freeform, Board
-from swingbye.pygletengine.components.overlays import Options
+from swingbye.pygletengine.components.overlays import OptionsOverlay
 from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 

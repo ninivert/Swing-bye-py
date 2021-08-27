@@ -18,9 +18,7 @@ class OptionsMenu(Scene):
 		self.option_2_button = Button('Option Button 2')
 		self.option_1_cycle = CycleButton({'1': 'Option cycle 1', '2': 'Option cycle 2', '3': 'Option cycle 3'})
 		self.option_2_cycle = CycleButton({'ON': 'Option ON', 'OFF': 'Option OFF'})
-		self.back_button = Button('Back')
-
-		self.back_button.set_handler('on_press', self.to_main_menu)
+		self.back_button = Button('Back', self.to_main_menu)
 
 		self.container.add(self.title, size=int(self.window.height*TITLE_SIZE_PROPORTION))
 		self.container.add(self.option_1_button)

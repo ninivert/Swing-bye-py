@@ -21,9 +21,7 @@ class LevelSelectMenu(Scene):
 				self.button_grid.add(i, j, Button(f'Level {(i+1)*(j+1)}'))
 
 		self.title = Title('Level Select')
-		self.back_button = Button('Back')
-
-		self.back_button.set_handler('on_press', self.to_main_menu)
+		self.back_button = Button('Back', self.to_main_menu)
 
 		self.container.add(self.title, size=int(WINDOW_HEIGHT*TITLE_SIZE_PROPORTION))
 		self.container.add(self.button_grid)

@@ -32,15 +32,10 @@ class MainMenu(Scene):
 		self.container = Freeform()
 
 		self.title = Title('Swing BYE')
-		self.start_button = Button('Start game')
-		self.level_select_button = Button('Select level')
-		self.options_button = Button('Options')
-		self.quit_button = Button('Quit game')
-
-		self.start_button.set_handler('on_press', self.to_game)
-		self.level_select_button.set_handler('on_press', self.to_level_select_menu)
-		self.options_button.set_handler('on_press', self.to_options_menu)
-		self.quit_button.set_handler('on_press', exit)
+		self.start_button = Button('Start game', self.to_game)
+		self.level_select_button = Button('Select level', self.to_level_select_menu)
+		self.options_button = Button('Options', self.to_options_menu)
+		self.quit_button = Button('Quit game', exit)
 
 		self.container.add(self.title, x=0.1, y=0.8, width=420, height=100)
 		self.container.add(self.start_button, x=0.7, y=0.7, width=250, height=50)

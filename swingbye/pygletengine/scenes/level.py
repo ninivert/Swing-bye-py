@@ -43,7 +43,7 @@ class Level(Scene):
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 		if self.game_state == GameState.RUNNING:
 			if self.hud.captured:
-				self.hud.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+				pass
 			else:
 				self.camera.move(-dx, -dy)
 		self.mouse_x = x
@@ -103,14 +103,14 @@ class Level(Scene):
 	def load_hud(self):
 		self.hud = HudObject(self.gui)
 
-		self.hud.reset_button.set_handler('on_press', self.reset)
-		self.hud.pause_button.set_handler('on_press', self.on_pause)
-		self.hud.speed_slider.set_handler('on_change', self.on_speed_change)
-		self.hud.time_slider.set_handler('on_change', self.on_time_change)
-		self.hud.launch_button.set_handler('on_press', self.launch_ship)
+		self.hud.overlays['control'].reset_button.callback = self.reset
+		self.hud.overlays['control'].pause_button.callback = self.on_pause
+		self.hud.overlays['control'].speed_slider.callback =  self.on_speed_change
+		self.hud.overlays['control'].time_slider.callback =  self.on_time_change
+		self.hud.overlays['control'].launch_button.callback = self.launch_ship
 
-		self.hud.overlays['pause'].resume_button.set_handler('on_press', self.on_resume)
-		self.hud.overlays['pause'].quit_button.set_handler('on_press', pyglet.app.exit)
+		self.hud.overlays['pause'].resume_button.callback = self.on_resume
+		self.hud.overlays['pause'].quit_button.callback = pyglet.app.exit
 
 		self.hud.overlays['graph'].graph.set_query('KE', self.world.kinetic_energy)
 		self.hud.overlays['graph'].graph.set_query('PE', self.world.potential_energy)

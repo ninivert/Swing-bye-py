@@ -40,3 +40,6 @@ Game
 - [ ] Add the goal (black hole?) to the levels
 - [ ] Integrate easter eggs
 - [ ] Make ship hitbox smaller than sprite
+- [X] Make functional level editor
+- [ ] Allow for exporting worlds from the editor
+- [ ] Allow to add ship in editor
