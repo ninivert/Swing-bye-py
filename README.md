@@ -4,8 +4,8 @@
 
 Rendering
 
-- [ ] Fix background parallax on resize
-- [ ] Create Background class to hold all stars and background image
+- [X] Fix background parallax on resize
+- [X] Create Background class to hold all stars and background image
 - [ ] Give each level a seed to keep the background consistant
 - [X] Fix weird glitch with hiding / unhiding Graph (becomes blocky for some reason?)
 - [ ] Planet / comet labels
