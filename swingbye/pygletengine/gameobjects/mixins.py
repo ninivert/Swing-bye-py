@@ -1,15 +1,13 @@
 import pyglet
+from typing import Optional
 from swingbye.pygletengine.utils import create_sprite
 from swingbye.pygletengine.components.paths import Path, LinePath
-from dataclasses import dataclass
 
-
-@dataclass
 class SpriteMixin:
 	"""SpriteMixin adds a sprite to a `physics.entity.ExplicitEntity` or `physics.entity.ImplicitEntity` class, and intercepts the position setter to update its own sprite position"""
 
-	sprite: pyglet.sprite.Sprite = create_sprite('assets/sprites/missingtexture.png')
-	# name: str = ''
+	def __init__(self, sprite: LinePath = create_sprite('assets/sprites/missingtexture.png')):
+		self.sprite = sprite
 
 	def _get_pos(self):
 		return super().pos
@@ -22,10 +20,11 @@ class SpriteMixin:
 	pos = property(_get_pos, _set_pos)
 
 
-@dataclass
 class PathMixin:
 	# TODO : union LinePath and PointPath
-	path: Path = LinePath()
+
+	def __init__(self, path: LinePath = LinePath()):
+		self.path = path
 
 	def _get_prediction(self):
 		return super().prediction

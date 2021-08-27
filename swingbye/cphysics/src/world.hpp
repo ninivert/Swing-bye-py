@@ -47,6 +47,7 @@ public:
 
 	Planet& get_planet(unsigned int index) { return planets[index]; }
 	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) { planets.push_back(Planet(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_)); }
+	void add_planet(Planet const& planet) { planets.push_back(planet); }
 	void rm_planet(unsigned int index) { planets.erase(planets.begin() + index); }
 
 	Entity& get_entity(unsigned int index) { return entities[index]; }

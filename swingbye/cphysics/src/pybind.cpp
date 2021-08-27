@@ -140,7 +140,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::return_value_policy::reference
 		)
 		.def(
-			"add_planet", &World::add_planet,
+			"add_planet", static_cast<void (World::*)(double, double, double, double, double, double, vec2 const&)>(&World::add_planet),
 			py::arg("mass") = 1.0,
 			py::arg("maxis") = 1.0,
 			py::arg("ecc") = 0.0,
@@ -148,6 +148,9 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("incl") = 0.0,
 			py::arg("parg") = 0.0,
 			py::arg("anchor") = vec2(0, 0)
+		)
+		.def(
+			"add_planet", static_cast<void (World::*)(Planet const&)>(&World::add_planet)
 		)
 		.def("rm_planet", &World::rm_planet)
 		.def(

@@ -3,7 +3,7 @@ import numpy as np
 import json
 import logging
 from swingbye.levels.parser import parse_level
-from swingbye.physics.world import WorldStates
+from swingbye.logic.world import WorldStates
 from swingbye.pygletengine.utils import point_in_rect
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera

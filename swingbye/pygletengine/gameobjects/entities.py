@@ -1,23 +1,25 @@
 import math
 from random import random
-from swingbye.physics.ship import Ship
-from swingbye.physics.planet import Planet
-from swingbye.physics.entity import ImplicitEntity
-from swingbye.physics.collisions import HitZoneDisk
+from swingbye.cphysics import Entity
+from swingbye.logic.ship import Ship
+from swingbye.logic.planet import Planet
+from swingbye.logic.collisions import HitZoneDisk
 from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PathMixin
 from swingbye.pygletengine.globals import GameEntity
-from dataclasses import dataclass
 
+class StarObject(SpriteMixin, Entity):
+	def __init__(self, *args, **kwargs):
+		if 'sprite' in kwargs:
+			SpriteMixin.__init__(sprite=kwargs['sprite'])
+			del kwargs['sprite']
 
-@dataclass
-class StarObject(SpriteMixin, ImplicitEntity):
-	def __post_init__(self):
+		Entity.__init__(*args, **kwargs)
 		scale = 1 + random()
-		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
+		self.sprite.update(x=self.pos.x, y=self.pos.x, scale=scale)
 
 
-@dataclass
 class ShipObject(SpriteMixin, PathMixin, HitZoneDisk, Ship):
+
 	def __post_init__(self):
 		self.radius = 10  # set ship hitbox
 		scale = self.radius / (self.sprite.width//2)
@@ -45,7 +47,6 @@ class ShipObject(SpriteMixin, PathMixin, HitZoneDisk, Ship):
 	pointing = property(_get_pointing, Ship._set_pointing_safe)
 
 
-@dataclass
 class PlanetObject(SpriteMixin, PathMixin, HitZoneDisk, Planet):
 	game_entity: GameEntity = GameEntity.PLANET
 

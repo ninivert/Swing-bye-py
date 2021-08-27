@@ -13,6 +13,7 @@ class WorldStates(Enum):
 
 class World(CWorld):
 	def __init__(self):
+		CWorld.__init__(self)
 		self.time = 0.0
 
 	# Time handling
@@ -29,8 +30,7 @@ class World(CWorld):
 		for ship in self.entities:
 			ship.time = time
 
-		if self.ship.docked:
-			self.update_ship_prediction()
+		self.update_ships_prediction()
 		self.update_planets_prediction()
 
 	time = property(_get_time, _set_time)
@@ -55,19 +55,20 @@ class World(CWorld):
 		pointing /= pointing_norm
 
 		self.ship.pointing = pointing
-		self.update_ship_prediction()
+		self.update_ships_prediction()
 
-	def update_ship_prediction(self):
-		if not self.ship.docked:
-			_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
-			return
+	def update_ships_prediction(self):
+		for ship in self.entities:
+			if not ship.docked:
+				_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+				return
 
-		c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
+			c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
 
-		for i, sample in enumerate(c_prediction):
-			self.ship.prediction[i, :] = sample.to_tuple()
+			for i, sample in enumerate(c_prediction):
+				ship.prediction[i, :] = sample.to_tuple()
 
-		self.ship.prediction = self.ship.prediction
+			ship.prediction = self.ship.prediction
 
 	def update_planets_prediction(self):
 		for planet in self.planets:
@@ -78,4 +79,8 @@ class World(CWorld):
 
 	@property
 	def ship(self):
-		return self.entities[0]  # lol
+		if len(self.entities) > 0:
+			return self.entities[0]  # lol
+		else:
+			_logger.warning('requested ship, but there is none in world')
+			return None
