@@ -8,6 +8,8 @@
 #include "integrator.hpp"
 #include <vector>
 #include <string>
+#include <memory>
+#include <iostream>  // TODO : remove me !!
 
 class World {
 	double time = 0.0;
@@ -24,7 +26,7 @@ public:
 	// This sounds like a huge pain and it's not needed (for now, or never),
 	// so if someone reads this in the future "oh, this could use some polymorphism",
 	// well then you're welcome to implement it yourself :P
-	std::vector<Planet> planets;
+	std::vector<std::shared_ptr<Planet>> planets_ptr;
 	std::vector<Entity> entities;
 
 	World() = default;
@@ -39,16 +41,25 @@ public:
 
 	void set_time(double time_) {
 		time = time_;
-		for (Planet& planet : planets) {
-			planet.set_time(time);
+		for (std::shared_ptr<Planet>& planet_ptr : planets_ptr) {
+			planet_ptr->set_time(time);
 		}
 	}
 	double get_time() const { return time; }
 
-	Planet& get_planet(unsigned int index) { return planets[index]; }
-	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) { planets.push_back(Planet(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_)); }
-	void add_planet(Planet const& planet) { planets.push_back(planet); }
-	void rm_planet(unsigned int index) { planets.erase(planets.begin() + index); }
+	std::shared_ptr<Planet> get_planet(unsigned int index) {
+		std::cout << "cpp address " << planets_ptr[index] << std::endl;
+		return planets_ptr[index];
+	}
+	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) {
+		planets_ptr.push_back(std::make_shared<Planet>(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_));
+	}
+	void add_planet_existing(std::shared_ptr<Planet> planet_ptr) {
+		planets_ptr.push_back(planet_ptr);
+	}
+	void rm_planet(unsigned int index) {
+		planets_ptr.erase(planets_ptr.begin() + index);
+	}
 
 	Entity& get_entity(unsigned int index) { return entities[index]; }
 	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) { entities.push_back(Entity(pos_, vel_, mass_)); }
@@ -80,8 +91,8 @@ public:
 	double potential_energy() const {
 		double u = 0;
 		for (Entity const& entity : entities) {
-			for (Planet const& planet : planets) {
-				u += -GRAVITY_CST * planet.mass * entity.mass / (planet.pos - entity.pos).length();
+			for (std::shared_ptr<Planet> const& planet_ptr : planets_ptr) {
+				u += -GRAVITY_CST * planet_ptr->mass * entity.mass / (planet_ptr->pos - entity.pos).length();
 			}
 		}
 		return u;
@@ -90,23 +101,22 @@ public:
 	static vec2 forces_on(Entity const& entity, World const& world, double time) {
 		vec2 f = vec2(0, 0);
 
-		for (Planet const& planet : world.planets) {
-			vec2 r = planet.pos_at(time) - entity.pos;
+		for (std::shared_ptr<Planet> const& planet_ptr : world.planets_ptr) {
+			vec2 r = planet_ptr->pos_at(time) - entity.pos;
 			double d = r.length();
 			vec2 n = r/d;
 			double doff = d + GRAVITY_SINGULARITY_OFFSET;
-			f += n * GRAVITY_CST * (entity.mass + planet.mass) / (doff*doff);
+			f += n * GRAVITY_CST * (entity.mass + planet_ptr->mass) / (doff*doff);
 		}
 
 		return f;
 	}
 
-
 	std::string str() const {
 		std::string ret;
 		ret += "Planets:\n";
-		for (Planet const& planet : planets) {
-			ret += "\t" + planet.str() + "\n";
+		for (std::shared_ptr<Planet> const& planet_ptr : planets_ptr) {
+			ret += "\t" + planet_ptr->str() + "\n";
 		}
 		ret += "Entities:\n";
 		for (Entity const& entity : entities) {

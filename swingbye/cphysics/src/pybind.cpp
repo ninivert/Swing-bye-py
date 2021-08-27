@@ -71,7 +71,8 @@ PYBIND11_MODULE(cphysics, m) {
 	// 	.def(py::init<double>());
 		// TODO : mark as virtual
 
-	py::class_<Planet>(m, "Planet")
+	py::class_<Planet, std::shared_ptr<Planet>>(m, "Planet")
+		// std::shared_ptr<Planet> in order to correctly manage python and c++ instance counters
 		.def_property_readonly("pos", &Planet::get_pos)
 		.def_property_readonly("vel", &Planet::get_vel)
 		.def_readwrite("mass", &Planet::mass)
@@ -107,7 +108,7 @@ PYBIND11_MODULE(cphysics, m) {
 			[](World const& world) {
 				return py::list(
 					py::make_iterator(
-						world.planets.begin(), world.planets.end(),
+						world.planets_ptr.begin(), world.planets_ptr.end(),
 						py::return_value_policy::reference
 					)
 				);
@@ -140,7 +141,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::return_value_policy::reference
 		)
 		.def(
-			"add_planet", static_cast<void (World::*)(double, double, double, double, double, double, vec2 const&)>(&World::add_planet),
+			"add_planet", &World::add_planet,
 			py::arg("mass") = 1.0,
 			py::arg("maxis") = 1.0,
 			py::arg("ecc") = 0.0,
@@ -149,9 +150,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("parg") = 0.0,
 			py::arg("anchor") = vec2(0, 0)
 		)
-		.def(
-			"add_planet", static_cast<void (World::*)(Planet const&)>(&World::add_planet)
-		)
+		.def("add_planet_existing", &World::add_planet_existing)
 		.def("rm_planet", &World::rm_planet)
 		.def(
 			"get_entity",

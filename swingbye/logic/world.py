@@ -63,6 +63,7 @@ class World(CWorld):
 				_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
 				return
 
+			# TODO : prevent copy by STL vector -> numpy array
 			c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
 
 			for i, sample in enumerate(c_prediction):

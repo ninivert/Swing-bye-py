@@ -6,11 +6,11 @@
 #include "globals.h"
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 class Planet : public Entity {
 private:
-	// TODO : use std::shared_ptr
-	Planet* parent = nullptr;
+	std::shared_ptr<Planet> parent = nullptr;
 
 public:
 	double maxis = 1.0;
@@ -23,9 +23,10 @@ public:
 	Planet() = default;
 	Planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 anchor_)
 		: Entity(mass_), maxis(maxis_), ecc(ecc_), time0(time0_), incl(incl_), parg(parg_), anchor(anchor_) {}
+	virtual ~Planet() {};
 
-	void set_parent(Planet& planet) { parent = &planet; }
-	void rm_parent() { parent = nullptr; }
+	void set_parent(Planet& planet) { parent = std::make_shared<Planet>(planet); }
+	void rm_parent() { parent.reset(); }
 
 	vec2 pos_at(double time) const {
 		vec2 ret = vec2(0, 0);
@@ -36,7 +37,7 @@ public:
 			if (daddy->parent == nullptr) {
 				ret += daddy->anchor;
 			}
-			daddy = daddy->parent;
+			daddy = daddy->parent.get();
 		}
 
 		return ret;

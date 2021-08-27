@@ -1,15 +1,20 @@
 if __name__ == '__main__':
-	from swingbye.cphysics import World, vec2
+	from swingbye.cphysics import World, vec2, Planet
 
 	print('>>> initializing empty world')
 	world = World()
 	print(world)
 
-	print('>>> appending planets to world')
+	print('>>> appending planets to world by providing constructor arguments')
 	world.add_planet(anchor=vec2(2.0, 3.0))
 	world.add_planet(maxis=5.0)
 	world.add_planet(maxis=2.0)
 	world.add_planet(anchor=vec2(-69.0, -420.0))
+
+	p0 = world.get_planet(0)
+	print(f"python address {hex(id(p0))}")
+
+	print('>>> setting parents')
 	# world.get_planet(1).set_parent(world.get_planet(0))
 	# world.get_planet(2).set_parent(world.get_planet(1))
 	# or
@@ -17,11 +22,30 @@ if __name__ == '__main__':
 	world.planets[2].set_parent(world.planets[1])
 	print(world)
 
+	print('>>> appending planets to world by providing existing planet')
+	world.add_planet_existing(Planet(anchor=vec2(-5.0, -6.0)))
+	world.add_planet_existing(Planet(ecc=0.3))
+	print(world)
+
+	print('>>> appending python subclasses of planet')
+
+	class PyPlanet(Planet):
+		def __init__(self, *arg, **kwargs):
+			Planet.__init__(self, *arg, **kwargs)
+
+		def say_hello(self):
+			print(f'hello from gay little planet {self}')
+
+	world.add_planet_existing(PyPlanet(maxis=69))
+	print(world)
+	# world.get_planet(len(world.planets)-1).say_hello()
+	# world.planets[-1].say_hello()
+
 	print('>>> testing memory adresses of stored and getted')
 	for i, planet in enumerate(world.planets):
 		print(hex(id(world.get_planet(i))), hex(id(planet)), hex(id(world.planets[i])))
 		assert(id(world.get_planet(i)) == id(planet) == id(world.planets[i]))
-	print('OK')
+		print('OK')
 
 	print('>>> testing setting property on a same planet got from two different methods')
 	p1_fromlist = world.planets[0]
