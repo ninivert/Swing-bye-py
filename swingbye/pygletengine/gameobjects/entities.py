@@ -15,6 +15,9 @@ class StarObject(SpriteMixin, ImplicitEntity):
 		scale = 1 + random()
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
 
+	def delete(self):
+		self.sprite.delete()
+
 
 @dataclass
 class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):

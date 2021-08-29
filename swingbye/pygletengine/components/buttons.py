@@ -1,5 +1,6 @@
 import pyglet
 import glooey
+import swingbye.pygletengine.components.theme as theme
 from swingbye.pygletengine.components.labels import ButtonLabel, Description
 
 
@@ -16,13 +17,13 @@ class Button(glooey.Button):
 			self.callback()
 
 	class Base(glooey.Background):
-		custom_color = '#aa1e1e'
+		custom_color = theme.BUTTON_BASE
 
 	class Over(glooey.Background):
-		custom_color = '#cc3f3f'
+		custom_color = theme.BUTTON_OVER
 
 	class Down(glooey.Background):
-		custom_color = '#ff5d5d'
+		custom_color = theme.BUTTON_DOWN
 
 
 class SmallButton(Button):
@@ -54,13 +55,13 @@ class CycleButton(glooey.Button):
 		return max_x, max_y
 	
 	class Base(glooey.Background):
-		custom_color = '#aa1e1eff'
+		custom_color = theme.BUTTON_BASE
 
 	class Over(glooey.Background):
-		custom_color = '#cc3f3fdd'
+		custom_color = theme.BUTTON_OVER
 
 	class Down(glooey.Background):
-		custom_color = '#ff5d5daa'
+		custom_color = theme.BUTTON_DOWN
 
 
 CycleButton.register_event_type('on_change')

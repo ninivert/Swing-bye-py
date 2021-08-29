@@ -1,5 +1,6 @@
 import pyglet
 import glooey
+import swingbye.pygletengine.components.theme as theme
 
 
 class HBox(glooey.HBox):
@@ -25,7 +26,7 @@ class Frame(glooey.Frame):
 	custom_alignment = 'fill'
 
 	class Decoration(glooey.Background):
-		custom_color = '#aa1e1eff'
+		custom_color = theme.OVERLAY_BACKGROUND
 
 
 class Bin(glooey.Bin):

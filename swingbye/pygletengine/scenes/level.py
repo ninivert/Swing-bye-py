@@ -129,7 +129,7 @@ class Level(Scene):
 		self.hud.overlays['graph'].graph.set_query('TOTAL', lambda: self.world.potential_energy() + self.world.kinetic_energy())
 		self.hud.hide_graph()
 
-		self.entity_label = pyglet.text.Label('AAAAAAA', batch=self.world_batch, group=pyglet.graphics.OrderedGroup(1, parent=self.world_group))
+		self.entity_label = pyglet.text.Label('AAAAAAA', font_name='Times New Roman', batch=self.world_batch, group=pyglet.graphics.OrderedGroup(1, parent=self.world_group))
 
 	def load_level(self):
 		with open(self.levels[self.level_index]) as file:
@@ -176,6 +176,8 @@ class Level(Scene):
 				planet.delete()
 			# TODO: handle shipless worlds
 			# self.world.ship.delete()
+			self.background.delete()
+			self.background = None
 			self.world = None
 			self.camera = None
 			self.hud.close_overlays()
