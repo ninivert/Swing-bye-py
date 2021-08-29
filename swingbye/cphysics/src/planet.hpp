@@ -25,7 +25,7 @@ public:
 		: ExplicitEntity(mass_), maxis(maxis_), ecc(ecc_), time0(time0_), incl(incl_), parg(parg_), anchor(anchor_) {}
 	virtual ~Planet() {}
 
-	void set_parent(Planet& planet) { parent = std::make_shared<Planet>(planet); }
+	void set_parent(std::shared_ptr<Planet> new_parent) { parent = new_parent; }
 	void rm_parent() { parent.reset(); }
 
 	virtual vec2 pos_at(double time) const override {

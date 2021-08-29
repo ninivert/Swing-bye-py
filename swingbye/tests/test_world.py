@@ -1,5 +1,5 @@
 if __name__ == '__main__':
-	from swingbye.cphysics import World, vec2, Planet
+	from swingbye.cphysics import World, vec2, Planet, Entity, ExplicitEntity
 
 	print('>>> initializing empty world')
 	world = World()
@@ -27,8 +27,10 @@ if __name__ == '__main__':
 
 	print('>>> appending python subclasses of planet')
 
-	class PyPlanet(Planet):
+	class PyPlanet(Planet, ExplicitEntity, Entity):
 		def __init__(self, *arg, **kwargs):
+			Entity.__init__(self)
+			ExplicitEntity.__init__(self)
 			Planet.__init__(self, *arg, **kwargs)
 
 		def say_hello(self):
@@ -39,7 +41,7 @@ if __name__ == '__main__':
 
 	print('>>> trying to call instance methods of python subclasses stored in c++')
 	# world.get_planet(len(world.planets)-1).say_hello()
-	# world.planets[-1].say_hello()
+	world.planets[-1].say_hello()
 
 	print('>>> testing memory adresses of stored and getted')
 	for i, planet in enumerate(world.planets):

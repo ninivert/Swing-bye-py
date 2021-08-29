@@ -1,14 +1,18 @@
+#include <pybind11/smart_holder.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
+
 #include "vec2.hpp"
 #include "entity.hpp"
 #include "planet.hpp"
 #include "world.hpp"
 #include "trampoline.cpp"
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/operators.h>
-#include <string>
 
 namespace py = pybind11;
+
+PYBIND11_SMART_HOLDER_TYPE_CASTERS(Entity)
+PYBIND11_SMART_HOLDER_TYPE_CASTERS(ExplicitEntity)
+PYBIND11_SMART_HOLDER_TYPE_CASTERS(Planet)
 
 PYBIND11_MODULE(cphysics, m) {
 	py::class_<vec2>(m, "vec2")
@@ -43,8 +47,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("to_tuple", [](vec2 const& v) { return py::make_tuple(v.x, v.y); })
 		.def("__repr__", &vec2::str);
 
-	py::class_<Entity, std::shared_ptr<Entity>>(m, "Entity")
-		// std::shared_ptr<Entity> in order to correctly manage python and c++ instance counters
+	py::classh<Entity, PyEntity>(m, "Entity")
 		.def_property("pos", &Entity::get_pos, &Entity::set_pos)
 		.def_property("vel", &Entity::get_vel, &Entity::set_vel)
 		.def_property("mass", &Entity::get_mass, &Entity::set_mass)
@@ -60,8 +63,7 @@ PYBIND11_MODULE(cphysics, m) {
 		)
 		.def("__repr__", &Entity::str);
 
-	py::class_<ExplicitEntity, PyExplicitEntity, std::shared_ptr<ExplicitEntity>, Entity>(m, "ExplicitEntity")
-		// std::shared_ptr<ExplicitEntity> in order to correctly manage python and c++ instance counters
+	py::classh<ExplicitEntity, PyExplicitEntity, Entity>(m, "ExplicitEntity")
 		.def(py::init<>())
 		.def(py::init<double>())
 		.def_property_readonly("pos", &ExplicitEntity::get_pos)
@@ -72,8 +74,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("pos_at", &ExplicitEntity::pos_at)
 		.def("vel_at", &ExplicitEntity::vel_at);
 
-	py::class_<Planet, std::shared_ptr<Planet>, ExplicitEntity, Entity>(m, "Planet")
-		// std::shared_ptr<Planet> in order to correctly manage python and c++ instance counters
+	py::classh<Planet, PyPlanet, ExplicitEntity, Entity>(m, "Planet")
 		.def_property_readonly("pos", &Planet::get_pos)
 		.def_property_readonly("vel", &Planet::get_vel)
 		.def_readwrite("mass", &Planet::mass)
@@ -109,12 +110,10 @@ PYBIND11_MODULE(cphysics, m) {
 			[](World const& world) {
 				return py::list(
 					py::make_iterator(
-						world.planets_ptr.begin(), world.planets_ptr.end(),
-						py::return_value_policy::reference
+						world.planets_ptr.begin(), world.planets_ptr.end()
 					)
 				);
 			},
-			py::return_value_policy::reference,
 			py::doc("A list of planets references, identical in memory to get_planet(index)")
 		)
 		.def_property_readonly(
@@ -122,12 +121,10 @@ PYBIND11_MODULE(cphysics, m) {
 			[](World const& world) {
 				return py::list(
 					py::make_iterator(
-						world.entities_ptr.begin(), world.entities_ptr.end(),
-						py::return_value_policy::reference
+						world.entities_ptr.begin(), world.entities_ptr.end()
 					)
 				);
 			},
-			py::return_value_policy::reference,
 			py::doc("A list of entities references, identical in memory to get_entity(index)")
 		)
 		.def_property("time", &World::get_time, &World::set_time)
@@ -138,8 +135,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("get_predictions", &World::get_predictions)
 		.def(
 			"get_planet",
-			&World::get_planet,
-			py::return_value_policy::reference
+			&World::get_planet
 		)
 		.def(
 			"add_planet", &World::add_planet,
@@ -155,8 +151,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("rm_planet", &World::rm_planet)
 		.def(
 			"get_entity",
-			&World::get_entity,
-			py::return_value_policy::reference
+			&World::get_entity
 		)
 		.def(
 			"add_entity", &World::add_entity,

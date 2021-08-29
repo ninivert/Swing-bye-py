@@ -41,8 +41,8 @@ public:
 	void add_planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 const& anchor_) {
 		planets_ptr.push_back(std::make_shared<Planet>(mass_, maxis_, ecc_, time0_, incl_, parg_, anchor_));
 	}
-	void add_planet_existing(std::shared_ptr<Planet> planet_ptr) {
-		planets_ptr.push_back(planet_ptr);
+	void add_planet_existing(std::shared_ptr<Planet> new_planet) {
+		planets_ptr.push_back(new_planet);
 	}
 	void rm_planet(unsigned int index) {
 		planets_ptr.erase(planets_ptr.begin() + index);
