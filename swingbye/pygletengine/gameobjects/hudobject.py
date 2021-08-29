@@ -200,6 +200,8 @@ class HudObject:
 		# TODO: send reset signal to all active overlays
 		self.overlays['graph'].graph.reset()
 		self.overlays['control'].time_slider.reset()
+		self.close_overlays()
+		self.open_overlay('control', left=0, bottom=0, width_percent=1)
 
 	def on_mouse_press(self, x, y, buttons, modifiers):
 		self.captured = True

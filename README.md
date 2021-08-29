@@ -12,6 +12,7 @@ Rendering
 - [X] Texture comets
 - [X] FIX THE GODDAMN CAMERA (Y A T T A)
 - [X] KE and PE graphs
+- [ ] Find out why button text sometimes appears bellow the button
 
 Code structure and stuff
 
@@ -24,7 +25,6 @@ UI
 - [ ] Custom main menu w/ animations?
 - [ ] Make options actually do something
 - [ ] Make level selection work
-
 
 Physics
 
@@ -41,5 +41,5 @@ Game
 - [ ] Integrate easter eggs
 - [ ] Make ship hitbox smaller than sprite
 - [X] Make functional level editor
-- [ ] Allow for exporting worlds from the editor
+- [X] Allow for exporting worlds from the editor
 - [ ] Allow to add ship in editor
