@@ -13,6 +13,9 @@ class Scene(pyglet.event.EventDispatcher):
 	def begin(self):
 		raise NotImplementedError('abstract')
 
+	def end(self):
+		raise NotImplementedError('abstract')
+
 	def load(self):
 		raise NotImplementedError('abstract')
 

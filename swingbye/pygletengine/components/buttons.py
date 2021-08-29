@@ -33,19 +33,17 @@ class CycleButton(glooey.Button):
 	Foreground = ButtonLabel
 	custom_alignment = 'fill'
 
-	def __init__(self, states, callback=None, *args, **kwargs):
+	def __init__(self, states, default=None, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.states = states
 		self.state_names = list(self.states.keys())
-		self.state_index = 0
-		self.callback = callback
+		self.state_index = 0 if default is None else self.state_names.index(default)
 		self.foreground.text = self.state_names[self.state_index]
 
 	def on_click(self, widget):
 		self.state_index = (self.state_index + 1) % len(self.states)
 		self.foreground.text = self.state_names[self.state_index]
-		if self.callback is not None:
-			self.callback(self, self.states[self.state_names[self.state_index]])
+		self.dispatch_event('on_change', self, self.states[self.state_names[self.state_index]])
 
 	def do_claim(self):
 		max_x, max_y = 0, 0
@@ -63,6 +61,9 @@ class CycleButton(glooey.Button):
 
 	class Down(glooey.Background):
 		custom_color = '#ff5d5daa'
+
+
+CycleButton.register_event_type('on_change')
 
 
 class SmallCycleButton(CycleButton):

@@ -54,34 +54,58 @@ class OptionsOverlay(Overlay):
 		for name in options_dict.keys():
 
 			# Personal container for option
-			container = HBox()
 			# Name
-			description = Description(options_dict[name]['description'])
 			# Value modifier
 			if options_dict[name]['type'] == 'slider':
-				widget = Slider(
-					value=options_dict[name]['default'],
-					min_value=options_dict[name]['min_value'],
-					max_value=options_dict[name]['max_value'],
-					step=options_dict[name]['step'],
-					edge=10,
-					min_width=100
-				)
-				widget.set_handler('on_change', self.on_change)
-				self.option_values[name] = options_dict[name]['default']
+				self.add_row_slider(name, options_dict[name])
 			if options_dict[name]['type'] == 'cycle':
-				widget = SmallCycleButton(options_dict[name]['states'], self.on_change)
-				self.option_values[name] = options_dict[name]['default']
+				self.add_row_cycle(name, options_dict[name])
 			if options_dict[name]['type'] == 'button':
-				widget = SmallButton(options_dict[name]['label'], options_dict[name]['callback'])
+				self.add_row_single_button(name, options_dict[name])
 
-			# Keep track of what widget does what
-			self.widget_nametable[widget] = name
+	def add_row_slider(self, name, options_dict):
+		description = Description(options_dict['description'])
+		widget = Slider(
+			value=options_dict['default'],
+			min_value=options_dict['min_value'],
+			max_value=options_dict['max_value'],
+			step=options_dict['step'],
+			edge=10,
+			min_width=100
+		)
+		widget.set_handler('on_change', self.on_change)
 
-			# Add option to menu
-			container.pack(description)
-			container.add(widget)
-			self.vbox.pack(container)
+		# Add row to menu
+		row = HBox()
+		row.pack(description)
+		row.add(widget)
+		self.vbox.pack(row)
+
+		# Keep track of what widget does what and values
+		self.option_values[name] = options_dict['default']
+		self.widget_nametable[widget] = name
+
+	def add_row_cycle(self, name, options_dict):
+		description = Description(options_dict['description'])
+		widget = SmallCycleButton(options_dict['states'], default=options_dict['default'])
+		widget.set_handler('on_change', self.on_change)
+
+		# Add row to menu
+		row = HBox()
+		row.pack(description)
+		row.add(widget)
+		self.vbox.pack(row)
+
+		# Keep track of what widget does what and values
+		self.option_values[name] = options_dict['default']
+		self.widget_nametable[widget] = name
+
+	def add_row_single_button(self, name, options_dict):
+		widget = SmallButton(options_dict['label'], options_dict['callback'])
+
+		row = HBox()
+		row.add(widget)
+		self.vbox.pack(row)
 
 	def on_change(self, widget, value):
 		self.option_values[self.widget_nametable[widget]] = value

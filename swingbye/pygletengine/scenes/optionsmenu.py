@@ -9,6 +9,12 @@ class OptionsMenu(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.container = None
+		self.title = None
+		self.option_1_button = None
+		self.option_2_button = None
+		self.option_1_cycle = None
+		self.option_2_cycle = None
 
 	def load(self):
 		self.container = VBox()
@@ -34,6 +40,9 @@ class OptionsMenu(Scene):
 		self.gui.clear()
 		self.load()
 		self.gui.add(self.container)
+
+	def end(self):
+		pass
 
 	def draw(self):
 		self.gui.batch.draw()

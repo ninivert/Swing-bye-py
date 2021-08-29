@@ -23,6 +23,11 @@ class GameState(Enum):
 	RUNNING = auto()
 	PAUSED = auto()
 
+class EditorState(Enum):
+	NOTHING = auto()
+	EDITING = auto()
+	ADDING = auto()
+
 class GameEntity(Enum):
 	PLANET = auto()
 	WORMHOLE = auto()

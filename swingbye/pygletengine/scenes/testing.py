@@ -13,6 +13,8 @@ class Test(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.container = None
+		self.options_overlay = None
 
 	def load(self):
 		self.container = Board()
@@ -60,6 +62,9 @@ class Test(Scene):
 
 		self.gui.add(self.container)
 		# self.container.debug_placement_problems()
+
+	def end(self):
+		pass
 	
 	def draw(self):
 		self.gui.batch.draw()

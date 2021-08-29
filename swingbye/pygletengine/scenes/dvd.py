@@ -7,6 +7,8 @@ from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 class DVD(Scene):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.batch = None
+		self.dvd = None
 
 	def load(self):
 		self.batch = pyglet.graphics.Batch()
@@ -29,6 +31,9 @@ class DVD(Scene):
 		self.gui.clear()
 
 		self.load()
+
+	def end(self):
+		pass
 
 	def draw(self):
 		self.batch.draw()

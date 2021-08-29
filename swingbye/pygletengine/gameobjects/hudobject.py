@@ -82,6 +82,7 @@ class ControlOverlay(Overlay):
 		self.reset_button = Button('Reset')
 		self.pause_button = Button('Pause')
 		self.speed_slider = Slider(
+			value=1,
 			min_value=1, max_value=16,
 			step=1,
 			edge=10,
@@ -181,8 +182,13 @@ class HudObject:
 		self.active_overlays.append(name)
 
 	def close_overlay(self, name):
-		self.container.remove(self.overlays[name])
-		self.active_overlays.remove(name)
+		if name in self.active_overlays:
+			self.container.remove(self.overlays[name])
+			self.active_overlays.remove(name)
+
+	def close_overlays(self):
+		for overlay in self.active_overlays:
+			self.close_overlay(overlay)
 
 	def hide_graph(self):
 		self.overlays['graph'].hide()

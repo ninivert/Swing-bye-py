@@ -14,6 +14,22 @@ class MainMenu(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		# BACKGROUND
+		self.world_batch = None
+		self.world_group = None
+
+		self.world = None
+		self.camera = None
+
+		# UI AND STUFF
+		self.container = None
+
+		self.title = None
+		self.start_button = None
+		self.level_select_button = None
+		self.level_editor_button = None
+		self.options_button = None
+		self.quit_button = None
 
 	def load(self):
 
@@ -34,20 +50,25 @@ class MainMenu(Scene):
 		self.title = Title('Swing BYE')
 		self.start_button = Button('Start game', self.to_game)
 		self.level_select_button = Button('Select level', self.to_level_select_menu)
+		self.level_editor_button = Button('Level editor', self.to_level_editor)
 		self.options_button = Button('Options', self.to_options_menu)
 		self.quit_button = Button('Quit game', exit)
 
 		self.container.add(self.title, x=0.1, y=0.8, width=420, height=100)
 		self.container.add(self.start_button, x=0.7, y=0.7, width=250, height=50)
 		self.container.add(self.level_select_button, x=0.7, y=0.6, width=250, height=50)
-		self.container.add(self.options_button, x=0.7, y=0.5, width=250, height=50)
-		self.container.add(self.quit_button, x=0.7, y=0.4, width=250, height=50)
+		self.container.add(self.level_editor_button, x=0.7, y=0.5, width=250, height=50)
+		self.container.add(self.options_button, x=0.7, y=0.4, width=250, height=50)
+		self.container.add(self.quit_button, x=0.7, y=0.3, width=250, height=50)
 
 	def to_game(self):
 		self.window.transition_to_scene('Level')
 
 	def to_level_select_menu(self):
 		self.window.transition_to_scene('LevelSelectMenu')
+
+	def to_level_editor(self):
+		self.window.transition_to_scene('Editor')
 
 	def to_options_menu(self):
 		self.window.transition_to_scene('OptionsMenu')
@@ -59,6 +80,13 @@ class MainMenu(Scene):
 		self.load()
 
 		self.gui.add(self.container)
+
+	def end(self):
+		if self.world is not None:
+			for planet in self.world.planets:
+				planet.delete()
+		self.world = None
+		self.camera = None
 	
 	def draw(self):
 		with self.camera:

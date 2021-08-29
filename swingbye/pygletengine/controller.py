@@ -20,6 +20,11 @@ class ViewController(pyglet.window.Window):
 		self.gui_group = pyglet.graphics.Group()
 		self.frame_rate = 1/60.0
 
+		# Click event stuff
+		self.register_event_type('on_click')
+		self.mouse_press_x = 0
+		self.mouse_press_y = 0
+
 		if g.DEBUG_PERF:
 			self.fps_display = pyglet.window.FPSDisplay(self)
 			self.fps_display.label.x, self.fps_display.label.y = 0, g.WINDOW_HEIGHT-50
@@ -43,6 +48,7 @@ class ViewController(pyglet.window.Window):
 
 	def transition_to_scene(self, scene: str):
 		self.remove_handlers(self.scenes[self.current_scene])
+		self.scenes[self.current_scene].end()
 		self.current_scene = scene
 		self.scenes[self.current_scene].begin()
 		self.push_handlers(self.scenes[self.current_scene])
@@ -62,6 +68,14 @@ class ViewController(pyglet.window.Window):
 			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.planets[0])
 		if symbol == key._2:
 			self.scenes['Level'].camera.set_parent(self.scenes['Level'].world.ship)
+
+	def on_mouse_press(self, x, y, buttons, modifiers):
+		self.mouse_press_x = x
+		self.mouse_press_y = y
+
+	def on_mouse_release(self, x, y, buttons, modifiers):
+		if self.mouse_press_x == x and self.mouse_press_y == y:
+			self.dispatch_event('on_click', x, y)
 
 	def on_draw(self):
 		self.clear()

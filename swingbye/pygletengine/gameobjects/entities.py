@@ -44,6 +44,10 @@ class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
 
 	pointing = property(_get_pointing, Ship._set_pointing_safe)
 
+	def delete(self):
+		self.sprite.delete()
+		self.path.delete()
+
 
 @dataclass
 class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
@@ -52,3 +56,16 @@ class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
 	def __post_init__(self):
 		scale = self.radius / (self.sprite.height//2)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
+
+	def delete(self):
+		self.sprite.delete()
+		self.path.delete()
+
+	def __eq__(self, other):
+		return self.sprite == other.sprite
+
+	def __hash__(self):
+		return hash(self.sprite)
+
+	def __repr__(self):
+		return str(self.sprite)

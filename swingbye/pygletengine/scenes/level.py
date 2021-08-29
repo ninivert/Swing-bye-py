@@ -23,12 +23,27 @@ class Level(Scene):
 		self.register_event_type('on_lose')
 		self.register_event_type('on_reset')
 
+		# Predefine all properties
+		self.world_batch = None
+		self.world_group = None
+		self.background_group = None
+		self.world_group = None
+		self.foreground_group = None
+
+		self.world = None
+		self.background = None
+		self.camera = None
+
+		if DEBUG_CAMERA:
+			self.offset_line = None
+			self.mouse_line = None
+			self.mouse_world_to_screen_line = None
+
+		self.hud = None
+		self.entity_label = None
+
 		self.levels = ['swingbye/levels/level1.json']
 		self.level_index = 0
-
-		# TODO : cleanup this
-		self.mouse_press_x = 0
-		self.mouse_press_y = 0
 
 		self.simulation_speed = 1
 		self.game_state = GameState.RUNNING
@@ -49,19 +64,16 @@ class Level(Scene):
 		self.mouse_x = x
 		self.mouse_y = y
 
+	def on_click(self, x, y):
+		if self.game_state == GameState.RUNNING:
+			if not self.hud.is_over(x, y):
+				self.world.point_ship(self.camera.screen_to_world(x, y))
+
 	def on_mouse_press(self, x, y, buttons, modifiers):
-		self.mouse_press_x = x
-		self.mouse_press_y = y
 		if self.hud.is_over(x, y):
 			self.hud.on_mouse_press(x, y, buttons, modifiers)
 
 	def on_mouse_release(self, x, y, buttons, modifiers):
-		if self.game_state == GameState.RUNNING:
-			clicked = self.mouse_press_x == x and self.mouse_press_y == y
-			if not self.hud.is_over(x, y):
-				if clicked:
-					self.world.point_ship(self.camera.screen_to_world(x, y))
-
 		self.hud.on_mouse_release(x, y, buttons, modifiers)
 
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
@@ -105,8 +117,8 @@ class Level(Scene):
 
 		self.hud.overlays['control'].reset_button.callback = self.reset
 		self.hud.overlays['control'].pause_button.callback = self.on_pause
-		self.hud.overlays['control'].speed_slider.callback =  self.on_speed_change
-		self.hud.overlays['control'].time_slider.callback =  self.on_time_change
+		self.hud.overlays['control'].speed_slider.set_handler('on_change', self.on_speed_change)
+		self.hud.overlays['control'].time_slider.set_handler('on_change', self.on_time_change)
 		self.hud.overlays['control'].launch_button.callback = self.launch_ship
 
 		self.hud.overlays['pause'].resume_button.callback = self.on_resume
@@ -158,6 +170,16 @@ class Level(Scene):
 		self.gui.clear()
 		self.load()
 
+	def end(self):
+		if self.world is not None:
+			for planet in self.world.planets:
+				planet.delete()
+			# TODO: handle shipless worlds
+			# self.world.ship.delete()
+			self.world = None
+			self.camera = None
+			self.hud.close_overlays()
+
 	def draw(self):
 		self.batch.draw()
 		with self.camera:
@@ -204,12 +226,15 @@ class Level(Scene):
 					self.dispatch_event('on_win')
 
 	def reset(self):
+		# TODO:
+		# Graph does not update KE and PE after reset, probably because we delete and recreate a ship...
 		self.hud.reset()
 		self.hud.hide_graph()
 		self.camera.set_parent(None)
 
-		# This is very bad, old objects are not getting cleaned up (sprites need to be removed from batches etc)
-		# When reset is spammed, memory usage increases greatly
-		# TODO -= 1  # yay
+		for planet in self.world.planets:
+			planet.delete()
+		# TODO: handle shipless worlds
+		# self.world.ship.delete()
 		self.load_level()
 		self.camera.set_parent(self.world.ship)

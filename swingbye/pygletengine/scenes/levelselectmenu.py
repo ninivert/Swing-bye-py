@@ -10,6 +10,11 @@ class LevelSelectMenu(Scene):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.container = None
+		self.button_grid = None
+
+		self.title = None
+		self.back_button = None
 
 	def load(self):
 		self.container = VBox()
@@ -37,6 +42,9 @@ class LevelSelectMenu(Scene):
 		self.load()
 
 		self.gui.add(self.container)
+
+	def end(self):
+		pass
 
 	def draw(self):
 		self.gui.batch.draw()
