@@ -170,7 +170,7 @@ class HudObject:
 	def is_over(self, x, y):
 		over = False
 		# TODO: not use a private method, it might change (or might not)
-		for child, pin in self.container._pins.items():
+		for child in self.container._pins.keys():
 			over = over or point_in_rect(x, y, *child.rect.bottom_left, child.width, child.height)
 		return over
 

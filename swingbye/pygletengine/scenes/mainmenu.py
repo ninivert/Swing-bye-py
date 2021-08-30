@@ -3,11 +3,12 @@ import json
 import numpy as np
 from pyglet.app import exit
 from swingbye.levels.parser import parse_level
+from swingbye.physics.collisions import HitZonePoint
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
-from swingbye.pygletengine.components.buttons import Button
+from swingbye.pygletengine.components.buttons import MainMenuButton
 from swingbye.pygletengine.components.labels import Title
-from swingbye.pygletengine.components.containers import Freeform
+from swingbye.pygletengine.components.containers import Board, Arc, Image
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
@@ -29,6 +30,7 @@ class MainMenu(Scene):
 		self.poi_data = None
 
 		self.container = None
+		self.button_container = None
 
 		self.title = None
 		self.start_button = None
@@ -36,6 +38,19 @@ class MainMenu(Scene):
 		self.level_editor_button = None
 		self.options_button = None
 		self.quit_button = None
+
+	def on_click(self, x, y):
+		world_pos = HitZonePoint(self.camera.screen_to_world(x, y))
+		for planet in self.world.planets:
+			if planet.collides_with(world_pos):
+				self.track_new_planet(planet=planet)
+				self.total_time = 0
+				return
+
+	def on_resize(self, width, height):
+		self.camera.on_resize(width, height)
+		self.camera.set_anchor((width//2)*0.7, (height//2)*1)
+		self.background.on_resize(width, height)
 
 	def load(self):
 
@@ -66,29 +81,39 @@ class MainMenu(Scene):
 			'picks': dict([(planet, 0) for planet in self.world.planets])
 		}
 
-		self.camera = Camera(self.window, smooth_level=0.01)
+		self.camera = Camera(self.window, smooth_level=1)
 		self.camera.set_parent(self.current_planet)
-		self.camera.set_anchor((self.window.width//2)*0.3, (self.window.height//2)*0.3)
-		self.camera.set_zoom(0.5)
+		self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
+		self.camera.set_zoom(0.75)
 
 		self.background = BackgroundObject(level['background_sprite'], self.camera, self.batch, self.world_group)
 
 		# UI AND STUFF
-		self.container = Freeform()
+		self.container = Board()
+		self.button_container = Arc()
 
-		self.title = Title('Swing BYE')
-		self.start_button = Button('Start game', self.to_game)
-		self.level_select_button = Button('Select level', self.to_level_select_menu)
-		self.level_editor_button = Button('Level editor', self.to_level_editor)
-		self.options_button = Button('Options', self.to_options_menu)
-		self.quit_button = Button('Quit game', exit)
+		logo = pyglet.resource.image('assets/beautiful_logo.png')
+		self.title = Image(logo)
+		self.start_button = MainMenuButton('Start\ngame', self.to_game, radius=75)
+		self.level_select_button = MainMenuButton('Select\nlevel', self.to_level_select_menu, radius=75)
+		self.level_editor_button = MainMenuButton('Level\neditor', self.to_level_editor, radius=75)
+		self.options_button = MainMenuButton('Options', self.to_options_menu, radius=75)
+		self.quit_button = MainMenuButton('Quit\ngame', exit, radius=75)
 
-		self.container.add(self.title, x=0.1, y=0.8, width=420, height=100)
-		self.container.add(self.start_button, x=0.7, y=0.7, width=250, height=50)
-		self.container.add(self.level_select_button, x=0.7, y=0.6, width=250, height=50)
-		self.container.add(self.level_editor_button, x=0.7, y=0.5, width=250, height=50)
-		self.container.add(self.options_button, x=0.7, y=0.4, width=250, height=50)
-		self.container.add(self.quit_button, x=0.7, y=0.3, width=250, height=50)
+		self.button_container.add(self.start_button)
+		self.button_container.add(self.level_select_button)
+		self.button_container.add(self.level_editor_button)
+		self.button_container.add(self.options_button)
+		self.button_container.add(self.quit_button)
+
+		self.container.add(self.title, center_percent=(0.25, 0.9), width_percent=0.4, height_percent=0.2)
+		self.container.add(self.button_container, bottom_left_percent=(0.5, 0), width_percent=0.5, height_percent=1)
+
+		# self.container.add(self.start_button, x=0.7, y=0.7, width=250, height=50)
+		# self.container.add(self.level_select_button, x=0.7, y=0.6, width=250, height=50)
+		# self.container.add(self.level_editor_button, x=0.7, y=0.5, width=250, height=50)
+		# self.container.add(self.options_button, x=0.7, y=0.4, width=250, height=50)
+		# self.container.add(self.quit_button, x=0.7, y=0.3, width=250, height=50)
 
 	def to_game(self):
 		self.window.transition_to_scene('Level')
@@ -101,11 +126,6 @@ class MainMenu(Scene):
 
 	def to_options_menu(self):
 		self.window.transition_to_scene('OptionsMenu')
-
-	def on_resize(self, width, height):
-		self.camera.on_resize(width, height)
-		self.camera.set_anchor((width//2)*0.7, (height//2)*1)
-		self.background.on_resize(width, height)
 
 	def begin(self):
 		
@@ -131,17 +151,24 @@ class MainMenu(Scene):
 		self.gui.batch.draw()
 
 	def run(self, dt):
+		self.camera.update(dt)
 		self.total_time += dt
 		if self.total_time > 10:
 			self.total_time %= 10
-			self.current_planet = self.get_poi()
-			self.camera.set_parent(self.current_planet)
-			self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
-			self.camera.target_zoom = self.get_zoom_at_distance(np.linalg.norm(self.current_planet.pos))
+			self.track_new_planet()
 
 		# TODO: find out why world.step breaks everything in other scenes...
 		self.world.time += 5
 	
+	def track_new_planet(self, planet=None):
+		if planet is None:
+			self.current_planet = self.get_poi()
+		else:
+			self.current_planet = planet
+		self.camera.set_parent(self.current_planet)
+		self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
+		self.camera.target_zoom = self.get_zoom_at_distance(np.linalg.norm(self.current_planet.pos))
+
 	def get_zoom_at_distance(self, x):
 		return -0.0000005 * x * (x - 2000) + 0.2
 
@@ -168,7 +195,8 @@ class MainMenu(Scene):
 				most_velocity_change = current_velocity_change
 				self.poi_data['most_velocity_change'] = planet
 			
-			current_distance = np.linalg.norm(pos)
+			# Do not use the sun's distance... from the sun
+			current_distance = np.linalg.norm(pos) if (pos[0] != 0 and pos[1] != 0) else np.inf
 			if current_distance > most_distance:
 				most_distance = current_distance
 				self.poi_data['most_distance'] = planet
@@ -210,12 +238,16 @@ class MainMenu(Scene):
 			self.poi_data['least_distance']
 		]
 		# TODO: fix planets getting picked twice, despite this filter...
-		candidates = list(filter(lambda p: p is not self.poi_data['previous_planet'] or p is not self.poi_data['most_picks'], candidates))
+		wanted = lambda p: (p.radius > 5)
+		# wanted = lambda p: ((p is self.poi_data['previous_planet']) or (p is self.poi_data['most_picks']) or (p.radius > 5))
+		candidates = filter(wanted, candidates)
 		
-		picked = np.random.choice(candidates)
+		picked = np.random.choice(list(candidates))
 
 		self.poi_data['picks'][picked] += 1
 		self.poi_data['previous_planet'] = picked
+
+		# pprint(self.poi_data)
 
 		# System is still improvable
 		# After a few iterations, we get this result:

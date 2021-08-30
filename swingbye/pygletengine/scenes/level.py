@@ -193,10 +193,7 @@ class Level(Scene):
 		self.gui.batch.draw()
 
 	def run(self, dt):
-		# TODO: find a way to update the camera here instead of before drawing (make it independent of fps)
-		# self.camera.update()
-		# TODO: fix stars jumping around when changing zoom anchor
-		# self.background.update()
+		self.camera.update(dt)
 
 		if self.game_state == GameState.RUNNING:
 			if self.world.state == WorldStates.POST_LAUNCH:

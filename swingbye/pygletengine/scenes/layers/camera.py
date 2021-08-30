@@ -5,7 +5,7 @@ from swingbye.pygletengine.utils import clamp, lerp
 
 class Camera:
 
-	def __init__(self, window, min_zoom=0.2, max_zoom=4, smooth=True, smooth_level=0.05, parent=None):
+	def __init__(self, window, min_zoom=0.2, max_zoom=4, smooth=True, smooth_level=2, parent=None):
 		assert min_zoom <= max_zoom, "Minimum zoom must not be greater than maximum zoom"
 
 		# Flag(s)
@@ -85,20 +85,20 @@ class Camera:
 		# Don't zoom too far tho
 		self.target_zoom = clamp(self.target_zoom, self.min_zoom, self.max_zoom)
 
-	def update(self):
+	def update(self, dt):
 		if self.parent is not None:
 			# Copy to avoid destroying the object's position
 			self.parent_offset = self.parent.pos.copy()
 		if self.smooth:
-			smooth = lambda a, b, t: a + (b-a)*(1 - pow(1 - t, 3))
-			self.zoom = smooth(self.zoom, self.target_zoom, self.smooth_level)
-			self.offset = smooth(self.offset, self.target_offset + self.parent_offset, self.smooth_level)
+			easing = lambda a, b, t: a + ((b-a)*(1 - pow(1 - t, 3)))
+			self.zoom = easing(self.zoom, self.target_zoom, self.smooth_level*dt)
+			self.offset = easing(self.offset, self.target_offset + self.parent_offset, self.smooth_level*dt)
 		else:
 			self.zoom = self.target_zoom
 			self.offset = self.target_offset + self.parent_offset
 
 	def begin(self):
-		self.update()
+		# self.update()
 		x, y = -self.anchor / self.zoom + self.offset
 
 		pyglet.gl.glEnable(pyglet.gl.GL_BLEND)

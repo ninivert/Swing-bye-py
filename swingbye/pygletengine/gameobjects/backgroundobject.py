@@ -2,7 +2,6 @@ import pyglet
 import numpy as np
 from swingbye.pygletengine.gameobjects.entities import StarObject
 from swingbye.pygletengine.utils import create_sprite
-from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
 import swingbye.pygletengine.globals as g
 
 
@@ -29,7 +28,7 @@ class BackgroundObject:
 		)
 		self.sprite.opacity = 180
 
-		self.stars_group = ParallaxGroup(0, rate=1/50, parent=self.group)
+		self.stars_group = pyglet.graphics.OrderedGroup(0, parent=self.group)
 	
 		self.populate_stars()
 
@@ -60,13 +59,9 @@ class BackgroundObject:
 			i.delete()
 		self.stars.clear()
 
-	# def update(self):
-	# 	for layer in self.layers:
-	# 		layer.offset = self.camera.offset + self.camera.anchor
-
 	def on_resize(self, width, height):
-		# FIXME: do not hardcode
-		scale_x, scale_y = width / 1280, height / 720
+		self.sprite.scale_x, self.sprite.scale_y = 1, 1
+		scale_x, scale_y = width / self.sprite.width, height / self.sprite.height
 		self.sprite.update(scale_x=scale_x, scale_y=scale_y)
 
 		for star in self.stars:
