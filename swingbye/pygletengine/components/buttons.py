@@ -114,6 +114,12 @@ class MainMenuButton(glooey.Widget):
 	def do_regroup_children(self):
 		self.foreground._regroup(pyglet.graphics.OrderedGroup(3, parent=self.group))
 
+	def _resize(self, rect):
+		super()._resize(rect)
+		if self.loaded:
+			self.background.x, self.background.y = self.rect.center
+			self.overlay.x, self.overlay.y = self.rect.center
+
 	def on_click(self, widget):
 		if self.callback is not None:
 			if self.mouse_over:
@@ -124,8 +130,8 @@ class MainMenuButton(glooey.Widget):
 		return pyglet.event.EVENT_HANDLED
 
 	def on_mouse_leave(self, x, y):
-		# Overide default to prevent rollover event
-		return pyglet.event.EVENT_HANDLED
+		if self.mouse_over:
+			self.on_rollover(self, 'base', 'over')
 
 	def on_mouse_motion(self, x, y, dx, dy):
 		new_over = np.linalg.norm(np.array((x, y)) - np.array((self.rect.center_x, self.rect.center_y))) < self.radius

@@ -9,6 +9,7 @@ from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.components.buttons import MainMenuButton
 from swingbye.pygletengine.components.labels import Title
 from swingbye.pygletengine.components.containers import Board, Arc, Image
+from swingbye.pygletengine.components.animation import Animation, Keyframe
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
 
@@ -40,6 +41,7 @@ class MainMenu(Scene):
 		self.quit_button = None
 
 	def on_click(self, x, y):
+		self.button_container.explode(1.5, 1)
 		world_pos = HitZonePoint(self.camera.screen_to_world(x, y))
 		for planet in self.world.planets:
 			if planet.collides_with(world_pos):
@@ -157,8 +159,7 @@ class MainMenu(Scene):
 			self.total_time %= 10
 			self.track_new_planet()
 
-		# TODO: find out why world.step breaks everything in other scenes...
-		self.world.time += 5
+		self.world.step(5)
 	
 	def track_new_planet(self, planet=None):
 		if planet is None:

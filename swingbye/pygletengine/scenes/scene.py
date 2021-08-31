@@ -7,8 +7,6 @@ class Scene(pyglet.event.EventDispatcher):
 		super().__init__()
 		self.window = window
 		self.gui = gui
-		# TODO: verify that this is safe to delete
-		# self.callback = callback
 
 	def begin(self):
 		raise NotImplementedError('abstract')

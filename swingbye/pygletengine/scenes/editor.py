@@ -338,6 +338,7 @@ class Editor(Level):
 	def begin(self):
 		self.gui.clear()
 		self.load()
+
 		self.camera.set_parent(None)
 
 	def is_over_planet(self, x, y):

@@ -36,7 +36,10 @@ class World():
 		for planet in self.planets:
 			r = planet.pos_at(time) - titty.pos
 			d = np.linalg.norm(r)
-			n = r/d
+			if d != 0:
+				n = r/d
+			else:
+				n = np.zeros(2)
 			f += GRAVITY_CST*(titty.mass + planet.mass)/(d+GRAVITY_SINGULARITY_OFFSET)**2 * n
 
 		return f

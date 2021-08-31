@@ -63,7 +63,10 @@ def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphic
 		if ship is None:
 			# TODO : world without ship ?
 			_logger.warning(f'no ship found, instanciating default ship')
-			ship = Ship()
+			# HACK: set pos at [0, 0] to not have it go unreasonably far and
+			# break worlds without ships whilst the camera is tracking said ship
+			# Maybe init pos at 0, 0 by default?
+			ship = Ship(pos=[0, 0])
 
 		world = World(ship=ship, planets=planets, integrator=RK4Integrator)
 		_logger.debug(f'finished parsing level, result\n`{world}`')

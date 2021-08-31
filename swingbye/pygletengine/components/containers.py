@@ -2,6 +2,7 @@ import pyglet
 import glooey
 import numpy as np
 import swingbye.pygletengine.components.theme as theme
+from swingbye.pygletengine.components.animation import Keyframe, Animation
 from swingbye.pygletengine.utils import lerp
 from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -55,6 +56,9 @@ class Arc(glooey.Widget):
 		self.a = a or self.custom_a
 		self.b = b or self.custom_b
 
+		self.animation = None
+		self.explosion_radius = 1
+
 	def get_children(self):
 		# Return a copy of the list so the caller can't mess up our internal 
 		# state by adding or removing things.
@@ -92,17 +96,8 @@ class Arc(glooey.Widget):
 				self.remove(child)
 
 	def do_claim(self):
-		# Fake do_claim as 0 to not have things mess up
+		# Fake do_claim to be able to have widgets go offscreen
 		return 0, 0
-		# top = bottom = left = right = 0
-
-		# for child, offset in self._yield_offsets():
-		# 	top = max(top, offset.y + child.claimed_height / 2)
-		# 	bottom = min(bottom, offset.y - child.claimed_height / 2)
-		# 	left = min(left, offset.x - child.claimed_width / 2)
-		# 	right = max(right, offset.x + child.claimed_width / 2)
-
-		# return right - left, top - bottom
 
 	def do_resize_children(self):
 		for child, offset in self._yield_offsets():
@@ -110,10 +105,30 @@ class Arc(glooey.Widget):
 			rect.center = lerp(self.rect.center_left, self.rect.center, 0.5) + offset
 			child._resize(rect)
 
+	def update(self, dt):
+		if self.animation is not None:
+			if self.animation.done:
+				pyglet.clock.unschedule(self.update)
+			else:
+				self.explosion_radius = self.animation.get_next_value(dt)
+				self.do_resize_children()
+		else:
+			pyglet.clock.unschedule(self.update)
+
+	def explode(self, explosion_radius, offset, duration):
+		self.explosion_radius = 1
+		self.animation = Animation(
+			keyframes=[
+				Keyframe(1, explosion_radius, duration, lambda a, b, t: a + ((b-a)*(1 - pow(1 - t, 3))))
+			],
+			repeat=False
+		)
+		pyglet.clock.schedule_interval(self.update, 1/60)
+
 	def _yield_offsets(self):
 		N = len(self._children) - 1
 		for i, child in enumerate(self._children):
-			offset = glooey.vecrec.Vector(np.sin(np.pi * (i/N)) * self.a, np.cos(np.pi * (i/N)) * self.b)
+			offset = glooey.vecrec.Vector(np.sin(np.pi * (i/N)) * self.a, np.cos(np.pi * (i/N)) * self.b) * self.explosion_radius
 			yield child, offset
 
 
