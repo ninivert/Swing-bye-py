@@ -3,8 +3,9 @@ import glooey
 from glooey.drawing.color import hex_to_int
 import numpy as np
 import swingbye.pygletengine.components.theme as theme
+from swingbye.pygletengine.components.animation import AnimationWidget, Animation, Keyframe
 from swingbye.pygletengine.components.labels import ButtonLabel, Description
-from swingbye.pygletengine.utils import clamp
+from swingbye.pygletengine.utils import clamp, create_sprite
 
 
 class Button(glooey.Button):
@@ -41,28 +42,32 @@ class SmallButton(Button):
 	Foreground = Description
 
 
-class MainMenuButton(glooey.Widget):
+class MainMenuButton(AnimationWidget):
 	custom_foreground_layer = 3
 	custom_alignment = 'fill'
-	custom_padding = 40
 
-	def __init__(self, text, callback=None, radius=20, *args, **kwargs):
+	def __init__(self, text, callback=None, radius=20, background_sprite=None, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self._text = text
+		self.background_sprite = background_sprite
 		self.background = None
 		self.overlay = None
 		self.foreground = ButtonLabel(text=self._text)
+		self.foreground.background_color = (0, 0, 0, 128)
 
 		self.radius = radius
 		self.mouse_over = False
 		self.mouse_change = False
 
+		self.animation = Animation(
+			keyframes=[
+				Keyframe(0, self.radius, 0.3, lambda a, b, t: a + ((b - a) * (1 - pow(1 - t, 3))))
+			],
+			repeat=False
+		)
+
 		self.callback = callback
 
-		self.total_time = 0
-		self.animation_start = 0
-		self.animation_time = 0.3
-		
 		self.loaded = False
 
 		self._attach_child(self.foreground)
@@ -77,13 +82,23 @@ class MainMenuButton(glooey.Widget):
 		self.foreground.text = new_text
 
 	def load(self):
-		self.background = pyglet.shapes.Circle(
-			*self.rect.center,
-			self.radius,
-			color=hex_to_int(theme.BUTTON_BASE)[:3],
-			batch=self.batch,
-			group=pyglet.graphics.OrderedGroup(1, parent=self.group)
-		)
+		if self.background_sprite is None:
+			self.background = pyglet.shapes.Circle(
+				*self.rect.center,
+				self.radius,
+				color=hex_to_int(theme.BUTTON_BASE)[:3],
+				batch=self.batch,
+				group=pyglet.graphics.OrderedGroup(1, parent=self.group)
+			)
+		else:
+			self.background = create_sprite(
+				self.background_sprite,
+				anchor='center',
+				x=self.rect.center_x, y=self.rect.center_y,
+				batch=self.batch,
+				group=pyglet.graphics.OrderedGroup(1, parent=self.group)
+			)
+			self.background.scale = self.radius*2 / self.background.height
 		self.overlay = pyglet.shapes.Circle(
 			*self.rect.center,
 			0,
@@ -91,6 +106,7 @@ class MainMenuButton(glooey.Widget):
 			batch=self.batch,
 			group=pyglet.graphics.OrderedGroup(2, parent=self.group)
 		)
+		self.overlay.opacity = 128
 		self.loaded = True
 
 	def do_draw(self):
@@ -107,15 +123,14 @@ class MainMenuButton(glooey.Widget):
 			self.loaded = False
 
 	def do_claim(self):
-		width = max(self.foreground.claimed_width, self.radius*2)
-		height = max(self.foreground.claimed_height, self.radius*2)
+		width = max(self.foreground.claimed_width, self.radius * 2)
+		height = max(self.foreground.claimed_height, self.radius * 2)
 		return width, height
 
 	def do_regroup_children(self):
 		self.foreground._regroup(pyglet.graphics.OrderedGroup(3, parent=self.group))
 
-	def _resize(self, rect):
-		super()._resize(rect)
+	def do_resize(self):
 		if self.loaded:
 			self.background.x, self.background.y = self.rect.center
 			self.overlay.x, self.overlay.y = self.rect.center
@@ -145,29 +160,20 @@ class MainMenuButton(glooey.Widget):
 	def on_rollover(self, widget, new, old):
 		if self.loaded:
 			if new == 'over' and old == 'base':
-				self.overlay.radius = 0
 				self.overlay.color = hex_to_int(theme.MAIN_MENU_SLIDOVER)[:3]
-				self.animation_start = self.total_time
-				pyglet.clock.unschedule(self.update)
-				pyglet.clock.schedule_interval(self.update, 1/60, direction=1)
+				self.start_animation(direction=1)
 			if new == 'base':
 				self.overlay.color = hex_to_int(theme.MAIN_MENU_SLIDOVER)[:3]
-				self.animation_start = self.total_time
-				pyglet.clock.unschedule(self.update)
-				pyglet.clock.schedule_interval(self.update, 1/60, direction=-1)
+				self.start_animation(direction=-1)
 			if new == 'down':
 				self.overlay.color = hex_to_int(theme.BUTTON_OVER)[:3]
 
 	def update(self, dt, direction=1):
-		self.total_time += dt
-		easing = lambda a, b, t: a + ((b-a)*(1 - pow(1 - t, 3)))
-		t = clamp((self.total_time - self.animation_start) / self.animation_time, 0, 1)
+		value = self.animation.get_next_value(dt)
 		if direction == 1:
-			self.overlay.radius = easing(0, self.radius, t)
+			self.overlay.radius = value
 		elif direction == -1:
-			self.overlay.radius = easing(self.radius, 0, t)
-		if t == 1:
-			pyglet.clock.unschedule(self.update)
+			self.overlay.radius = self.radius - value
 
 
 class CycleButton(glooey.Button):
@@ -193,7 +199,7 @@ class CycleButton(glooey.Button):
 			text_width, text_height = test_label.do_claim()
 			max_x, max_y = max(max_x, text_width), max(max_y, text_height)
 		return max_x, max_y
-	
+
 	class Base(glooey.Background):
 		custom_color = theme.BUTTON_BASE
 

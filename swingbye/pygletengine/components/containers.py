@@ -46,44 +46,30 @@ class Image(glooey.Image):
 	custom_alignment = 'fill'
 
 
-class Arc(glooey.Widget):
-	custom_a = 360
-	custom_b = 250
+class Around(glooey.Widget):
 
-	def __init__(self, a=None, b=None):
+	class Child:
+
+		def __init__(self, widget, distance, angle):
+			self.widget = widget
+			self.distance = distance
+			self.angle = angle
+			self.animation = None
+
+	def __init__(self):
 		super().__init__()
 		self._children = []
-		self.a = a or self.custom_a
-		self.b = b or self.custom_b
 
 		self.animation = None
 		self.explosion_radius = 1
 
 	def get_children(self):
-		# Return a copy of the list so the caller can't mess up our internal 
-		# state by adding or removing things.
 		return self._children[:]
 
-	def get_radius(self):
-		return self._radius
-
-	def set_radius(self, radius):
-		self._radius = radius
-		self._repack()
-
-	def add(self, widget):
-		self.insert(widget, len(self._children))
-
-	def insert(self, widget, index):
+	def add(self, widget, distance, angle):
 		self._attach_child(widget)
-		self._children.insert(index, widget)
+		self._children.append(self.Child(widget, distance, (angle/360) * 2 * np.pi))
 		self._repack_and_regroup_children()
-
-	def replace(self, old_widget, new_widget):
-		i = self._children.index(old_widget)
-		with self.hold_updates():
-			self.remove(old_widget)
-			self.insert(new_widget, i)
 
 	def remove(self, widget):
 		self._detach_child(widget)
@@ -101,34 +87,34 @@ class Arc(glooey.Widget):
 
 	def do_resize_children(self):
 		for child, offset in self._yield_offsets():
-			rect = child.claimed_rect.copy()
+			rect = child.widget.claimed_rect.copy()
 			rect.center = lerp(self.rect.center_left, self.rect.center, 0.5) + offset
-			child._resize(rect)
+			child.widget._resize(rect)
 
 	def update(self, dt):
-		if self.animation is not None:
-			if self.animation.done:
-				pyglet.clock.unschedule(self.update)
-			else:
-				self.explosion_radius = self.animation.get_next_value(dt)
-				self.do_resize_children()
-		else:
+		done = True
+		for child in self._children:
+			child.distance = child.animation.get_next_value(dt)
+			done = done and child.animation.done
+
+		if done:
 			pyglet.clock.unschedule(self.update)
 
-	def explode(self, explosion_radius, offset, duration):
-		self.explosion_radius = 1
-		self.animation = Animation(
-			keyframes=[
-				Keyframe(1, explosion_radius, duration, lambda a, b, t: a + ((b-a)*(1 - pow(1 - t, 3))))
-			],
-			repeat=False
-		)
-		pyglet.clock.schedule_interval(self.update, 1/60)
+		self.do_resize_children()
+
+	def explode(self, explosion_radius, duration):
+		for child in self._children:
+			child.animation = Animation(
+				keyframes=[
+					Keyframe(child.distance, explosion_radius, duration, lambda a, b, t: a + ((b - a) * (2.70158 * t * t * t - 1.70158 * t * t)))
+				],
+				repeat=False
+			)
+		pyglet.clock.schedule_interval(self.update, 1 / 60)
 
 	def _yield_offsets(self):
-		N = len(self._children) - 1
 		for i, child in enumerate(self._children):
-			offset = glooey.vecrec.Vector(np.sin(np.pi * (i/N)) * self.a, np.cos(np.pi * (i/N)) * self.b) * self.explosion_radius
+			offset = glooey.vecrec.Vector(np.sin(child.angle), np.cos(child.angle)) * child.distance
 			yield child, offset
 
 
@@ -190,14 +176,12 @@ class Freeform(glooey.Widget):
 		assert widget in self._children, "Widget is not in this container"
 		self._child_data[widget]['x'] += dx/self.width
 		self._child_data[widget]['y'] += dy/self.height
-		rect = self._make_rect(self._child_data[widget])
 		self.do_resize_child(widget)
 
 	def move_to(self, widget, x, y):
 		assert widget in self._children, "Widget is not in this container"
 		self._child_data[widget]['x'] = x/self.width
 		self._child_data[widget]['y'] = y/self.height
-		rect = self._make_rect(self._child_data[widget])
 		self.do_resize_child(widget)
 
 	def do_resize(self):

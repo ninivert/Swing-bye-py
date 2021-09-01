@@ -4,6 +4,12 @@ import pyglet
 def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.sprite.Sprite:
 	image = pyglet.resource.image(path)
 
+	# WARNING: when using this, the image associated with the path is forever changed
+	# This is probably causing a ton of unseen side-effects...
+	if size is not None:
+		image.width = size[0]
+		image.height = size[1]
+
 	if anchor == 'center':
 		image.anchor_x = image.width // 2
 		image.anchor_y = image.height // 2
@@ -14,11 +20,8 @@ def create_sprite(path: str, anchor='center', size=None, **kwargs) -> pyglet.spr
 		image.anchor_x = image.width // 2
 		image.anchor_y = 0
 
-	if size is not None:
-		image.width = size[0]
-		image.height = size[1]
-
-	return pyglet.sprite.Sprite(image, **kwargs)
+	sprite = pyglet.sprite.Sprite(image, **kwargs)
+	return sprite
 
 def clamp(value: float, mini: float, maxi: float) -> float:
 	return min(max(value, mini), maxi)

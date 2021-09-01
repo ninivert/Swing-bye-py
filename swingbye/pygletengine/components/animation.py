@@ -1,3 +1,37 @@
+import glooey
+import pyglet
+
+
+class AnimationWidget(glooey.Widget):
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.animation = None
+		self.elapsed_time = 0
+
+	def do_detach(self):
+		self.stop_animation()
+
+	def _update(self, dt, *args, **kwargs):
+		self.elapsed_time += dt
+		self.update(dt, *args, **kwargs)
+		if self.animation.done:
+			self.stop_animation()
+
+	def update(self, dt, *args, **kwargs):
+		raise NotImplementedError('abstract')
+
+	def start_animation(self, *args, **kwargs):
+		if self.animation is not None:
+			self.reset_animation()
+			pyglet.clock.unschedule(self._update)
+			pyglet.clock.schedule_interval(self._update, 1 / 60, *args, **kwargs)
+
+	def stop_animation(self):
+		pyglet.clock.unschedule(self._update)
+
+	def reset_animation(self):
+		self.animation.reset()
 
 
 # should this be an EventDispatcher so it can emit an 'on_animation_end'?
@@ -19,6 +53,10 @@ class Animation:
 	def keyframes(self, keyframes):
 		self._keyframes = keyframes
 		self.total_duration = self.get_total_duration()
+
+	def reset(self):
+		self.done = False
+		self.elapsed_time = 0
 
 	def get_total_duration(self):
 		duration = 0

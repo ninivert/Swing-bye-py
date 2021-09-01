@@ -64,11 +64,11 @@ class Editor(Level):
 				'parg': 0.0,
 				# Planet radius
 				'radius': 10,
-				# Mass{'description': 'Sprite', 
+				# Mass{'description': 'Sprite',
 				'mass': 1
 			}
 		}
-		
+
 		self.state = EditorState.NOTHING
 		self.menu = None
 
@@ -141,7 +141,7 @@ class Editor(Level):
 		if self.state == EditorState.ADDING:
 			self.hud.close_overlay('add_planet')
 			options = self.hud.overlays['add_planet'].option_values
-	
+
 			sprite = options.pop('sprite')
 
 			self.world.planets[self.selected_planet_index].delete()
@@ -172,7 +172,7 @@ class Editor(Level):
 			'parg': {'description': 'Something parg', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': planet.parg},
 			# Planet radius
 			'radius': {'description': 'Radius', 'type': 'slider', 'min_value': 0, 'max_value': 500, 'step': 1, 'default': planet.radius},
-			# Mass{'description': 'Sprite', 
+			# Mass{'description': 'Sprite',
 			'mass': {'description': 'Mass', 'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': planet.mass},
 			# Add child
 			'add_child': {'description': '', 'type': 'button', 'label': 'Add child', 'callback': self.on_add, 'default': None},
@@ -208,7 +208,7 @@ class Editor(Level):
 			'parg': {'description': 'Something parg', 'type': 'slider', 'min_value': 0, 'max_value': 1, 'step': 0.01, 'default': self.planet_defaults['kwargs']['parg']},
 			# Planet radius
 			'radius': {'description': 'Radius', 'type': 'slider', 'min_value': 0, 'max_value': 500, 'step': 1, 'default': self.planet_defaults['kwargs']['radius']},
-			# Mass{'description': 'Sprite', 
+			# Mass{'description': 'Sprite',
 			'mass': {'description': 'Mass', 'type': 'slider', 'min_value': 1, 'max_value': 1000, 'step': 1, 'default': self.planet_defaults['kwargs']['mass']},
 			# Confirm adding button
 			'confirm': {'description': '', 'type': 'button', 'label': 'Confirm', 'callback': self.on_confirm, 'default': None},
@@ -322,10 +322,10 @@ class Editor(Level):
 			data['arguments']['anchor'] = list(planet['planet'].anchor)
 			data['children'] = [convert(child) for child in planet.get('children', [])]
 			return data
-		
+
 		for planet in world['children']:
 			data['world'].append(convert(planet))
-		
+
 		with open('swingbye/levels/editor_test.json', 'w') as file:
 			json.dump(data, file)
 

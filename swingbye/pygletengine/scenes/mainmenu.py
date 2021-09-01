@@ -8,7 +8,7 @@ from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.components.buttons import MainMenuButton
 from swingbye.pygletengine.components.labels import Title
-from swingbye.pygletengine.components.containers import Board, Arc, Image
+from swingbye.pygletengine.components.containers import Board, Around, Image
 from swingbye.pygletengine.components.animation import Animation, Keyframe
 from swingbye.pygletengine.gameobjects.backgroundobject import BackgroundObject
 from swingbye.pygletengine.globals import WINDOW_HEIGHT, TITLE_SIZE_PROPORTION
@@ -41,7 +41,7 @@ class MainMenu(Scene):
 		self.quit_button = None
 
 	def on_click(self, x, y):
-		self.button_container.explode(1.5, 1)
+		# self.button_container.explode(500, 1)
 		world_pos = HitZonePoint(self.camera.screen_to_world(x, y))
 		for planet in self.world.planets:
 			if planet.collides_with(world_pos):
@@ -92,21 +92,24 @@ class MainMenu(Scene):
 
 		# UI AND STUFF
 		self.container = Board()
-		self.button_container = Arc()
+		self.button_container = Around()
 
-		logo = pyglet.resource.image('assets/beautiful_logo.png')
+		# TODO: better logo and placement
+		logo = pyglet.resource.image('assets/logo.png')
+		logo.width = logo.width * 0.27
+		logo.height = logo.height * 0.27
 		self.title = Image(logo)
-		self.start_button = MainMenuButton('Start\ngame', self.to_game, radius=75)
-		self.level_select_button = MainMenuButton('Select\nlevel', self.to_level_select_menu, radius=75)
-		self.level_editor_button = MainMenuButton('Level\neditor', self.to_level_editor, radius=75)
-		self.options_button = MainMenuButton('Options', self.to_options_menu, radius=75)
-		self.quit_button = MainMenuButton('Quit\ngame', exit, radius=75)
+		self.start_button = MainMenuButton('Start\ngame', callback=self.to_game, radius=75, background_sprite='assets/sprites/planet1.png')
+		self.level_select_button = MainMenuButton('Select\nlevel', callback=self.to_level_select_menu, radius=75, background_sprite='assets/sprites/planet2.png')
+		self.level_editor_button = MainMenuButton('Level\neditor', callback=self.to_level_editor, radius=75, background_sprite='assets/sprites/planet3.png')
+		self.options_button = MainMenuButton('Options', callback=self.to_options_menu, radius=75, background_sprite='assets/sprites/planet4.png')
+		self.quit_button = MainMenuButton('Quit\ngame', callback=exit, radius=75, background_sprite='assets/sprites/planet5.png')
 
-		self.button_container.add(self.start_button)
-		self.button_container.add(self.level_select_button)
-		self.button_container.add(self.level_editor_button)
-		self.button_container.add(self.options_button)
-		self.button_container.add(self.quit_button)
+		self.button_container.add(self.start_button, distance=250, angle=0)
+		self.button_container.add(self.level_select_button, distance=250, angle=45)
+		self.button_container.add(self.level_editor_button, distance=250, angle=90)
+		self.button_container.add(self.options_button, distance=250, angle=135)
+		self.button_container.add(self.quit_button, distance=250, angle=180)
 
 		self.container.add(self.title, center_percent=(0.25, 0.9), width_percent=0.4, height_percent=0.2)
 		self.container.add(self.button_container, bottom_left_percent=(0.5, 0), width_percent=0.5, height_percent=1)
@@ -130,7 +133,7 @@ class MainMenu(Scene):
 		self.window.transition_to_scene('OptionsMenu')
 
 	def begin(self):
-		
+
 		self.gui.clear()
 
 		self.load()
@@ -145,7 +148,7 @@ class MainMenu(Scene):
 			self.background = None
 			self.world = None
 			self.camera = None
-	
+
 	def draw(self):
 		self.batch.draw()
 		with self.camera:
@@ -160,7 +163,7 @@ class MainMenu(Scene):
 			self.track_new_planet()
 
 		self.world.step(5)
-	
+
 	def track_new_planet(self, planet=None):
 		if planet is None:
 			self.current_planet = self.get_poi()
