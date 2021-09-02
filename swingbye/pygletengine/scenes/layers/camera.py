@@ -46,7 +46,7 @@ class Camera:
 		if self.parent is not None:
 			self.target_offset *= 0
 			self.anchor = np.array((self.window.width//2, self.window.height//2))
-			self.parent_offset = self.parent.pos.copy()
+			self.parent_offset = np.array((self.parent.pos.x, self.parent.pos.y))
 
 	def set_position(self, x, y):
 		self.offset = np.array((x, y))
@@ -62,7 +62,7 @@ class Camera:
 	def zoom_at(self, x, y, direction):
 		# When camera is tracking something, zoom around it and not the cursor
 		if self.parent is not None:
-			x, y = self.world_to_screen(*self.parent.pos)
+			x, y = self.world_to_screen(*self.parent.pos.to_tuple())
 
 		# Correct the offset to zoom at the correct place (black magic, do not touch)
 		self.offset += (np.array((x, y)) - self.anchor) / self.zoom
@@ -84,7 +84,7 @@ class Camera:
 	def update(self):
 		if self.parent is not None:
 			# Copy to avoid destroying the object's position
-			self.parent_offset = self.parent.pos.copy()
+			self.parent_offset = np.array((self.parent.pos.x, self.parent.pos.y))
 		if self.smooth:
 			smooth = lambda a, b, t: a + (b-a)*(1 - pow(1 - t, 3))
 			self.zoom = smooth(self.zoom, self.target_zoom, 0.05)

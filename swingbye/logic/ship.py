@@ -1,4 +1,5 @@
 import logging
+import numpy
 from swingbye.cphysics import Entity as CEntity
 from swingbye.cphysics import vec2
 from swingbye.logic.mixins import PredictionMixin
@@ -13,6 +14,8 @@ class Ship(CEntity, PredictionMixin):
 
 		self.parent = None
 		self.time = 0.0
+
+		self._pointing = vec2(0.0, 1.0)
 		self.pointing = vec2(0.0, 1.0)
 
 	@property
@@ -56,9 +59,6 @@ class Ship(CEntity, PredictionMixin):
 			self.update_docked_pos()
 
 	def _set_pointing(self, pointing):
-		if type(pointing) is property:
-			pointing = Ship._pointing
-
 		self._pointing = pointing
 
 	pointing = property(_get_pointing, _set_pointing_safe)

@@ -22,6 +22,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def(py::init<>())
 		.def(py::self + py::self)
 		.def(py::self - py::self)
+		.def(- py::self)
 		.def(py::self += py::self)
 		.def(py::self -= py::self)
 		.def(py::self + double())
@@ -41,6 +42,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def("rotate", &vec2::rotate)
 		.def("normalize", &vec2::normalize)
 		.def("ortho", &vec2::ortho)
+		.def("copy", &vec2::copy)
 		.def_static("dist", &vec2::dist)
 		.def_static("dot", &vec2::dot)
 		.def_static("cross", &vec2::cross)
@@ -70,7 +72,8 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_property_readonly("vel", &ExplicitEntity::get_vel)
 		.def_property_readonly("mass", &ExplicitEntity::get_mass)
 		.def_property("time", &ExplicitEntity::get_time, &ExplicitEntity::set_time)
-		.def("_set_time", &ExplicitEntity::set_time)
+		.def("_get_time", &ExplicitEntity::get_time)  // used for python property override
+		.def("_set_time", &ExplicitEntity::set_time)  // used for python property override
 		.def("pos_at", &ExplicitEntity::pos_at)
 		.def("vel_at", &ExplicitEntity::vel_at);
 
@@ -85,7 +88,8 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_readwrite("parg", &Planet::parg)
 		.def_readwrite("anchor", &Planet::anchor)
 		.def_property("time", &Planet::get_time, &Planet::set_time)
-		.def("_set_time", &Planet::set_time)
+		.def("_get_time", &Planet::get_time)  // used for python property override
+		.def("_set_time", &Planet::set_time)  // used for python property override
 		.def("pos_at", &Planet::pos_at)
 		.def("rel_pos_at", &Planet::rel_pos_at)
 		.def("vel_at", &Planet::vel_at)
@@ -128,6 +132,8 @@ PYBIND11_MODULE(cphysics, m) {
 			py::doc("A list of entities references, identical in memory to get_entity(index)")
 		)
 		.def_property("time", &World::get_time, &World::set_time)
+		.def("_get_time", &World::get_time)  // used for python property override
+		.def("_set_time", &World::set_time)  // used for python property override
 		.def("forces_on", &World::forces_on)
 		.def("step", &World::step)
 		.def("kinetic_energy", &World::kinetic_energy)
@@ -159,6 +165,7 @@ PYBIND11_MODULE(cphysics, m) {
 			py::arg("vel") = vec2(),
 			py::arg("mass") = 1.0
 		)
+		.def("add_entity_existing", &World::add_entity_existing)
 		.def("rm_entity", &World::rm_entity)
 		.def(py::init<>())
 		.def("__repr__", &World::str);

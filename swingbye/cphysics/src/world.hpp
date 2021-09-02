@@ -27,8 +27,8 @@ public:
 		set_time(time + dt);
 	}
 
-	void set_time(double time_) {
-		time = time_;
+	void set_time(double new_time) {
+		time = new_time;
 		for (std::shared_ptr<ExplicitEntity>& planet_ptr : planets_ptr) {
 			planet_ptr->set_time(time);
 		}
@@ -53,6 +53,9 @@ public:
 	}
 	void add_entity(vec2 const& pos_, vec2 const& vel_, double mass_) {
 		entities_ptr.push_back(std::make_shared<Entity>(pos_, vel_, mass_));
+	}
+	void add_entity_existing(std::shared_ptr<Entity> new_entity) {
+		entities_ptr.push_back(new_entity);
 	}
 	void rm_entity(unsigned int index) {
 		entities_ptr.erase(entities_ptr.begin() + index);

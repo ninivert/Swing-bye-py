@@ -41,6 +41,7 @@ struct vec2 {
 
 	vec2 operator+(vec2 const& v) const { return vec2(x + v.x, y + v.y); }
 	vec2 operator-(vec2 const& v) const { return vec2(x - v.x, y - v.y); }
+	vec2 operator-() const { return vec2(-x, -y); }
 
 	vec2& operator+=(vec2 const& v) {
 		x += v.x;
@@ -114,6 +115,10 @@ struct vec2 {
 
 	vec2 ortho() const {
 		return vec2(y, -x);
+	}
+
+	vec2 copy() const {
+		return vec2(*this);
 	}
 
 	static double dist(vec2 const& v1, vec2 const& v2) {

@@ -47,11 +47,11 @@ public:
 	}
 
 	virtual vec2 pos_at(double time) const override {
-		PYBIND11_OVERRIDE_PURE(vec2, Planet, pos_at, time);
+		PYBIND11_OVERRIDE(vec2, Planet, pos_at, time);
 	}
 
 	virtual vec2 vel_at(double time) const override {
-		PYBIND11_OVERRIDE_PURE(vec2, Planet, vel_at, time);
+		PYBIND11_OVERRIDE(vec2, Planet, vel_at, time);
 	}
 };
 

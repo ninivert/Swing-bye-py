@@ -77,6 +77,7 @@ if __name__ == '__main__':
 	world.step(0.25)
 	world.step(0.25)
 	print(world)
+	print(f'world time is {world.time}')
 
 	print('>>> printing planet stored positions at time=1')
 	print(world.planets[0].pos)

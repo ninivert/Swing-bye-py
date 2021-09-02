@@ -190,8 +190,6 @@ class Level(Scene):
 							elif planet.game_entity == GameEntity.WORMHOLE:
 								self.dispatch_event('on_win')
 
-
-
 		if DEBUG_CAMERA:
 			# WARNING: lines are always late by 1 frame
 			# do not trust them too much on fast moving entities
@@ -203,7 +201,8 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
-		self.hud.show_graph()
+		# TODO : unhide the graph, transition to vec2 compatibility
+		# self.hud.show_graph()
 
 	def reset(self):
 		self.hud.reset()
