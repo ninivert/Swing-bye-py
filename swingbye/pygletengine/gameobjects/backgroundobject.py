@@ -2,6 +2,8 @@ import pyglet
 import numpy as np
 from swingbye.pygletengine.gameobjects.entities import StarObject
 from swingbye.pygletengine.utils import create_sprite
+from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
+from swingbye.cphysics import vec2
 import swingbye.pygletengine.globals as g
 
 
@@ -41,9 +43,10 @@ class BackgroundObject:
 			'assets/sprites/particle_star2_2.png'
 		]
 		for i in range(self.n_stars):
+			pos = np.random.rand(2)*np.array((self.sprite.width, self.sprite.height))
 			self.stars.append(
 				StarObject(
-					pos=np.random.rand(2)*np.array((self.sprite.width, self.sprite.height)),
+					pos=vec2(pos[0], pos[1]),
 					sprite=create_sprite(
 						np.random.choice(stars_img),
 						size=(5, 5),

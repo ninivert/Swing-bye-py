@@ -115,7 +115,7 @@ class World():
 			for i, t in enumerate(np.linspace(self.time, self.time + planet.prediction.shape[0]*PLANET_PREDICTION_DT, planet.prediction.shape[0])):
 				planet.prediction[i, :] = planet.pos_at(t)  # Doesn't call the setter
 
-			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PredictionMixin
+			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PathMixin
 
 	# Energy
 

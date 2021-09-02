@@ -1,30 +1,43 @@
 import math
 from random import random
-from swingbye.physics.ship import Ship
-from swingbye.physics.planet import Planet
-from swingbye.physics.entity import ImplicitEntity
-from swingbye.physics.collisions import HitZoneDisk
-from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PredictionMixin
+from swingbye.cphysics import Entity
+from swingbye.logic.ship import Ship
+from swingbye.logic.planet import Planet
+from swingbye.logic.collisions import HitZoneDisk
+from swingbye.pygletengine.gameobjects.mixins import SpriteMixin, PathMixin
 from swingbye.pygletengine.globals import GameEntity
-from dataclasses import dataclass
+from swingbye.pygletengine.components.paths import LinePath
+from swingbye.globals import PLANET_PREDICTION_N, SHIP_PREDICTION_N
 
+class StarObject(SpriteMixin, Entity):
+	def __init__(self, *args, **kwargs):
+		if 'sprite' in kwargs:
+			SpriteMixin.__init__(self, sprite=kwargs['sprite'])
+			del kwargs['sprite']
 
-@dataclass
-class StarObject(SpriteMixin, ImplicitEntity):
-	def __post_init__(self):
+		Entity.__init__(self, *args, **kwargs)
+
 		scale = 1 + random()
-		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
+		self.sprite.update(x=self.pos.x, y=self.pos.x, scale=scale)
 
 	def delete(self):
 		self.sprite.delete()
+		
+
+class ShipObject(SpriteMixin, PathMixin, HitZoneDisk, Ship):
+	def __init__(self, *args, **kwargs):
+		if 'sprite' in kwargs:
+			SpriteMixin.__init__(self, sprite=kwargs['sprite'])
+			del kwargs['sprite']
+		else:
+			SpriteMixin.__init__(self)
 
 
-@dataclass
-class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
-	def __post_init__(self):
 		self.radius = 10  # set ship hitbox
 		scale = self.radius / (self.sprite.width//2)
-		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
+		self.sprite.update(x=self.pos.x, y=self.pos.y, scale=scale)
+
+	# TODO : move pointing logic to a mixin
 
 	def _get_vel(self):
 		return super().vel
@@ -42,8 +55,7 @@ class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
 
 	def _set_pointing(self, pointing):
 		super()._set_pointing(pointing)
-		if type(pointing) is not property:
-			self.sprite.rotation = -math.degrees(math.atan2(pointing[1], pointing[0])) + 90
+		self.sprite.rotation = -math.degrees(math.atan2(pointing.y, pointing.x)) + 90
 
 	pointing = property(_get_pointing, Ship._set_pointing_safe)
 
@@ -52,12 +64,38 @@ class ShipObject(SpriteMixin, PredictionMixin, HitZoneDisk, Ship):
 		self.path.delete()
 
 
-@dataclass
-class PlanetObject(SpriteMixin, PredictionMixin, HitZoneDisk, Planet):
-	game_entity: GameEntity = GameEntity.PLANET
+class PlanetObject(SpriteMixin, PathMixin, HitZoneDisk, Planet):
+	def __init__(self, *args, **kwargs):
+		# TODO : clean this up !
 
-	def __post_init__(self):
+		if 'sprite' in kwargs:
+			SpriteMixin.__init__(self, sprite=kwargs['sprite'])
+			del kwargs['sprite']
+		else:
+			SpriteMixin.__init__(self)
+
+		if 'path' in kwargs:
+			PathMixin.__init__(self, path=kwargs['path'])
+			del kwargs['path']
+		else:
+			# TODO : Planet already has a prediction mixin,
+			# read from the prediction mixin to init the LinePath
+			PathMixin.__init__(self, path=LinePath(point_count=PLANET_PREDICTION_N))
+
+		if 'radius' in kwargs:
+			HitZoneDisk.__init__(self, radius=kwargs['radius'])
+			del kwargs['radius']
+		else:
+			HitZoneDisk.__init__(self)
+
+		if 'game_entity' in kwargs:
+			self.game_entity = GameEntity.PLANET
+			del kwargs['game_entity']
+
+		Planet.__init__(self, *args, **kwargs)
+
 		scale = self.radius / (self.sprite.height//2)
+		self.sprite.update(x=self.pos.x, y=self.pos.y, scale=scale)
 		self.sprite.update(x=self.pos[0], y=self.pos[1], scale=scale)
 
 	def delete(self):

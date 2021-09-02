@@ -3,7 +3,7 @@ import numpy as np
 import json
 import logging
 from swingbye.levels.parser import parse_level
-from swingbye.physics.world import WorldStates
+from swingbye.logic.world import WorldStates
 from swingbye.pygletengine.utils import point_in_rect
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
@@ -214,7 +214,8 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
-		self.hud.show_graph()
+		# TODO : unhide the graph, transition to vec2 compatibility
+		# self.hud.show_graph()
 
 	def check_collision(self):
 		for planet in self.world.planets:

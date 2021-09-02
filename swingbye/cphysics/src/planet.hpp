@@ -6,11 +6,11 @@
 #include "globals.h"
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 class Planet : public ExplicitEntity {
 private:
-	// TODO : use std::shared_ptr
-	Planet* parent = nullptr;
+	std::shared_ptr<Planet> parent = nullptr;
 
 public:
 	double maxis = 1.0;
@@ -23,11 +23,12 @@ public:
 	Planet() = default;
 	Planet(double mass_, double maxis_, double ecc_, double time0_, double incl_, double parg_, vec2 anchor_)
 		: ExplicitEntity(mass_), maxis(maxis_), ecc(ecc_), time0(time0_), incl(incl_), parg(parg_), anchor(anchor_) {}
+	virtual ~Planet() {}
 
-	void set_parent(Planet& planet) { parent = &planet; }
-	void rm_parent() { parent = nullptr; }
+	void set_parent(std::shared_ptr<Planet> new_parent) { parent = new_parent; }
+	void rm_parent() { parent.reset(); }
 
-	vec2 pos_at(double time) const {
+	virtual vec2 pos_at(double time) const override {
 		vec2 ret = vec2(0, 0);
 		const Planet* daddy = this;
 
@@ -36,7 +37,7 @@ public:
 			if (daddy->parent == nullptr) {
 				ret += daddy->anchor;
 			}
-			daddy = daddy->parent;
+			daddy = daddy->parent.get();
 		}
 
 		return ret;
@@ -103,18 +104,23 @@ public:
 		ret.y = r*sintheta;
 
 		// Argument of periaxis
-		// double x = ret.x;
-		// double y = ret.y;
-		// ret.x = x*std::cos(parg) - y*std::sin(parg);
-		// ret.y = x*std::sin(parg) + y*std::cos(parg);
+		double x = ret.x;
+		double y = ret.y;
+		ret.x = x*std::cos(parg) - y*std::sin(parg);
+		ret.y = x*std::sin(parg) + y*std::cos(parg);
 
 		// Inclination
-		// ret.x *= std::cos(incl);
+		ret.x *= std::cos(incl);
 
 		return ret;
 	}
 
-	std::string str() const {
+	virtual vec2 vel_at(double time) const override {
+		double dt = 0.16666;
+		return (pos_at(time+dt/2.0) - pos_at(time-dt/2.0)) / dt;
+	}
+
+	virtual std::string str() const override {
 		return "Planet(mass=" + std::to_string(mass) + ", maxis=" + std::to_string(maxis) + ", ecc=" + std::to_string(ecc) + ", time0=" + std::to_string(time0) + ", incl=" + std::to_string(incl) + ", parg=" + std::to_string(parg) + ", anchor=" + anchor.str() + ")";
 	}
 };

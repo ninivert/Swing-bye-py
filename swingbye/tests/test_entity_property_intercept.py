@@ -3,7 +3,7 @@ from swingbye.cphysics import Entity, vec2
 class PyEntity(Entity):
 	def __init__(self):
 		Entity.__init__(self)
-		self.pointing = False
+		self.asdf = False
 
 	def _get_pos(self):
 		print('get pos')
@@ -20,4 +20,4 @@ if __name__ == '__main__':
 	print(e.pos)
 	e.pos = vec2(3, 4)
 	print(e.pos)
-	print(e.pointing)
+	print(e.asdf)
