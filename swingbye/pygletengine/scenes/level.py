@@ -1,5 +1,4 @@
 import pyglet
-import numpy as np
 import json
 import logging
 from swingbye.levels.parser import parse_level

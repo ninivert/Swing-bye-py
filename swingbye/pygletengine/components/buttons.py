@@ -1,7 +1,7 @@
 import pyglet
 import glooey
 from glooey.drawing.color import hex_to_int
-import numpy as np
+from swingbye.cphysics import vec2
 import swingbye.pygletengine.components.theme as theme
 from swingbye.pygletengine.components.animation import AnimationWidget, Animation, Keyframe
 from swingbye.pygletengine.components.labels import ButtonLabel, Description
@@ -149,7 +149,7 @@ class MainMenuButton(AnimationWidget):
 			self.on_rollover(self, 'base', 'over')
 
 	def on_mouse_motion(self, x, y, dx, dy):
-		new_over = np.linalg.norm(np.array((x, y)) - np.array((self.rect.center_x, self.rect.center_y))) < self.radius
+		new_over = (vec2(x, y) - vec2(self.rect.center_x, self.rect.center_y)).length() < self.radius
 		self.mouse_change = new_over ^ self.mouse_over
 		self.mouse_over = new_over
 		if self.mouse_over and self.mouse_change:

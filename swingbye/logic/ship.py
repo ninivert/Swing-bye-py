@@ -1,5 +1,4 @@
 import logging
-import numpy
 from swingbye.cphysics import Entity as CEntity
 from swingbye.cphysics import vec2
 from swingbye.logic.mixins import PredictionMixin

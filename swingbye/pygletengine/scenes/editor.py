@@ -1,11 +1,9 @@
 import pyglet
-import numpy as np
 import json
-import copy
 import logging
 from swingbye.levels.parser import parse_level
-from swingbye.physics.world import WorldStates
-from swingbye.physics.collisions import HitZonePoint
+from swingbye.logic.world import WorldStates
+from swingbye.logic.collisions import HitZonePoint
 from swingbye.pygletengine.components.overlays import OptionsOverlay
 from swingbye.pygletengine.utils import point_in_rect, create_sprite
 from swingbye.pygletengine.scenes.level import Level

@@ -19,6 +19,7 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_readwrite("x", &vec2::x)
 		.def_readwrite("y", &vec2::y)
 		.def(py::init<double, double>(), py::arg("x") = 0.0, py::arg("y") = 0.0)
+		.def(py::init<vec2>())
 		.def(py::init<>())
 		.def(py::self + py::self)
 		.def(py::self - py::self)
@@ -46,7 +47,11 @@ PYBIND11_MODULE(cphysics, m) {
 		.def_static("dist", &vec2::dist)
 		.def_static("dot", &vec2::dot)
 		.def_static("cross", &vec2::cross)
-		.def("to_tuple", [](vec2 const& v) { return py::make_tuple(v.x, v.y); })
+		.def("__getitem__", [](vec2 const& v, unsigned int index) {
+			if (index == 0) return v.x;
+			if (index == 1) return v.y;
+			throw std::out_of_range("out of bounds index `" + std::to_string(index) + "` on vec2 instance");
+		})
 		.def("__repr__", &vec2::str);
 
 	py::classh<Entity, PyEntity>(m, "Entity")

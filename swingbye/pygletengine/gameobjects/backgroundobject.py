@@ -2,7 +2,6 @@ import pyglet
 import numpy as np
 from swingbye.pygletengine.gameobjects.entities import StarObject
 from swingbye.pygletengine.utils import create_sprite
-from swingbye.pygletengine.scenes.layers.parallax import ParallaxGroup
 from swingbye.cphysics import vec2
 import swingbye.pygletengine.globals as g
 
@@ -31,7 +30,7 @@ class BackgroundObject:
 		self.sprite.opacity = 180
 
 		self.stars_group = pyglet.graphics.OrderedGroup(0, parent=self.group)
-	
+
 		self.populate_stars()
 
 	def populate_stars(self):
@@ -55,6 +54,9 @@ class BackgroundObject:
 					)
 				)
 			)
+			print(pos)
+			print(self.stars[-1].pos)
+			print(self.stars[-1].sprite.position)
 
 	def delete(self):
 		self.sprite.delete()

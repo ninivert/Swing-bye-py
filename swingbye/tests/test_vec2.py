@@ -53,3 +53,17 @@ if __name__ == '__main__':
 
 	print('>>> vec2.cross()')
 	print(vec2.cross(vec2(1, 0), vec2(2, 5)))
+
+	print('>>> indexing vec2(4, 5)')
+	print(vec2(4, 5)[0])
+	print(vec2(4, 5)[1])
+	try:
+		print(vec2(4, 5)[2])
+	except IndexError as e:
+		print(e)
+
+	print('>>> unpacking vec2(4, 5)')
+	print(*(vec2(4, 5)))
+
+	print('>>> casting to tuple')
+	print(tuple(vec2(4, 5)))

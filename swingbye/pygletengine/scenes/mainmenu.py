@@ -3,7 +3,7 @@ import json
 import numpy as np
 from pyglet.app import exit
 from swingbye.levels.parser import parse_level
-from swingbye.physics.collisions import HitZonePoint
+from swingbye.logic.collisions import HitZonePoint
 from swingbye.pygletengine.scenes.scene import Scene
 from swingbye.pygletengine.scenes.layers.camera import Camera
 from swingbye.pygletengine.components.buttons import MainMenuButton
@@ -171,7 +171,7 @@ class MainMenu(Scene):
 			self.current_planet = planet
 		self.camera.set_parent(self.current_planet)
 		self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
-		self.camera.target_zoom = self.get_zoom_at_distance(np.linalg.norm(self.current_planet.pos))
+		self.camera.target_zoom = self.get_zoom_at_distance(self.current_planet.pos.length())
 
 	def get_zoom_at_distance(self, x):
 		return -0.0000005 * x * (x - 2000) + 0.2
@@ -189,7 +189,7 @@ class MainMenu(Scene):
 		for i, planet in enumerate(self.world.planets):
 			vel = planet.vel
 			pos = planet.pos
-			current_velocity = np.linalg.norm(vel)
+			current_velocity = vel.length()
 			if current_velocity > most_velocity:
 				most_velocity = current_velocity
 				self.poi_data['most_velocity'] = planet
@@ -198,16 +198,16 @@ class MainMenu(Scene):
 			if current_velocity_change > most_velocity_change:
 				most_velocity_change = current_velocity_change
 				self.poi_data['most_velocity_change'] = planet
-			
+
 			# Do not use the sun's distance... from the sun
-			current_distance = np.linalg.norm(pos) if (pos[0] != 0 and pos[1] != 0) else np.inf
+			current_distance = pos.length() if (pos[0] != 0 and pos[1] != 0) else np.inf
 			if current_distance > most_distance:
 				most_distance = current_distance
 				self.poi_data['most_distance'] = planet
 			if current_distance < least_distance:
 				least_distance = current_distance
 				self.poi_data['least_distance'] = planet
-			
+
 			current_zoom = self.get_zoom_at_distance(current_distance)
 			if current_zoom > most_zoom:
 				most_zoom = current_zoom
@@ -215,8 +215,8 @@ class MainMenu(Scene):
 			if current_zoom < least_zoom:
 				least_zoom = current_zoom
 				self.poi_data['least_zoom'] = planet
-			
-			current_density = min(most_density, sum([np.linalg.norm(p.pos - pos) for p in self.world.planets if p is not planet]) / len(self.world.planets))
+
+			current_density = min(most_density, sum([(p.pos - pos).length() for p in self.world.planets if p is not planet]) / len(self.world.planets))
 			if current_density < most_density:
 				most_density = current_density
 				self.poi_data['most_density'] = planet
@@ -245,7 +245,7 @@ class MainMenu(Scene):
 		wanted = lambda p: (p.radius > 5)
 		# wanted = lambda p: ((p is self.poi_data['previous_planet']) or (p is self.poi_data['most_picks']) or (p.radius > 5))
 		candidates = filter(wanted, candidates)
-		
+
 		picked = np.random.choice(list(candidates))
 
 		self.poi_data['picks'][picked] += 1
@@ -261,4 +261,3 @@ class MainMenu(Scene):
 		# Otherwise, this was fun to try to figure out!
 
 		return picked
-

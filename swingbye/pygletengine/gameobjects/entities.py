@@ -18,11 +18,11 @@ class StarObject(SpriteMixin, Entity):
 		Entity.__init__(self, *args, **kwargs)
 
 		scale = 1 + random()
-		self.sprite.update(x=self.pos.x, y=self.pos.x, scale=scale)
+		self.sprite.update(x=self.pos.x, y=self.pos.y, scale=scale)
 
 	def delete(self):
 		self.sprite.delete()
-		
+
 
 class ShipObject(SpriteMixin, PathMixin, HitZoneDisk, Ship):
 	def __init__(self, *args, **kwargs):
@@ -32,6 +32,19 @@ class ShipObject(SpriteMixin, PathMixin, HitZoneDisk, Ship):
 		else:
 			SpriteMixin.__init__(self)
 
+		if 'path' in kwargs:
+			PathMixin.__init__(self, path=kwargs['path'])
+			del kwargs['path']
+		else:
+			PathMixin.__init__(self, path=LinePath(point_count=SHIP_PREDICTION_N))
+
+		if 'radius' in kwargs:
+			HitZoneDisk.__init__(self, radius=kwargs['radius'])
+			del kwargs['radius']
+		else:
+			HitZoneDisk.__init__(self)
+
+		Ship.__init__(self, *args, **kwargs)
 
 		self.radius = 10  # set ship hitbox
 		scale = self.radius / (self.sprite.width//2)

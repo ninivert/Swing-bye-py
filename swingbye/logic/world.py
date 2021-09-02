@@ -52,10 +52,6 @@ class World(CWorld):
 		if not self.ship.docked:
 			return
 
-		# TODO : remove me once everything is unified
-		if isinstance(clickpos, numpy.ndarray):
-			clickpos = vec2(clickpos[0], clickpos[1])
-
 		pointing = clickpos - self.ship.parent.pos
 		pointing_norm = pointing.length()
 
@@ -84,14 +80,14 @@ class World(CWorld):
 				c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
 
 			for i, sample in enumerate(c_prediction):
-				ship.prediction[i, :] = sample.to_tuple()
+				ship.prediction[i, :] = tuple(sample)
 
 			ship.prediction = ship.prediction
 
 	def update_planets_prediction(self):
 		for planet in self.planets:
 			for i, t in enumerate(numpy.linspace(self.time, self.time + planet.prediction.shape[0]*PLANET_PREDICTION_DT, planet.prediction.shape[0])):
-				planet.prediction[i, :] = planet.pos_at(t).to_tuple()  # Doesn't call the setter
+				planet.prediction[i, :] = tuple(planet.pos_at(t))  # Doesn't call the setter
 
 			planet.prediction = planet.prediction  # HACK : update the vertices in swingbye.pygletengine.gameobjects.utils.PathMixin
 
