@@ -28,6 +28,7 @@ class World(CWorld):
 		for ship in self.entities:
 			ship.time = time  # ship subclasses cphysics.Entity to have a time property
 			ship.pos = ship.pos  # HACK : trigger the position setter
+			ship.vel = ship.vel  # HACK : trigger the position setter
 
 		for planet in self.planets:
 			planet.pos = planet.pos  # HACK : trigger the position setter
@@ -39,14 +40,7 @@ class World(CWorld):
 
 	def step(self, dt):
 		CWorld.step(self, dt)
-
-		for ship in self.entities:
-			ship.time = self.time  # ship subclasses cphysics.Entity to have a time property
-			ship.pos = ship.pos  # HACK : trigger the position setter
-			ship.vel = ship.vel  # HACK : trigger the position setter
-
-		for planet in self.planets:
-			planet.pos = planet.pos  # HACK : trigger the position setter
+		self.time = self.time  # HACK : trigger the time setter
 
 	# Game logic
 
@@ -76,20 +70,23 @@ class World(CWorld):
 
 	def update_ships_prediction(self):
 		for ship in self.entities:
-			if not ship.docked:
-				_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
-				return
+			# if not ship.docked:
+			# 	_logger.warning('ship prediction doesn\'t need to be updated since ship is launched')
+			# 	return
 
 			# TODO : prevent copy by STL vector -> numpy array
-			old_vel = self.ship.vel
-			self.ship.vel = self.ship.pointing*(SHIP_LAUNCH_SPEED + self.ship.parent.vel.length())
-			c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
-			self.ship.vel = old_vel
+			if ship.docked:
+				old_vel = self.ship.vel
+				self.ship.vel = self.ship.pointing*(SHIP_LAUNCH_SPEED + self.ship.parent.vel.length())
+				c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
+				self.ship.vel = old_vel
+			else:
+				c_prediction = self.get_predictions(self.ship, self.time, self.time + (self.ship.prediction.shape[0]-1)*PHYSICS_DT, self.ship.prediction.shape[0])
 
 			for i, sample in enumerate(c_prediction):
 				ship.prediction[i, :] = sample.to_tuple()
 
-			ship.prediction = self.ship.prediction
+			ship.prediction = ship.prediction
 
 	def update_planets_prediction(self):
 		for planet in self.planets:
