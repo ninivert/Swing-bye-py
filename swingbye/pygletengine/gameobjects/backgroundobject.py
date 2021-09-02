@@ -54,9 +54,6 @@ class BackgroundObject:
 					)
 				)
 			)
-			print(pos)
-			print(self.stars[-1].pos)
-			print(self.stars[-1].sprite.position)
 
 	def delete(self):
 		self.sprite.delete()

@@ -213,8 +213,7 @@ class Level(Scene):
 
 	def launch_ship(self):
 		self.world.launch_ship()
-		# TODO : unhide the graph, transition to vec2 compatibility
-		# self.hud.show_graph()
+		self.hud.show_graph()
 
 	def check_collision(self):
 		for planet in self.world.planets:
