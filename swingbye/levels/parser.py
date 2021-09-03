@@ -39,7 +39,7 @@ def parse_level(level: dict, batch: pyglet.graphics.Batch, group: pyglet.graphic
 				# TODO: colors
 				path=PointPath(batch=batch, point_count=PLANET_PREDICTION_N),
 				# TODO : named planets
-				# name=child_dict['name'],
+				name=child_dict['name'],
 				game_entity=GameEntity.PLANET if child_dict['type'] == 'planet' else GameEntity.WORMHOLE,
 				**child_dict['arguments']
 			))

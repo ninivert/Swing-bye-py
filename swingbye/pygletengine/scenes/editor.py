@@ -144,7 +144,7 @@ class Editor(Level):
 
 			self.world.planets[self.selected_planet_index].delete()
 			planet = self.create_planet(sprite, self.world.planets[self.selected_planet_index].parent, options)
-			self.world.planets[self.selected_planet_index] = planet
+			self.world.add_planet_existing(planet)
 
 		self.world.time = self.world.time
 		self.state = EditorState.NOTHING
@@ -181,8 +181,7 @@ class Editor(Level):
 			# Cancel
 			'cancel': {'description': '', 'type': 'button', 'label': 'Cancel', 'callback': self.on_cancel, 'default': None}
 		}
-		# TODO: planet name as title
-		self.menu = OptionsOverlay('Edit {NAME}', options_dict)
+		self.menu = OptionsOverlay(f'Edit {self.world.planets[self.selected_planet_index].name}', options_dict)
 		# Kinda hacky because should work without, but eh
 		self.menu.set_handler('on_option_change', self.on_option_change)
 		self.hud.add_overlay('edit_planet', self.menu)
@@ -255,24 +254,25 @@ class Editor(Level):
 			sprite=create_sprite(sprite, subpixel=True, batch=self.world_batch, group=pyglet.graphics.OrderedGroup(0, parent=self.world_group)),
 			# TODO: colors
 			path=PointPath(batch=self.world_batch, fade=True, point_count=PLANET_PREDICTION_N),
-			parent=parent,
+			# parent=parent,
 			# TODO : named planets
 			# name=child_dict['name'],
 			game_entity=GameEntity.PLANET,
 			**options
 		)
+		planet.set_parent(parent)
 		return planet
 
 	def add_planet(self, sprite, parent, options):
 		planet = self.create_planet(sprite, parent, options)
-		self.world.planets.append(planet)
+		self.world.add_planet_existing(planet)
 
 		# HACK: need a world.update function
 		self.world.time = self.world.time
 
 	def delete_planet(self, index):
 		self.world.planets[index].delete()
-		self.world.planets.pop(index)
+		self.world.rm_planet(index)
 		self.hud.close_overlay('edit_planet')
 		self.deselect_planet()
 
@@ -289,7 +289,7 @@ class Editor(Level):
 			"background_sprite": "assets/bg3.png",
 			"world": []
 		}
-		
+
 		# https://stackoverflow.com/questions/7523920/converting-a-parent-child-relationship-into-json-in-python
 		world = {'planet': None}
 		lookup = {None: world}

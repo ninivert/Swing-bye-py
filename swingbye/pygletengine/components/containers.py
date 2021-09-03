@@ -3,7 +3,7 @@ import glooey
 import numpy as np
 import swingbye.pygletengine.components.theme as theme
 from swingbye.pygletengine.components.animation import Keyframe, Animation
-from swingbye.pygletengine.utils import lerp
+from swingbye.pygletengine.utils import lerp, create_sprite
 from swingbye.pygletengine.globals import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
@@ -42,8 +42,45 @@ class Dialog(glooey.dialogs.Dialog):
 	custom_alignment = 'center'
 
 
-class Image(glooey.Image):
-	custom_alignment = 'fill'
+class Image(glooey.Widget):
+
+	def __init__(self, image_path):
+		super().__init__()
+		self.sprite = None
+		self.image_path = image_path
+		self.loaded = False
+
+	def load(self):
+		self.sprite = create_sprite(self.image_path, batch=self.batch, group=self.group)
+		scale_x = self.width / self.sprite.width
+		scale_y = self.height / self.sprite.height
+		scale = min(scale_x, scale_y)
+		self.sprite.scale = scale
+		self.sprite.position = self.rect.center
+		self.loaded = True
+
+	def do_claim(self):
+		# Fake do_claim to not have glooey be annoying with going offscreen
+		return 0, 0
+
+	def do_draw(self):
+		if not self.loaded:
+			self.load()
+
+	def do_undraw(self):
+		if self.loaded:
+			self.sprite.delete()
+			self.sprite = None
+			self.loaded = False
+
+	def do_resize(self):
+		if self.loaded:
+			self.sprite.scale = 1
+			scale_x = self.width / self.sprite.width
+			scale_y = self.height / self.sprite.height
+			scale = min(scale_x, scale_y)
+			self.sprite.scale = scale
+			self.sprite.position = self.rect.center
 
 
 class Around(glooey.Widget):

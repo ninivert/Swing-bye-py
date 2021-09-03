@@ -164,6 +164,7 @@ class Level(Scene):
 		self.load_hud()
 
 		self.camera.set_parent(self.world.ship)
+		self.game_state = GameState.RUNNING
 
 	def begin(self):
 		self.gui.clear()

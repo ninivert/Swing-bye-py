@@ -105,6 +105,12 @@ class PlanetObject(SpriteMixin, PathMixin, HitZoneDisk, Planet):
 			self.game_entity = GameEntity.PLANET
 			del kwargs['game_entity']
 
+		if 'name' in kwargs:
+			self.name = kwargs['name']
+			del kwargs['name']
+		else:
+			self.name = 'planet'
+
 		Planet.__init__(self, *args, **kwargs)
 
 		scale = self.radius / (self.sprite.height//2)

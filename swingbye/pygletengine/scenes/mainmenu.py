@@ -85,7 +85,7 @@ class MainMenu(Scene):
 
 		self.camera = Camera(self.window, smooth_level=1)
 		self.camera.set_parent(self.current_planet)
-		self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
+		self.camera.set_anchor((self.window.width//3), (self.window.height//2))
 		self.camera.set_zoom(0.75)
 
 		self.background = BackgroundObject(level['background_sprite'], self.camera, self.batch, self.world_group)
@@ -95,10 +95,8 @@ class MainMenu(Scene):
 		self.button_container = Around()
 
 		# TODO: better logo and placement
-		logo = pyglet.resource.image('assets/logo.png')
-		logo.width = logo.width * 0.27
-		logo.height = logo.height * 0.27
-		self.title = Image(logo)
+		# logo = pyglet.resource.image('assets/logo.png')
+		self.title = Image('assets/logo.png')
 		self.start_button = MainMenuButton('Start\ngame', callback=self.to_game, radius=75, background_sprite='assets/sprites/planet1.png')
 		self.level_select_button = MainMenuButton('Select\nlevel', callback=self.to_level_select_menu, radius=75, background_sprite='assets/sprites/planet2.png')
 		self.level_editor_button = MainMenuButton('Level\neditor', callback=self.to_level_editor, radius=75, background_sprite='assets/sprites/planet3.png')
@@ -106,19 +104,13 @@ class MainMenu(Scene):
 		self.quit_button = MainMenuButton('Quit\ngame', callback=exit, radius=75, background_sprite='assets/sprites/planet5.png')
 
 		self.button_container.add(self.start_button, distance=250, angle=0)
-		self.button_container.add(self.level_select_button, distance=250, angle=45)
-		self.button_container.add(self.level_editor_button, distance=250, angle=90)
-		self.button_container.add(self.options_button, distance=250, angle=135)
+		self.button_container.add(self.level_select_button, distance=275, angle=50)
+		self.button_container.add(self.level_editor_button, distance=300, angle=90)
+		self.button_container.add(self.options_button, distance=275, angle=130)
 		self.button_container.add(self.quit_button, distance=250, angle=180)
 
-		self.container.add(self.title, center_percent=(0.25, 0.9), width_percent=0.4, height_percent=0.2)
+		self.container.add(self.title, center_percent=(0.15, 0.9), width_percent=0.3, height_percent=0.2)
 		self.container.add(self.button_container, bottom_left_percent=(0.5, 0), width_percent=0.5, height_percent=1)
-
-		# self.container.add(self.start_button, x=0.7, y=0.7, width=250, height=50)
-		# self.container.add(self.level_select_button, x=0.7, y=0.6, width=250, height=50)
-		# self.container.add(self.level_editor_button, x=0.7, y=0.5, width=250, height=50)
-		# self.container.add(self.options_button, x=0.7, y=0.4, width=250, height=50)
-		# self.container.add(self.quit_button, x=0.7, y=0.3, width=250, height=50)
 
 	def to_game(self):
 		self.window.transition_to_scene('Level')
@@ -170,7 +162,7 @@ class MainMenu(Scene):
 		else:
 			self.current_planet = planet
 		self.camera.set_parent(self.current_planet)
-		self.camera.set_anchor((self.window.width//2)*0.7, (self.window.height//2)*1)
+		self.camera.set_anchor((self.window.width//3), (self.window.height//2))
 		self.camera.target_zoom = self.get_zoom_at_distance(self.current_planet.pos.length())
 
 	def get_zoom_at_distance(self, x):
