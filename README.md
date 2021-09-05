@@ -31,7 +31,7 @@ Physics
 - [X] Ship prediction
 - [X] Orbit lines
 - [X] KE and PE
-- [ ] use Cython for the integrator
+- [X] optimize physics in c++
 
 Game
 
@@ -43,3 +43,7 @@ Game
 - [X] Make functional level editor
 - [X] Allow for exporting worlds from the editor
 - [ ] Allow to add ship in editor
+
+Structure
+
+- [ ] use git submodules for the pybind11-smart_holder dependency

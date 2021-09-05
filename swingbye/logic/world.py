@@ -4,6 +4,7 @@ from swingbye.cphysics import World as CWorld
 from swingbye.cphysics import vec2
 from swingbye.globals import PLANET_PREDICTION_DT, PHYSICS_DT, SHIP_LAUNCH_SPEED
 from enum import Enum, auto
+from typing import Optional
 
 _logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ class World(CWorld):
 	def __init__(self):
 		CWorld.__init__(self)
 		self.state = WorldStates.PRE_LAUNCH
+		self.autoupdate_predictions = True
 		self.time = 0.0
 
 	# Time handling
@@ -33,14 +35,22 @@ class World(CWorld):
 		for planet in self.planets:
 			planet.pos = planet.pos  # HACK : trigger the position setter
 
-		self.update_ships_prediction()
-		self.update_planets_prediction()
+		if self.autoupdate_predictions:
+			self.update_predictions()
 
 	time = property(_get_time, _set_time)
 
-	def step(self, dt):
+	def step(self, dt, update_predictions=Optional[bool]):
+		# prevent updating if not requested
+		if update_predictions is not None:
+			old_autoupdate_predictions = self.autoupdate_predictions
+			self.autoupdate_predictions = update_predictions
+
 		CWorld.step(self, dt)
 		self.time = self.time  # HACK : trigger the time setter
+
+		# restore state
+		self.autoupdate_predictions = old_autoupdate_predictions
 
 	# Game logic
 
@@ -63,6 +73,10 @@ class World(CWorld):
 
 		self.ship.pointing = pointing
 		self.update_ships_prediction()
+
+	def update_predictions(self):
+		self.update_ships_prediction()
+		self.update_planets_prediction()
 
 	def update_ships_prediction(self):
 		for ship in self.entities:

@@ -198,10 +198,13 @@ class Level(Scene):
 		if self.game_state == GameState.RUNNING:
 			if self.world.state == WorldStates.POST_LAUNCH:
 				for i in range(self.simulation_speed):
-					self.world.step(PHYSICS_DT)
+					self.world.step(PHYSICS_DT, update_predictions=False)
 
 					if TEST_COLLISIONS:
 						self.check_collision()
+
+				# manually update the predictions to prevent updating them each simulated (but not always rendered) step
+				self.world.update_predictions()
 
 		if DEBUG_CAMERA:
 			# WARNING: lines are always late by 1 frame
