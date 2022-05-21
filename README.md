@@ -9,7 +9,7 @@ To help the player, a little graph at the bottom left of the screen shows the ev
 - Blue line : potential energy U
 - Black line : total energy E = T + U
 
-If the swing-bye manoeuvre is performed correctly, the player will see an uptick in the total energy of the ship.
+If the swing-by manoeuvre is performed correctly, the player will see an uptick in the total energy of the ship.
 
 ![graph](media/graph.png)
 
@@ -17,9 +17,9 @@ If the swing-bye manoeuvre is performed correctly, the player will see an uptick
 
 ![home](media/swingbye_home.png)
 
-[Gameplay demo video ![gameplay](media/swingbye_gameplay_ui.png)](media/swingbye_demo_gameplay.mp4)
+[Gameplay demo video ![gameplay](media/swingbye_gameplay_ui.png)](https://youtu.be/5UufhV83C3w)
 
-[Editor demo video ![editor](media/swingbye_editor_ui.png)](media/swingbye_demo_editor.mp4)
+[Editor demo video ![editor](media/swingbye_editor_ui.png)](https://youtu.be/W0BZIy1AJp0)
 
 ## Controls
 
