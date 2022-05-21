@@ -17,9 +17,9 @@ If the swing-by manoeuvre is performed correctly, the player will see an uptick 
 
 ![home](media/swingbye_home.png)
 
-[Gameplay demo video ![gameplay](media/swingbye_gameplay_ui.png)](https://youtu.be/5UufhV83C3w)
+[Gameplay demo video ![gameplay](media/swingbye_gameplay_ui.png)](https://youtu.be/W0BZIy1AJp0)
 
-[Editor demo video ![editor](media/swingbye_editor_ui.png)](https://youtu.be/W0BZIy1AJp0)
+[Editor demo video ![editor](media/swingbye_editor_ui.png)](https://youtu.be/5UufhV83C3w)
 
 ## Controls
 
